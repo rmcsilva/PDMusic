@@ -1,0 +1,148 @@
+@font-face {
+    font-family: 'Roboto Medium';
+    src: url('../fonts/Roboto-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('../fonts/Roboto-Regular.ttf');
+}
+
+.root {
+    -primary-color: #c62828;
+    -primary-dark-color: #8e0000;
+    -primary-light-color: #ff5f52;
+    -secondary-color: #222F3E;
+    -fx-background: -secondary-color;
+}
+
+.separator *.line {
+    -fx-border-style: solid;
+    -fx-border-width: 4px;
+
+}
+
+.text {
+    -fx-font-family: "Roboto";
+    -fx-fill: white;
+    -fx-text-fill: white;
+}
+
+.form .jfx-button {
+    -jfx-button-type: RAISED;
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-font-family: "Roboto Medium"
+}
+
+.jfx-button {
+    -jfx-button-type: RAISED;
+    -fx-background-color: -primary-dark-color;
+    -fx-text-fill: white;
+    -fx-font-family: "Roboto Medium"
+}
+
+.jfx-button .jfx-rippler {
+    -jfx-rippler-fill: -primary-light-color;
+}
+
+.jfx-text-field, .jfx-password-field {
+    -fx-prompt-text-fill: white;
+    -fx-text-inner-color: white;
+    -fx-text-size: 24;
+    -jfx-focus-color: -primary-dark-color;
+    -jfx-unfocus-color: -primary-color;
+}
+
+/* Styling icons */
+.icons-color {
+    -fx-fill: -primary-color;
+    -text-color: white
+}
+
+/* Styling table view */
+.tree-table-view {
+    -fx-tree-table-color: -primary-dark-color;
+    -fx-tree-table-rippler-color: rgba(255, 0, 0, 0.9);
+}
+
+.tree-table-view:focused .tree-table-row-cell:selected {
+    -fx-background-color: -fx-tree-table-color;
+    -fx-table-cell-border-color: -fx-tree-table-color;
+}
+
+.tree-table-view:focused .tree-table-row-cell:selected .tree-table-cell {
+    -fx-text-fill: white;
+}
+
+.tree-table-view .jfx-rippler {
+    -fx-rippler-fill: -fx-tree-table-rippler-color;
+}
+
+.tree-table-view .column-header,
+.tree-table-view .column-header-background,
+.tree-table-view .column-header-background .filler {
+    -fx-background-color: TRANSPARENT;
+}
+
+.tree-table-view .column-header .label {
+    -fx-text-fill: -primary-color;
+    -fx-padding: 16 0 16 0;
+}
+
+.tree-table-view .column-header .arrow, .tree-table-view .column-header .sort-order-dot {
+    -fx-background-color: -primary-dark-color;
+}
+
+.tree-table-view .column-header-background {
+    -fx-border-width: 0 0.0 1 0;
+    -fx-border-color: #F3F3F3;
+}
+
+.tree-table-view .tree-table-cell {
+    -fx-border-width: 0 0 0 0;
+    -fx-padding: 16 0 16 0;
+}
+
+.tree-table-view .column-overlay {
+    -fx-background-color: -fx-tree-table-color;
+}
+
+.tree-table-view .column-resize-line, .tree-table-view .column-drag-header {
+    -fx-background-color: -fx-tree-table-rippler-color;
+}
+
+.tree-table-row-cell > .tree-disclosure-node > .arrow {
+    -fx-background-color: -fx-text-fill;
+    -fx-padding: 0.333333em 0.229em 0.333333em 0.229em; /* 4 */
+    -fx-shape: "M 0 -3.5 L 4 0 L 0 3.5 z";
+}
+
+.table-column {
+    -fx-alignment: CENTER;
+}
+
+/* Styling tabs */
+/* Tab Css */
+.jfx-tab-pane .tab-header-area .control-buttons-tab .tab-down-button {
+    -fx-background-color: -secondary-color;
+}
+
+.jfx-tab-pane .tab-header-area .tab-selected-line {
+    -fx-background-color: -primary-color;
+    -fx-pref-height: 3;
+}
+
+.jfx-tab-pane .tab-header-area .jfx-rippler {
+    -jfx-rippler-fill: -primary-color;
+}
+
+.tab {
+    -fx-background-color: -secondary-color;
+    -fx-pref-height: 50;
+    -fx-padding: 20;
+}
+
+.tab-header-background {
+    -fx-background-color: -secondary-color;
+}

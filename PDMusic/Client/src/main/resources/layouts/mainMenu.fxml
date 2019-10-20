@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXTabPane?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1024.0"
+           prefWidth="1440.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/8.0.171"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.MainController">
+    <children>
+        <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <top>
+                <VBox BorderPane.alignment="CENTER">
+                    <children>
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <ImageView fitHeight="100.0" fitWidth="514.0" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../images/PDMusicFullLogo.png"/>
+                                    </image>
+                                    <HBox.margin>
+                                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+                                    </HBox.margin>
+                                </ImageView>
+                                <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS"/>
+                                <FontAwesomeIconView glyphName="BELL" size="96" styleClass="icons-color">
+                                    <HBox.margin>
+                                        <Insets bottom="24.0" left="24.0" right="12.0" top="24.0"/>
+                                    </HBox.margin>
+                                </FontAwesomeIconView>
+                                <FontAwesomeIconView glyphName="SIGN_OUT" onMouseClicked="#Test" size="96"
+                                                     styleClass="icons-color">
+                                    <HBox.margin>
+                                        <Insets bottom="24.0" left="12.0" right="24.0" top="24.0"/>
+                                    </HBox.margin>
+                                </FontAwesomeIconView>
+                            </children>
+                        </HBox>
+                        <Separator/>
+                    </children>
+                </VBox>
+            </top>
+            <center>
+                <JFXTabPane side="LEFT" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+                    <tabs>
+                        <Tab fx:id="musicsTab" text="Musics">
+                            <content>
+                                <fx:include fx:id="musics" source="musicsTab/musicMenu.fxml"/>
+                            </content>
+                        </Tab>
+                        <Tab fx:id="playlistsTab" text="Playlists">
+                            <content>
+                                <fx:include fx:id="playlists" source="playlistsTab/playlistMenu.fxml"/>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </JFXTabPane>
+            </center>
+        </BorderPane>
+    </children>
+</StackPane>

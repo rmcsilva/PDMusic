@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXTreeTableView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="sample.controllers.MusicsController">
+    <Separator orientation="VERTICAL" HBox.hgrow="ALWAYS"/>
+    <BorderPane HBox.hgrow="ALWAYS">
+        <top>
+            <JFXTextField promptText="Search Music" BorderPane.alignment="CENTER">
+                <BorderPane.margin>
+                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                </BorderPane.margin>
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </JFXTextField>
+        </top>
+        <bottom>
+            <VBox BorderPane.alignment="CENTER_RIGHT">
+                <children>
+                    <Separator VBox.vgrow="ALWAYS"/>
+                    <HBox>
+                        <children>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0"
+                                       text="Cancel">
+                                <font>
+                                    <Font name="Roboto Medium" size="14.0"/>
+                                </font>
+                                <HBox.margin>
+                                    <Insets bottom="24.0" left="12.0" right="12.0" top="12.0"/>
+                                </HBox.margin>
+                            </JFXButton>
+                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0"
+                                       text="Select">
+                                <font>
+                                    <Font name="Roboto Medium" size="14.0"/>
+                                </font>
+                                <HBox.margin>
+                                    <Insets bottom="24.0" left="12.0" right="12.0" top="12.0"/>
+                                </HBox.margin>
+                            </JFXButton>
+                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0"
+                                       text="Play">
+                                <font>
+                                    <Font name="Roboto Medium" size="14.0"/>
+                                </font>
+                                <HBox.margin>
+                                    <Insets bottom="24.0" left="12.0" right="24.0" top="12.0"/>
+                                </HBox.margin>
+                            </JFXButton>
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+        </bottom>
+        <center>
+            <JFXTreeTableView BorderPane.alignment="CENTER">
+                <BorderPane.margin>
+                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                </BorderPane.margin>
+            </JFXTreeTableView>
+        </center>
+    </BorderPane>
+</HBox>
