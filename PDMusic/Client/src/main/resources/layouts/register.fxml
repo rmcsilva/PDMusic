@@ -104,8 +104,8 @@
                         </VBox>
                     </children>
                 </HBox>
-                <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="300.0"
-                           text="Register">
+                <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#confirmRegistration" prefHeight="48.0"
+                           prefWidth="300.0" text="Register">
                     <VBox.margin>
                         <Insets bottom="12.0" left="280.0" top="12.0"/>
                     </VBox.margin>
@@ -113,7 +113,8 @@
                         <Font name="Roboto Medium" size="14.0"/>
                     </font>
                 </JFXButton>
-                <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Cancel Registration">
+                <Text fill="WHITE" onMouseClicked="#cancelRegistration" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Cancel Registration">
                     <font>
                         <Font name="Roboto Medium" size="16.0"/>
                     </font>

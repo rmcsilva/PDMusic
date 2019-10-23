@@ -77,12 +77,18 @@ public class MainController implements Initializable {
         }
     }
 
-    public void goToPlaylistsMenu() {
-        playlistsTab.setContent(screenController.getPane(ScreenController.Screen.PLAYLISTS));
+    public void changeMusicsTab(ScreenController.Screen screen) {
+        musicsTab.setContent(screenController.getPane(screen));
+    }
+
+    public void changePlaylistsTab(ScreenController.Screen screen) {
+        playlistsTab.setContent(screenController.getPane(screen));
     }
 
     @FXML
     public void logout(MouseEvent mouseEvent) throws IOException {
+        //TODO: Send logout request
+        screenController.activate(ScreenController.Screen.LOGIN);
     }
 
     private void configureTabPane() {

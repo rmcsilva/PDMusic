@@ -22,8 +22,8 @@
                     <HBox>
                         <children>
                             <Region HBox.hgrow="ALWAYS"/>
-                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0"
-                                       text="Cancel">
+                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#cancelMusicChanges"
+                                       prefHeight="48.0" prefWidth="192.0" text="Cancel">
                                 <font>
                                     <Font name="Roboto Medium" size="14.0"/>
                                 </font>
@@ -31,8 +31,8 @@
                                     <Insets bottom="24.0" left="24.0" right="12.0" top="12.0"/>
                                 </HBox.margin>
                             </JFXButton>
-                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0"
-                                       text="Save">
+                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#saveMusic" prefHeight="48.0"
+                                       prefWidth="192.0" text="Save">
                                 <font>
                                     <Font name="Roboto Medium" size="14.0"/>
                                 </font>

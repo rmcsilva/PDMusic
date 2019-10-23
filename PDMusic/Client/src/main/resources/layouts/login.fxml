@@ -86,7 +86,8 @@
                         </VBox>
                     </children>
                 </HBox>
-                <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="290.0" text="Login">
+                <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#login" prefHeight="48.0"
+                           prefWidth="290.0" text="Login">
                     <VBox.margin>
                         <Insets bottom="12.0" left="270.0" top="12.0"/>
                     </VBox.margin>
@@ -94,7 +95,8 @@
                         <Font name="Roboto Medium" size="14.0"/>
                     </font>
                 </JFXButton>
-                <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Create a new PDMusic Account">
+                <Text fill="WHITE" onMouseClicked="#register" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Create a new PDMusic Account">
                     <font>
                         <Font name="Roboto Medium" size="16.0"/>
                     </font>

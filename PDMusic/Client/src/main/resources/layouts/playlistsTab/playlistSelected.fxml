@@ -76,8 +76,8 @@
                                     <Insets bottom="24.0" left="12.0" right="12.0" top="12.0"/>
                                 </HBox.margin>
                             </JFXButton>
-                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0"
-                                       text="Add">
+                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#addMusicToPlaylist"
+                                       prefHeight="48.0" prefWidth="192.0" text="Add">
                                 <font>
                                     <Font name="Roboto Medium" size="14.0"/>
                                 </font>
