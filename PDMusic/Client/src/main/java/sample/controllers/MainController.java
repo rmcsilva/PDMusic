@@ -44,7 +44,37 @@ public class MainController implements Initializable {
         musicsController.setMainController(this);
         playlistsController.setMainController(this);
 
+        setupScreenController();
         configureTabPane();
+    }
+
+    private void setupScreenController() {
+        screenController.addScreen(ScreenController.Screen.MUSICS, (Pane) musicsTab.getContent());
+        screenController.addScreen(ScreenController.Screen.PLAYLISTS, (Pane) playlistsTab.getContent());
+
+        try {
+            //Add Music Menu Layout
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/musicsTab/addMusicMenu.fxml"));
+            screenController.addScreen(ScreenController.Screen.ADD_MUSIC, fxmlLoader.load());
+            ((AddMusicController) fxmlLoader.getController()).setMainController(this);
+
+            //Playlist Selected Layout
+            fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/playlistsTab/playlistSelected.fxml"));
+            screenController.addScreen(ScreenController.Screen.PLAYLIST_SELECTED, fxmlLoader.load());
+            ((PlaylistSelectedController) fxmlLoader.getController()).setMainController(this);
+
+            //Add Playlist Layout
+            fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/playlistsTab/addPlaylistMenu.fxml"));
+            screenController.addScreen(ScreenController.Screen.ADD_PLAYLIST, fxmlLoader.load());
+            ((AddPlaylistController) fxmlLoader.getController()).setMainController(this);
+
+            //Select Musics Layout
+            fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/playlistsTab/selectMusics.fxml"));
+            screenController.addScreen(ScreenController.Screen.SELECT_MUSICS, fxmlLoader.load());
+            ((SelectMusicsController) fxmlLoader.getController()).setMainController(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void goToPlaylistsMenu() {
