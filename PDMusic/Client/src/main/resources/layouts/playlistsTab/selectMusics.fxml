@@ -11,8 +11,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<HBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="sample.controllers.MusicsController">
+<HBox fx:controller="sample.controllers.tabs.playlistsTab.SelectMusicsController"
+      xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
     <Separator orientation="VERTICAL" HBox.hgrow="ALWAYS"/>
     <BorderPane HBox.hgrow="ALWAYS">
         <top>

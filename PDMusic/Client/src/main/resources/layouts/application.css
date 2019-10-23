@@ -139,8 +139,7 @@
 
 .tab {
     -fx-background-color: -secondary-color;
-    -fx-pref-height: 50;
-    -fx-padding: 20;
+    -fx-padding: 1.5em 0.5em 1.5em 0.5em;
 }
 
 .tab-header-background {

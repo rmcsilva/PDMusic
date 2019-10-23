@@ -37,7 +37,7 @@
                                         <Insets bottom="24.0" left="24.0" right="12.0" top="24.0"/>
                                     </HBox.margin>
                                 </FontAwesomeIconView>
-                                <FontAwesomeIconView glyphName="SIGN_OUT" onMouseClicked="#Test" size="96"
+                                <FontAwesomeIconView glyphName="SIGN_OUT" onMouseClicked="#logout" size="96"
                                                      styleClass="icons-color">
                                     <HBox.margin>
                                         <Insets bottom="24.0" left="12.0" right="24.0" top="24.0"/>
@@ -50,7 +50,8 @@
                 </VBox>
             </top>
             <center>
-                <JFXTabPane side="LEFT" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+                <JFXTabPane fx:id="tabContainer" side="LEFT" tabClosingPolicy="UNAVAILABLE"
+                            BorderPane.alignment="CENTER">
                     <tabs>
                         <Tab fx:id="musicsTab" text="Musics">
                             <content>
