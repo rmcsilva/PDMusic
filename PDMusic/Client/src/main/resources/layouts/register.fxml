@@ -82,19 +82,19 @@
                         </VBox>
                         <VBox alignment="CENTER">
                             <children>
-                                <JFXTextField alignment="CENTER" prefColumnCount="24">
+                                <JFXTextField alignment="CENTER">
                                     <VBox.margin>
-                                        <Insets bottom="32.0" left="12.0" right="12.0" top="12.0"/>
+                                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
                                     </VBox.margin>
                                 </JFXTextField>
-                                <JFXTextField alignment="CENTER" prefColumnCount="24">
+                                <JFXTextField alignment="CENTER">
                                     <VBox.margin>
-                                        <Insets bottom="32.0" left="12.0" right="12.0" top="12.0"/>
+                                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
                                     </VBox.margin>
                                 </JFXTextField>
-                                <JFXTextField alignment="CENTER" prefColumnCount="24">
+                                <JFXTextField alignment="CENTER">
                                     <VBox.margin>
-                                        <Insets left="12.0" right="12.0" top="12.0"/>
+                                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
                                     </VBox.margin>
                                 </JFXTextField>
                             </children>
@@ -105,7 +105,7 @@
                     </children>
                 </HBox>
                 <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#confirmRegistration" prefHeight="48.0"
-                           prefWidth="300.0" text="Register">
+                           prefWidth="304.0" text="Register">
                     <VBox.margin>
                         <Insets bottom="12.0" left="280.0" top="12.0"/>
                     </VBox.margin>

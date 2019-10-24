@@ -52,58 +52,37 @@
                         <children>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Name">
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="24.0"/>
+                                    <Insets bottom="12.0" left="24.0" right="12.0" top="24.0"/>
                                 </VBox.margin>
-                                <font>
-                                    <Font size="24.0"/>
-                                </font>
                             </Text>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Autor">
-                                <font>
-                                    <Font size="24.0"/>
-                                </font>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="12.0" left="24.0" right="12.0" top="12.0"/>
                                 </VBox.margin>
                             </Text>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Album">
-                                <font>
-                                    <Font size="24.0"/>
-                                </font>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="12.0" left="24.0" right="12.0" top="12.0"/>
                                 </VBox.margin>
                             </Text>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Year">
-                                <font>
-                                    <Font size="24.0"/>
-                                </font>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="12.0" left="24.0" right="12.0" top="12.0"/>
                                 </VBox.margin>
                             </Text>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Duration">
-                                <font>
-                                    <Font size="24.0"/>
-                                </font>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="12.0" left="24.0" right="12.0" top="12.0"/>
                                 </VBox.margin>
                             </Text>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Gender">
-                                <font>
-                                    <Font size="24.0"/>
-                                </font>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="12.0" left="24.0" right="12.0" top="12.0"/>
                                 </VBox.margin>
                             </Text>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Music File">
-                                <font>
-                                    <Font size="24.0"/>
-                                </font>
                                 <VBox.margin>
-                                    <Insets bottom="24.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="24.0" left="24.0" right="12.0" top="12.0"/>
                                 </VBox.margin>
                             </Text>
                         </children>
@@ -112,37 +91,37 @@
                         <children>
                             <JFXTextField>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="24.0"/>
+                                    <Insets bottom="8.0" left="12.0" right="24.0" top="24.0"/>
                                 </VBox.margin>
                             </JFXTextField>
                             <JFXTextField>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="8.0" left="12.0" right="24.0" top="8.0"/>
                                 </VBox.margin>
                             </JFXTextField>
                             <JFXTextField>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="8.0" left="12.0" right="24.0" top="8.0"/>
                                 </VBox.margin>
                             </JFXTextField>
                             <JFXTextField>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="8.0" left="12.0" right="24.0" top="8.0"/>
                                 </VBox.margin>
                             </JFXTextField>
                             <JFXTextField>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="8.0" left="12.0" right="24.0" top="8.0"/>
                                 </VBox.margin>
                             </JFXTextField>
                             <JFXTextField>
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
+                                    <Insets bottom="24.0" left="12.0" right="24.0" top="8.0"/>
                                 </VBox.margin>
                             </JFXTextField>
-                            <JFXButton prefHeight="36.0" prefWidth="144.0" text="Select Music">
+                            <JFXButton prefHeight="36.0" prefWidth="304.0" text="Select Music">
                                 <VBox.margin>
-                                    <Insets bottom="24.0" left="24.0" right="24.0" top="20.0"/>
+                                    <Insets bottom="32.0" left="12.0" right="24.0" top="8.0"/>
                                 </VBox.margin>
                             </JFXButton>
                         </children>

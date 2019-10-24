@@ -52,7 +52,7 @@
                         <children>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Playlist Name">
                                 <VBox.margin>
-                                    <Insets bottom="12.0" left="24.0" right="24.0" top="24.0"/>
+                                    <Insets bottom="24.0" left="24.0" right="12.0" top="24.0"/>
                                 </VBox.margin>
                                 <font>
                                     <Font size="24.0"/>
@@ -64,7 +64,7 @@
                         <children>
                             <JFXTextField>
                                 <VBox.margin>
-                                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+                                    <Insets bottom="24.0" left="12.0" right="24.0" top="24.0"/>
                                 </VBox.margin>
                             </JFXTextField>
                         </children>

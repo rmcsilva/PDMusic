@@ -19,7 +19,6 @@
 .separator *.line {
     -fx-border-style: solid;
     -fx-border-width: 4px;
-
 }
 
 .text {
@@ -28,9 +27,20 @@
     -fx-text-fill: white;
 }
 
+.form {
+    -fx-font-size: 24;
+    -fx-text-alignment: CENTER;
+}
+
+.form .jfx-text-field{
+    -fx-min-height: 36;
+    -fx-max-height: 36;
+}
+
 .form .jfx-button {
     -jfx-button-type: RAISED;
     -fx-background-color: -primary-color;
+    -fx-font-size: 16;
     -fx-text-fill: white;
     -fx-font-family: "Roboto Medium"
 }
@@ -39,6 +49,7 @@
     -jfx-button-type: RAISED;
     -fx-background-color: -primary-dark-color;
     -fx-text-fill: white;
+    -fx-font-size: 18;
     -fx-font-family: "Roboto Medium"
 }
 
@@ -49,7 +60,9 @@
 .jfx-text-field, .jfx-password-field {
     -fx-prompt-text-fill: white;
     -fx-text-inner-color: white;
-    -fx-text-size: 24;
+    -fx-alignment: CENTER;
+    -fx-font-size: 22;
+    -fx-pref-column-count: 15;
     -jfx-focus-color: -primary-dark-color;
     -jfx-unfocus-color: -primary-color;
 }

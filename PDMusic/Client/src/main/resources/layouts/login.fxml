@@ -69,14 +69,14 @@
                         </VBox>
                         <VBox alignment="CENTER">
                             <children>
-                                <JFXTextField alignment="CENTER" prefColumnCount="24">
+                                <JFXTextField alignment="CENTER">
                                     <VBox.margin>
-                                        <Insets bottom="32.0" left="12.0" right="12.0" top="12.0"/>
+                                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
                                     </VBox.margin>
                                 </JFXTextField>
-                                <JFXPasswordField alignment="CENTER" prefColumnCount="24">
+                                <JFXPasswordField alignment="CENTER">
                                     <VBox.margin>
-                                        <Insets left="12.0" right="12.0" top="12.0"/>
+                                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
                                     </VBox.margin>
                                 </JFXPasswordField>
                             </children>
@@ -87,7 +87,7 @@
                     </children>
                 </HBox>
                 <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#login" prefHeight="48.0"
-                           prefWidth="290.0" text="Login">
+                           prefWidth="304.0" text="Login">
                     <VBox.margin>
                         <Insets bottom="12.0" left="270.0" top="12.0"/>
                     </VBox.margin>
