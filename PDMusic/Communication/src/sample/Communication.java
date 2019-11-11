@@ -8,14 +8,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.List;
 
 public class Communication {
     private String ip = "127.0.0.1";
     private int port = 8080;
     private Socket socket;
 
-    public void geraJSON(JSONObject options) throws IOException{
+    public void GenerateJSON(JSONObject options) throws IOException{
         String jsonString = null;
         try {
             jsonString = options.toString();
@@ -32,7 +31,8 @@ public class Communication {
             System.out.println("Error: " + io.getMessage());
         }
     }
-    public void leJSON(){
+
+    public void ReadJSONFromServer(){
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream());

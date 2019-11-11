@@ -20,8 +20,8 @@ public class AddPlaylistController extends TabCommunication {
         options.put("genre", gen);
 
         try {
-            geraJSON(options);
-            leJSON();
+            GenerateJSON(options);
+            ReadJSONFromServer();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -62,9 +62,9 @@ public class LoginController extends Communication implements Initializable {
                 options.put("username", username);
                 options.put("password", password);
                 //Envia pedido
-                geraJSON(options);
+                GenerateJSON(options);
                 //Recebe resposta
-                leJSON();
+                ReadJSONFromServer();
             } catch (IOException e) {
                 e.printStackTrace();
             }

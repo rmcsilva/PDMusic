@@ -25,8 +25,8 @@ public class AddMusicController extends TabCommunication {
         options.put("year", year);
 
         try {
-            geraJSON(options);
-            leJSON();
+            GenerateJSON(options);
+            ReadJSONFromServer();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -28,9 +28,9 @@ public class RegisterController extends Communication {
         options.put("password", password);
         //Envia pedido
         try {
-            geraJSON(options);
+            GenerateJSON(options);
             //Recebe resposta
-            leJSON();
+            ReadJSONFromServer();
         }catch (IOException e){
             e.printStackTrace();
         }

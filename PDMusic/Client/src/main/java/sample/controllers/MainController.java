@@ -105,8 +105,8 @@ public class MainController extends Communication implements Initializable {
         JSONObject options = new JSONObject();
         options.put("tipo" , "logout");
         options.put("username", username);
-        geraJSON(options);
-        leJSON();
+        GenerateJSON(options);
+        ReadJSONFromServer();
 
         screenController.activate(ScreenController.Screen.LOGIN);
     }
