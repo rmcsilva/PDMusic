@@ -3,8 +3,14 @@ package sample.controllers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;
+import org.json.JSONObject;
+import sample.Communication;
 
-public class RegisterController {
+import java.io.IOException;
+
+public class RegisterController extends Communication {
+
+    private String username = "PDMUSIC1", password = "123456", name = "Richard Mille";
     LoginController loginController;
 
     public void setLoginController(LoginController loginController) { this.loginController = loginController; }
@@ -14,6 +20,20 @@ public class RegisterController {
     @FXML
     void confirmRegistration(ActionEvent event) {
         //TODO: Send data back to login
+        //Adiciona os dados do user ao JSON para enviar para o servidor
+        JSONObject options = new JSONObject();
+        options.put("tipo" , "register");
+        options.put("name", name);
+        options.put("username", username);
+        options.put("password", password);
+        //Envia pedido
+        try {
+            geraJSON(options);
+            //Recebe resposta
+            leJSON();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
         goToLogin();
     }
 

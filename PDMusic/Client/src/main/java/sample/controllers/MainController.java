@@ -10,17 +10,30 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
-import sample.controllers.tabs.musicsTab.*;
-import sample.controllers.tabs.playlistsTab.*;
+import org.json.JSONObject;
+import sample.Communication;
+import sample.controllers.tabs.musicsTab.AddMusicController;
+import sample.controllers.tabs.musicsTab.MusicsController;
+import sample.controllers.tabs.playlistsTab.AddPlaylistController;
+import sample.controllers.tabs.playlistsTab.PlaylistSelectedController;
+import sample.controllers.tabs.playlistsTab.PlaylistsController;
+import sample.controllers.tabs.playlistsTab.SelectMusicsController;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
-public class MainController implements Initializable {
-    boolean cenas = false;
+public class MainController extends Communication implements Initializable {
+    private static Socket socket = null;
+    private String username = "PDMUSIC1";
+    private String ip = "127.0.0.1";
+    private int port = 8080;
 
     @FXML
     public JFXTabPane tabContainer;
@@ -88,6 +101,13 @@ public class MainController implements Initializable {
     @FXML
     public void logout(MouseEvent mouseEvent) throws IOException {
         //TODO: Send logout request
+
+        JSONObject options = new JSONObject();
+        options.put("tipo" , "logout");
+        options.put("username", username);
+        geraJSON(options);
+        leJSON();
+
         screenController.activate(ScreenController.Screen.LOGIN);
     }
 

@@ -1,20 +1,34 @@
 package sample.controllers;
 
+import com.sun.istack.internal.localization.NullLocalizable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
+import sample.Communication;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
-public class LoginController implements Initializable {
+public class LoginController extends Communication implements Initializable {
 
     private RegisterController registerController = null;
     private MainController mainController = null;
     private ScreenController screenController;
+
+    //Isto é para remover
+    private String username = "PDMUSIC1";
+    private String password = "123456";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -41,6 +55,16 @@ public class LoginController implements Initializable {
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/mainMenu.fxml"));
                 screenController.addScreen(ScreenController.Screen.MAIN, fxmlLoader.load());
                 mainController = fxmlLoader.getController();
+
+                //Adiciona os dados do user ao JSON para enviar para o servidor
+                JSONObject options = new JSONObject();
+                options.put("tipo" , "login");
+                options.put("username", username);
+                options.put("password", password);
+                //Envia pedido
+                geraJSON(options);
+                //Recebe resposta
+                leJSON();
             } catch (IOException e) {
                 e.printStackTrace();
             }
