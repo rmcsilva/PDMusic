@@ -5,7 +5,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import sample.controllers.LoginController;
 import sample.controllers.ScreenController;
+
+import java.io.IOException;
+
+import static sample.controllers.LayoutsConstants.LAYOUT_LOGIN;
 
 public class ClientMain extends Application {
 
@@ -13,7 +18,12 @@ public class ClientMain extends Application {
     public void start(Stage primaryStage) throws Exception{
         ScreenController screenController = ScreenController.getInstance();
 
-        screenController.addScreen(ScreenController.Screen.LOGIN, FXMLLoader.load(getClass().getResource("/layouts/login.fxml")));
+        String serversDirectoryIP = getParameters().getRaw().get(0);
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_LOGIN));
+        screenController.addScreen(ScreenController.Screen.LOGIN, fxmlLoader.load());
+        LoginController loginController = fxmlLoader.getController();
+        loginController.setServersDirectoryIP(serversDirectoryIP);
 
         Parent root = screenController.getPane(ScreenController.Screen.LOGIN);
         Scene scene = new Scene(root);
@@ -24,7 +34,12 @@ public class ClientMain extends Application {
         primaryStage.show();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        if (args.length != 1) {
+            System.out.println("Sintaxe: java Client <ServersDirectoryIP>");
+            return;
+        }
+
         launch(args);
     }
 }
