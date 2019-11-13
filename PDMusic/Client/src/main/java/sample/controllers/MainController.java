@@ -13,8 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
-import org.json.JSONObject;
-import sample.Communication;
+import sample.controllers.communication.CommunicationHandler;
 import sample.controllers.tabs.musicsTab.AddMusicController;
 import sample.controllers.tabs.musicsTab.MusicsController;
 import sample.controllers.tabs.playlistsTab.AddPlaylistController;
@@ -23,18 +22,10 @@ import sample.controllers.tabs.playlistsTab.PlaylistsController;
 import sample.controllers.tabs.playlistsTab.SelectMusicsController;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
-public class MainController extends Communication implements Initializable {
-    private static Socket socket = null;
-    private String username = "PDMUSIC1";
-    private String ip = "127.0.0.1";
-    private int port = 8080;
-
+public class MainController implements Initializable, LayoutsConstants {
     @FXML
     public JFXTabPane tabContainer;
 
@@ -50,6 +41,8 @@ public class MainController extends Communication implements Initializable {
 
     private ScreenController screenController;
 
+    private CommunicationHandler communicationHandler;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         screenController = ScreenController.getInstance();
@@ -61,28 +54,36 @@ public class MainController extends Communication implements Initializable {
         configureTabPane();
     }
 
+    public void setCommunicationHandler(CommunicationHandler communicationHandler) {
+        this.communicationHandler = communicationHandler;
+    }
+
+    public CommunicationHandler getCommunicationHandler() {
+        return communicationHandler;
+    }
+
     private void setupScreenController() {
         screenController.addScreen(ScreenController.Screen.MUSICS, (Pane) musicsTab.getContent());
         screenController.addScreen(ScreenController.Screen.PLAYLISTS, (Pane) playlistsTab.getContent());
 
         try {
             //Add Music Menu Layout
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/musicsTab/addMusicMenu.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_ADD_MUSIC));
             screenController.addScreen(ScreenController.Screen.ADD_MUSIC, fxmlLoader.load());
             ((AddMusicController) fxmlLoader.getController()).setMainController(this);
 
             //Playlist Selected Layout
-            fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/playlistsTab/playlistSelected.fxml"));
+            fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_PLAYLIST_SELECTED));
             screenController.addScreen(ScreenController.Screen.PLAYLIST_SELECTED, fxmlLoader.load());
             ((PlaylistSelectedController) fxmlLoader.getController()).setMainController(this);
 
             //Add Playlist Layout
-            fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/playlistsTab/addPlaylistMenu.fxml"));
+            fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_ADD_PLAYLIST));
             screenController.addScreen(ScreenController.Screen.ADD_PLAYLIST, fxmlLoader.load());
             ((AddPlaylistController) fxmlLoader.getController()).setMainController(this);
 
             //Select Musics Layout
-            fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/playlistsTab/selectMusics.fxml"));
+            fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_SELECT_MUSICS));
             screenController.addScreen(ScreenController.Screen.SELECT_MUSICS, fxmlLoader.load());
             ((SelectMusicsController) fxmlLoader.getController()).setMainController(this);
         } catch (IOException e) {
@@ -100,13 +101,6 @@ public class MainController extends Communication implements Initializable {
 
     @FXML
     public void logout(MouseEvent mouseEvent) throws IOException {
-        //TODO: Send logout request
-
-        JSONObject options = new JSONObject();
-        options.put("tipo" , "logout");
-        options.put("username", username);
-        GenerateJSON(options);
-        ReadJSONFromServer();
 
         screenController.activate(ScreenController.Screen.LOGIN);
     }
@@ -120,20 +114,18 @@ public class MainController extends Communication implements Initializable {
             tabContainer.setTabMaxWidth((newValue.doubleValue() / 2) - 20);
         });
 
-        configureTab(musicsTab, "Musics", FontAwesomeIcon.MUSIC);
-        configureTab(playlistsTab, "Playlists", FontAwesomeIcon.LIST_UL);
+        configureTab(musicsTab, TAB_MUSICS, FontAwesomeIcon.MUSIC);
+        configureTab(playlistsTab, TAB_PLAYLISTS, FontAwesomeIcon.LIST_UL);
     }
 
     private void configureTab(Tab tab, String title, FontAwesomeIcon icon) {
-        double iconSize = 144.0;
-
         FontAwesomeIconView iconView = new FontAwesomeIconView(icon);
-        iconView.setGlyphSize(iconSize);
+        iconView.setGlyphSize(tabIconSize);
         iconView.setStyleClass("icons-color");
 
         Label label = new Label(title);
         label.setPadding(new Insets(12, 0, 0, 24));
-        label.setStyle("-fx-font-size: 18pt;");
+        label.setStyle("-fx-font-size: " + tabFontSize + "pt;");
         label.setTextAlignment(TextAlignment.CENTER);
 
         BorderPane tabPane = new BorderPane();

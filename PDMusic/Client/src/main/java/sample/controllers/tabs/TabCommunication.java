@@ -1,9 +1,8 @@
 package sample.controllers.tabs;
 
-import sample.Communication;
 import sample.controllers.MainController;
 
-public class TabCommunication extends Communication {
+public class TabCommunication {
 
     private MainController mainController = null;
 

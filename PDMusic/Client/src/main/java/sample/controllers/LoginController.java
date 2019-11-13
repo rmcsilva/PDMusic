@@ -1,34 +1,28 @@
 package sample.controllers;
 
-import com.sun.istack.internal.localization.NullLocalizable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
-import org.json.JSONException;
-import org.json.JSONObject;
-import sample.Communication;
+import sample.controllers.communication.CommunicationHandler;
+import sample.exceptions.CountExceededException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
-public class LoginController extends Communication implements Initializable {
+import static sample.controllers.LayoutsConstants.LAYOUT_MAIN_MENU;
+import static sample.controllers.LayoutsConstants.LAYOUT_REGISTER;
+
+public class LoginController implements Initializable {
 
     private RegisterController registerController = null;
     private MainController mainController = null;
     private ScreenController screenController;
 
-    //Isto é para remover
-    private String username = "PDMUSIC1";
-    private String password = "123456";
+    private String serversDirectoryIP;
+    private CommunicationHandler communicationHandler = null;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -36,7 +30,7 @@ public class LoginController extends Communication implements Initializable {
 
         //Add Register Screen
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/register.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_REGISTER));
             screenController.addScreen(ScreenController.Screen.REGISTER, fxmlLoader.load());
             registerController = fxmlLoader.getController();
             registerController.setLoginController(this);
@@ -45,37 +39,47 @@ public class LoginController extends Communication implements Initializable {
         }
     }
 
+    protected CommunicationHandler getCommunicationHandler() {
+        return communicationHandler;
+    }
+
+    public void setServersDirectoryIP(String serversDirectoryIP) {
+        this.serversDirectoryIP = serversDirectoryIP;
+    }
+
+    public void startCommunicationHandler() throws IOException, CountExceededException {
+        //TODO: Catch exceptions and show alerts based on them
+        if (communicationHandler == null || !communicationHandler.isRunning()) {
+            communicationHandler = new CommunicationHandler(serversDirectoryIP);
+            communicationHandler.start();
+        }
+    }
+
     @FXML
-    void login(ActionEvent event) {
-        //TODO: Send login request
+    void login(ActionEvent event) throws IOException, CountExceededException {
+
+        startCommunicationHandler();
 
         if (mainController == null) {
             //Add Main Menu Layout
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/layouts/mainMenu.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_MAIN_MENU));
                 screenController.addScreen(ScreenController.Screen.MAIN, fxmlLoader.load());
                 mainController = fxmlLoader.getController();
-
-                //Adiciona os dados do user ao JSON para enviar para o servidor
-                JSONObject options = new JSONObject();
-                options.put("tipo" , "login");
-                options.put("username", username);
-                options.put("password", password);
-                //Envia pedido
-                GenerateJSON(options);
-                //Recebe resposta
-                ReadJSONFromServer();
+                mainController.setCommunicationHandler(communicationHandler);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+        mainController.setCommunicationHandler(communicationHandler);
 
         //TODO: Add username to mainController
         screenController.activate(ScreenController.Screen.MAIN);
     }
 
     @FXML
-    void register(MouseEvent event) {
+    void register(MouseEvent event) throws IOException, CountExceededException {
         //TODO: Add the current username to the register screen
         screenController.activate(ScreenController.Screen.REGISTER);
     }

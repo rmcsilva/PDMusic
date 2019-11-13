@@ -13,18 +13,7 @@ public class AddPlaylistController extends TabCommunication {
     @FXML
     void savePlaylist(ActionEvent event) {
         //TODO: Add playlist
-        JSONObject options = new JSONObject();
-        options.put("tipo" , "newPlaylist");
-        options.put("owner", username);
-        options.put("name", name);
-        options.put("genre", gen);
 
-        try {
-            GenerateJSON(options);
-            ReadJSONFromServer();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         goBackToPlaylistsMenu();
     }
 
