@@ -1,14 +1,21 @@
 package sample.controllers;
 
 import com.jfoenix.controls.JFXTabPane;
+import com.jfoenix.controls.JFXTreeTableColumn;
+import com.jfoenix.controls.JFXTreeTableView;
+import com.jfoenix.controls.RecursiveTreeItem;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TreeItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -20,6 +27,7 @@ import sample.controllers.tabs.playlistsTab.AddPlaylistController;
 import sample.controllers.tabs.playlistsTab.PlaylistSelectedController;
 import sample.controllers.tabs.playlistsTab.PlaylistsController;
 import sample.controllers.tabs.playlistsTab.SelectMusicsController;
+import sample.models.MusicViewModel;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,12 +50,21 @@ public class MainController implements Initializable, LayoutsConstants {
 
     private CommunicationHandler communicationHandler;
 
+    private ObservableList<MusicViewModel> musics;
+    private ObservableList<MusicViewModel> musicsInPlaylist;
+    private ObservableList<MusicViewModel> musicsNotInPlaylist;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         screenController = ScreenController.getInstance();
 
         musicsController.setMainController(this);
         playlistsController.setMainController(this);
+
+        musics = FXCollections.observableArrayList();
+        musicsInPlaylist = FXCollections.observableArrayList();
+        musicsNotInPlaylist = FXCollections.observableArrayList();
+        setupMusicsTreeTableView(musicsController.getTtvMusics(), musics);
 
         setupScreenController();
         configureTabPane();
@@ -74,7 +91,9 @@ public class MainController implements Initializable, LayoutsConstants {
             //Playlist Selected Layout
             fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_PLAYLIST_SELECTED));
             screenController.addScreen(ScreenController.Screen.PLAYLIST_SELECTED, fxmlLoader.load());
-            ((PlaylistSelectedController) fxmlLoader.getController()).setMainController(this);
+            PlaylistSelectedController playlistSelectedController = fxmlLoader.getController();
+            playlistSelectedController.setMainController(this);
+            setupMusicsTreeTableView(playlistSelectedController.getTtvMusicsInPlaylist(), musicsInPlaylist);
 
             //Add Playlist Layout
             fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_ADD_PLAYLIST));
@@ -84,10 +103,49 @@ public class MainController implements Initializable, LayoutsConstants {
             //Select Musics Layout
             fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_SELECT_MUSICS));
             screenController.addScreen(ScreenController.Screen.SELECT_MUSICS, fxmlLoader.load());
-            ((SelectMusicsController) fxmlLoader.getController()).setMainController(this);
+            SelectMusicsController selectMusicsController = fxmlLoader.getController();
+            selectMusicsController.setMainController(this);
+            setupMusicsTreeTableView(selectMusicsController.getTtvMusicsNotInPlaylist(), musicsNotInPlaylist);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setupMusicsTreeTableView(JFXTreeTableView<MusicViewModel> ttvMusics, ObservableList<MusicViewModel> musics) {
+        JFXTreeTableColumn<MusicViewModel, String> musicName = new JFXTreeTableColumn<>(COLUMN_MUSIC_NAME);
+        musicName.setCellValueFactory(param -> param.getValue().getValue().musicNameProperty());
+
+        JFXTreeTableColumn<MusicViewModel, String> author = new JFXTreeTableColumn<>(COLUMN_AUTHOR);
+        author.setCellValueFactory(param -> param.getValue().getValue().authorProperty());
+
+        JFXTreeTableColumn<MusicViewModel, String> album = new JFXTreeTableColumn<>(COLUMN_ALBUM);
+        album.setCellValueFactory(param -> param.getValue().getValue().albumProperty());
+
+        JFXTreeTableColumn<MusicViewModel, Integer> year = new JFXTreeTableColumn<>(COLUMN_YEAR);
+        year.setCellValueFactory(param -> param.getValue().getValue().yearProperty().asObject());
+
+        JFXTreeTableColumn<MusicViewModel, Integer> duration = new JFXTreeTableColumn<>(COLUMN_DURATION);
+        duration.setCellValueFactory(param -> param.getValue().getValue().durationProperty().asObject());
+
+        JFXTreeTableColumn<MusicViewModel, String> genre = new JFXTreeTableColumn<>(COLUMN_GENRE);
+        genre.setCellValueFactory(param -> param.getValue().getValue().genreProperty());
+
+        JFXTreeTableColumn<MusicViewModel, String> username = new JFXTreeTableColumn<>(COLUMN_USERNAME);
+        username.setCellValueFactory(param -> param.getValue().getValue().usernameProperty());
+
+        //Dynamic Column Width
+        musicName.prefWidthProperty().bind(ttvMusics.widthProperty().divide(NUMBER_MUSIC_COLUMNS));
+        author.prefWidthProperty().bind(ttvMusics.widthProperty().divide(NUMBER_MUSIC_COLUMNS));
+        album.prefWidthProperty().bind(ttvMusics.widthProperty().divide(NUMBER_MUSIC_COLUMNS));
+        year.prefWidthProperty().bind(ttvMusics.widthProperty().divide(NUMBER_MUSIC_COLUMNS));
+        duration.prefWidthProperty().bind(ttvMusics.widthProperty().divide(NUMBER_MUSIC_COLUMNS));
+        genre.prefWidthProperty().bind(ttvMusics.widthProperty().divide(NUMBER_MUSIC_COLUMNS));
+        username.prefWidthProperty().bind(ttvMusics.widthProperty().divide(NUMBER_MUSIC_COLUMNS));
+
+        final TreeItem<MusicViewModel> root = new RecursiveTreeItem<>(musics, RecursiveTreeObject::getChildren);
+        ttvMusics.getColumns().setAll(musicName, author, album, year, duration, genre, username);
+        ttvMusics.setRoot(root);
+        ttvMusics.setShowRoot(false);
     }
 
     public void changeMusicsTab(ScreenController.Screen screen) {

@@ -1,11 +1,20 @@
 package sample.controllers.tabs.playlistsTab;
 
+import com.jfoenix.controls.JFXTreeTableView;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import sample.controllers.ScreenController;
 import sample.controllers.tabs.TabCommunication;
+import sample.models.MusicViewModel;
 
 public class SelectMusicsController extends TabCommunication {
+
+    @FXML
+    private JFXTreeTableView<MusicViewModel> ttvMusicsNotInPlaylist;
+
+    public JFXTreeTableView<MusicViewModel> getTtvMusicsNotInPlaylist() {
+        return ttvMusicsNotInPlaylist;
+    }
 
     @FXML
     void addMusicToPlaylist(ActionEvent event) {
