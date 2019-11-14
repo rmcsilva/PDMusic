@@ -26,13 +26,12 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable, LayoutsConstants {
+
     @FXML
     public JFXTabPane tabContainer;
 
     @FXML
-    public Tab musicsTab;
-    @FXML
-    public Tab playlistsTab;
+    public Tab musicsTab, playlistsTab;
 
     @FXML
     private MusicsController musicsController;
@@ -101,6 +100,7 @@ public class MainController implements Initializable, LayoutsConstants {
 
     @FXML
     public void logout(MouseEvent mouseEvent) throws IOException {
+        communicationHandler.logout();
 
         screenController.activate(ScreenController.Screen.LOGIN);
     }
