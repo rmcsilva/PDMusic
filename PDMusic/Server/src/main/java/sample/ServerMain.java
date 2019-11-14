@@ -1,39 +1,44 @@
 package sample;
 
 //import sample.MySQLAcess;
+import org.json.JSONObject;
+import sample.communication.ClientCommunication;
+import sample.communication.ServersDirectoryCommunication;
+import sample.exceptions.CountExceededException;
+import sample.models.ServerInformation;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
+
+import static sample.JSONConstants.REQUEST;
+import static sample.ServersDirectoryInformation.*;
 
 public class ServerMain {
-    public static void main(String[] args) throws Exception {
-        int PORT = 8080;
-        ServerSocket serverSocket = null;
-        Socket socket = null;
 
-        try {
-            serverSocket = new ServerSocket(PORT);
-            System.out.println("Waiting for a connection on " + PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static void main(String[] args) throws CountExceededException, IOException {
+        System.out.println("Server main!");
 
+        if(args.length != 4){
+            System.out.println("Sintaxe: java Server <sdIP> <dbIP> <dbUsername> <dbPassword>");
+            return;
         }
+
+        ServerSocket serverSocket = new ServerSocket(0);
+
+        String serverAddress = InetAddress.getLocalHost().getHostAddress();
+        int serverPort = serverSocket.getLocalPort();
+
+        System.out.println("Server running at " + InetAddress.getLocalHost().getHostAddress() + ":" + serverSocket.getLocalPort());
+
+        ServerInformation serverInformation = new ServerInformation(serverAddress, serverPort);
+
+        ServersDirectoryCommunication serversDirectoryCommunication = new ServersDirectoryCommunication(args[0], serverInformation);
+
         while (true) {
-            try {
-                if (serverSocket != null) {
-                    socket = serverSocket.accept();
-                }
-            } catch (IOException e) {
-                System.out.println("I/O error: " + e);
-            }
-            // new thread for a client
-            if (socket != null) {
-                new echoThread(socket).start();
-            }
+            System.out.println("Connecting to client");
+            Socket socket = serverSocket.accept();
+            Thread thread = new Thread(new ClientCommunication(socket));
+            thread.start();
         }
     }
-
-
 }
-
