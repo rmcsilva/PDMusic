@@ -1,5 +1,7 @@
 package sample.controllers;
 
+import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +25,16 @@ public class LoginController implements Initializable {
 
     private String serversDirectoryIP;
     private CommunicationHandler communicationHandler = null;
+
+    @FXML
+    private JFXTextField usernameField;
+
+    @FXML
+    private JFXPasswordField passwordField;
+
+    public void setUsernameFieldText(String username) {
+        usernameField.setText(username);
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -57,6 +69,12 @@ public class LoginController implements Initializable {
 
     @FXML
     void login(ActionEvent event) throws IOException, CountExceededException {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            return;
+        }
 
         startCommunicationHandler();
 
@@ -74,8 +92,11 @@ public class LoginController implements Initializable {
 
         mainController.setCommunicationHandler(communicationHandler);
 
-        //TODO: Add username to mainController
+        passwordField.clear();
+
+        communicationHandler.login(username, password);
         screenController.activate(ScreenController.Screen.MAIN);
+
     }
 
     @FXML
