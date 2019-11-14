@@ -16,4 +16,18 @@ public interface LayoutsConstants {
     //Tab sizes
     double tabIconSize = 144.0;
     int tabFontSize = 18;
+    //Tree Table View Column Names
+    //Musics Columns
+    int NUMBER_MUSIC_COLUMNS = 7;
+    String COLUMN_MUSIC_NAME = "Name";
+    String COLUMN_AUTHOR = "Author";
+    String COLUMN_ALBUM = "Album";
+    String COLUMN_YEAR = "Year";
+    String COLUMN_DURATION = "Duration";
+    String COLUMN_GENRE = "Genre";
+    //Playlist Columns
+    int NUMBER_PLAYLIST_COLUMNS = 2;
+    String COLUMN_PLAYLIST_NAME = "Name";
+    //Same in both
+    String COLUMN_USERNAME = "Username";
 }
