@@ -13,7 +13,9 @@
     -primary-dark-color: #8e0000;
     -primary-light-color: #ff5f52;
     -secondary-color: #222F3E;
+    -secondary-color-dark: #162837;
     -fx-background: -secondary-color;
+    -fx-base: -secondary-color-dark;
 }
 
 .separator *.line {
@@ -76,7 +78,8 @@
 /* Styling table view */
 .tree-table-view {
     -fx-tree-table-color: -primary-dark-color;
-    -fx-tree-table-rippler-color: rgba(255, 0, 0, 0.9);
+    -fx-tree-table-rippler-color: -primary-color;
+    -fx-font-size: 18px;
 }
 
 .tree-table-view:focused .tree-table-row-cell:selected {
@@ -95,7 +98,9 @@
 .tree-table-view .column-header,
 .tree-table-view .column-header-background,
 .tree-table-view .column-header-background .filler {
-    -fx-background-color: TRANSPARENT;
+    -fx-background-color: -secondary-color-dark;
+    -fx-border-color: white;
+    -fx-border-width: 0 1 0 1;
 }
 
 .tree-table-view .column-header .label {
@@ -104,17 +109,18 @@
 }
 
 .tree-table-view .column-header .arrow, .tree-table-view .column-header .sort-order-dot {
-    -fx-background-color: -primary-dark-color;
+    -fx-background-color: -primary-color;
 }
 
 .tree-table-view .column-header-background {
     -fx-border-width: 0 0.0 1 0;
-    -fx-border-color: #F3F3F3;
+    -fx-border-color: -secondary-color;
 }
 
 .tree-table-view .tree-table-cell {
     -fx-border-width: 0 0 0 0;
     -fx-padding: 16 0 16 0;
+    -fx-font-size: 16px;
 }
 
 .tree-table-view .column-overlay {
