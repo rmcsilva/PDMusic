@@ -60,7 +60,7 @@ public class ClientCommunication implements Runnable, Communication {
                         String genre = request.getString(GENRE);
 
                         System.out.println("Add Music -> Username " + this.username +
-                                "Music name: " + musicName + " Author: " + author + " Year: " + year +
+                                " Music name: " + musicName + " Author: " + author + " Year: " + year +
                                 " Duration: " + duration + " Genre: " + genre);
 
                         addMusic(musicName, author, album, year, duration, genre);
@@ -114,7 +114,7 @@ public class ClientCommunication implements Runnable, Communication {
         response = new JSONObject();
         response.put(RESPONSE, REQUEST_REGISTER);
         response.put(STATUS, APPROVED);
-        response.put(DETAILS, username + REGISTER_SUCCESS);
+        response.put(DETAILS, username + " " + REGISTER_SUCCESS);
 
         sendResponse(response);
         System.out.println(username + REGISTER_SUCCESS);
