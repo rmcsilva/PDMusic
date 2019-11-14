@@ -28,6 +28,7 @@ import sample.controllers.tabs.playlistsTab.PlaylistSelectedController;
 import sample.controllers.tabs.playlistsTab.PlaylistsController;
 import sample.controllers.tabs.playlistsTab.SelectMusicsController;
 import sample.models.MusicViewModel;
+import sample.models.PlaylistViewModel;
 
 import java.io.IOException;
 import java.net.URL;
@@ -54,6 +55,8 @@ public class MainController implements Initializable, LayoutsConstants {
     private ObservableList<MusicViewModel> musicsInPlaylist;
     private ObservableList<MusicViewModel> musicsNotInPlaylist;
 
+    private ObservableList<PlaylistViewModel> playlists;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         screenController = ScreenController.getInstance();
@@ -61,10 +64,13 @@ public class MainController implements Initializable, LayoutsConstants {
         musicsController.setMainController(this);
         playlistsController.setMainController(this);
 
+        playlists = FXCollections.observableArrayList();
+
         musics = FXCollections.observableArrayList();
         musicsInPlaylist = FXCollections.observableArrayList();
         musicsNotInPlaylist = FXCollections.observableArrayList();
         setupMusicsTreeTableView(musicsController.getTtvMusics(), musics);
+        setupPlaylistsTreeTableView(playlistsController.getTtvPlaylists());
 
         setupScreenController();
         configureTabPane();
@@ -146,6 +152,23 @@ public class MainController implements Initializable, LayoutsConstants {
         ttvMusics.getColumns().setAll(musicName, author, album, year, duration, genre, username);
         ttvMusics.setRoot(root);
         ttvMusics.setShowRoot(false);
+    }
+
+    private void setupPlaylistsTreeTableView(JFXTreeTableView<PlaylistViewModel> ttvPlaylists) {
+        JFXTreeTableColumn<PlaylistViewModel, String> playlistName = new JFXTreeTableColumn<>(COLUMN_PLAYLIST_NAME);
+        playlistName.setCellValueFactory(param -> param.getValue().getValue().nameProperty());
+
+        JFXTreeTableColumn<PlaylistViewModel, String> username = new JFXTreeTableColumn<>(COLUMN_USERNAME);
+        username.setCellValueFactory(param -> param.getValue().getValue().usernameProperty());
+
+        //Dynamic Column Width
+        playlistName.prefWidthProperty().bind(ttvPlaylists.widthProperty().divide(NUMBER_PLAYLIST_COLUMNS));
+        username.prefWidthProperty().bind(ttvPlaylists.widthProperty().divide(NUMBER_PLAYLIST_COLUMNS));
+
+        final TreeItem<PlaylistViewModel> root = new RecursiveTreeItem<>(playlists, RecursiveTreeObject::getChildren);
+        ttvPlaylists.getColumns().setAll(playlistName, username);
+        ttvPlaylists.setRoot(root);
+        ttvPlaylists.setShowRoot(false);
     }
 
     public void changeMusicsTab(ScreenController.Screen screen) {
