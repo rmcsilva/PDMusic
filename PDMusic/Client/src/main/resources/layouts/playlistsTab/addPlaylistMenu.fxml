@@ -62,7 +62,7 @@
                     </VBox>
                     <VBox alignment="CENTER">
                         <children>
-                            <JFXTextField>
+                            <JFXTextField fx:id="playlistNameField">
                                 <VBox.margin>
                                     <Insets bottom="24.0" left="12.0" right="24.0" top="24.0"/>
                                 </VBox.margin>
