@@ -54,8 +54,6 @@ public class RegisterController {
         loginController.setUsernameFieldText(username);
 
         clearField();
-
-        goToLogin();
     }
 
     @FXML

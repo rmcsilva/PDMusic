@@ -95,8 +95,6 @@ public class LoginController implements Initializable {
         passwordField.clear();
 
         communicationHandler.login(username, password);
-        screenController.activate(ScreenController.Screen.MAIN);
-
     }
 
     @FXML

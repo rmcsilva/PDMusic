@@ -57,6 +57,8 @@ public class MainController implements Initializable, LayoutsConstants {
 
     private ObservableList<PlaylistViewModel> playlists;
 
+    private String username;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         screenController = ScreenController.getInstance();
@@ -76,12 +78,25 @@ public class MainController implements Initializable, LayoutsConstants {
         configureTabPane();
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public void setCommunicationHandler(CommunicationHandler communicationHandler) {
         this.communicationHandler = communicationHandler;
+        communicationHandler.setNotificationHandlerMainController(this);
     }
 
     public CommunicationHandler getCommunicationHandler() {
         return communicationHandler;
+    }
+
+    public void addMusic(String username, String name, String author, String album, int year, int duration, String genre) {
+        musics.add(new MusicViewModel(name, author, album, genre, year, duration, username));
+    }
+
+    public void addPlaylist(String username,  String name) {
+        playlists.add(new PlaylistViewModel(name, username));
     }
 
     private void setupScreenController() {
@@ -182,8 +197,6 @@ public class MainController implements Initializable, LayoutsConstants {
     @FXML
     public void logout(MouseEvent mouseEvent) throws IOException {
         communicationHandler.logout();
-
-        screenController.activate(ScreenController.Screen.LOGIN);
     }
 
     private void configureTabPane() {

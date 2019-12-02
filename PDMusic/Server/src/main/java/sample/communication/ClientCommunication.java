@@ -59,8 +59,8 @@ public class ClientCommunication implements Runnable, Communication {
                         int duration = request.getInt(DURATION);
                         String genre = request.getString(GENRE);
 
-                        System.out.println("Add Music -> Username " + this.username +
-                                " Music name: " + musicName + " Author: " + author + " Year: " + year +
+                        System.out.println("Add Music -> Username: " + this.username +
+                                " MusicName: " + musicName + " Author: " + author + " Year: " + year +
                                 " Duration: " + duration + " Genre: " + genre);
 
                         addMusic(musicName, author, album, year, duration, genre);
@@ -104,6 +104,7 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(RESPONSE, REQUEST_LOGIN);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, LOGIN_SUCCESS);
+        response.put(USERNAME, username);
 
         sendResponse(response);
         System.out.println(LOGIN_SUCCESS);
@@ -126,6 +127,14 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(RESPONSE, REQUEST_ADD_MUSIC);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, ADD_MUSIC_SUCCESS);
+        //Put music details
+        response.put(USERNAME, username);
+        response.put(MUSIC_NAME, name);
+        response.put(AUTHOR, author);
+        response.put(ALBUM, album);
+        response.put(YEAR, year);
+        response.put(DURATION, duration);
+        response.put(GENRE, genre);
 
         sendResponse(response);
         System.out.println(ADD_MUSIC_SUCCESS);
@@ -137,6 +146,9 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(RESPONSE, REQUEST_ADD_PLAYLIST);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, ADD_PLAYLIST_SUCCESS);
+        //Put playlist details
+        response.put(USERNAME, username);
+        response.put(PLAYLIST_NAME, name);
 
         sendResponse(response);
         System.out.println(ADD_PLAYLIST_SUCCESS);

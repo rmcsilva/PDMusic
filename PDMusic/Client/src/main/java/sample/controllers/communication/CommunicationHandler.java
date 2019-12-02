@@ -2,6 +2,7 @@ package sample.controllers.communication;
 
 import org.json.JSONObject;
 import sample.Communication;
+import sample.controllers.MainController;
 import sample.exceptions.CountExceededException;
 import sample.models.ServerInformation;
 
@@ -15,6 +16,7 @@ import java.net.*;
 public class CommunicationHandler extends Thread implements Communication {
 
     private ServersDirectoryCommunication serversDirectoryCommunication;
+    private NotificationHandler notificationHandler;
 
     private Socket socket;
     private BufferedReader br;
@@ -27,7 +29,7 @@ public class CommunicationHandler extends Thread implements Communication {
     public CommunicationHandler(String serversDirectoryIP) throws CountExceededException, IOException {
         serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP);
         handleConnections();
-//        notificationHandler = new NotificationHandler();
+        notificationHandler = new NotificationHandler(this);
     }
 
     public boolean isRunning() {
@@ -55,7 +57,11 @@ public class CommunicationHandler extends Thread implements Communication {
         return new JSONObject(br.readLine());
     }
 
-    private void shutdown() {
+    public void setNotificationHandlerMainController(MainController mainController) {
+        notificationHandler.setMainController(mainController);
+    }
+
+    void shutdown() {
         isRunning = false;
 
         if (pw != null) {
@@ -83,6 +89,15 @@ public class CommunicationHandler extends Thread implements Communication {
             try {
                 response = receiveResponse();
                 System.out.println(response);
+
+                if (response.has(RESPONSE)) {
+                    //Got response to a request from the server
+                    notificationHandler.handleServerResponse(response);
+                } else if(response.has(NOTIFICATION)) {
+                    //Got a notification from the server
+                    notificationHandler.handleServerNotification(response);
+                }
+
             } catch (NullPointerException e) {
                 shutdown();
                 e.printStackTrace();
@@ -152,7 +167,7 @@ public class CommunicationHandler extends Thread implements Communication {
         request.put(REQUEST , REQUEST_LOGOUT);
 
         sendRequest(request);
-        
+
         isRunning = false;
     }
 }

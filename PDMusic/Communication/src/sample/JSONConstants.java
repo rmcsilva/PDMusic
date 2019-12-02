@@ -42,4 +42,8 @@ public interface JSONConstants {
     String ADD_PLAYLIST_SUCCESS = "Playlist Added Successfully\n";
     String LOGOUT_SUCCESS = "Logged Out Successfully\n";
 
+    //Notification keys
+    String NOTIFICATION = "notification";
+
+
 }
