@@ -28,6 +28,10 @@ public class SelectMusicsController extends TabCommunication {
         return musicsNotInPlaylist;
     }
 
+    public void setMusicsNotInPlaylist(ObservableList<MusicViewModel> musicsNotInPlaylist) {
+        this.musicsNotInPlaylist = musicsNotInPlaylist;
+    }
+
     public void addMusicNotInPlaylist(MusicViewModel music) {
         musicsNotInPlaylist.add(music);
     }

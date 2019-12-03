@@ -69,6 +69,9 @@ public class MainController implements Initializable, LayoutsConstants {
 
         setupScreenController();
         configureTabPane();
+
+    public String getUsername() {
+        return username;
     }
 
     public void setUsername(String username) {
@@ -122,6 +125,14 @@ public class MainController implements Initializable, LayoutsConstants {
             selectMusicsController = fxmlLoader.getController();
             selectMusicsController.setMainController(this);
             setupMusicsTreeTableView(selectMusicsController.getTtvMusicsNotInPlaylist(), selectMusicsController.getMusicsNotInPlaylist());
+
+            //Add controllers to PlaylistController
+            playlistsController.setAddPlaylistController(addPlaylistController);
+            playlistsController.setPlaylistSelectedController(playlistSelectedController);
+            playlistsController.setSelectMusicsController(selectMusicsController);
+
+            //Add controller to MusicsController
+            musicsController.setAddMusicController(addMusicController);
         } catch (IOException e) {
             e.printStackTrace();
         }

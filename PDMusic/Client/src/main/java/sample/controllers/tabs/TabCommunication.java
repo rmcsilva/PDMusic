@@ -12,4 +12,7 @@ public class TabCommunication {
         this.mainController = mainController;
     }
 
+    protected String getUsername() {
+        return mainController.getUsername();
+    }
 }

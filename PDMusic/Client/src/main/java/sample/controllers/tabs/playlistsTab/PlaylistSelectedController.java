@@ -29,6 +29,10 @@ public class PlaylistSelectedController extends TabCommunication {
         return musicsInPlaylist;
     }
 
+    public void setMusicsInPlaylist(ObservableList<MusicViewModel> musicsInPlaylist) {
+        this.musicsInPlaylist = musicsInPlaylist;
+    }
+
     public void addMusicToPlaylist(MusicViewModel music) {
         musicsInPlaylist.add(music);
     }

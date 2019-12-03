@@ -12,6 +12,8 @@ import sample.models.MusicViewModel;
 
 public class MusicsController extends TabCommunication {
 
+    private AddMusicController addMusicController;
+
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusics;
 
@@ -31,6 +33,10 @@ public class MusicsController extends TabCommunication {
 
     public void addMusic(MusicViewModel music) {
         musics.add(music);
+    }
+
+    public void setAddMusicController(AddMusicController addMusicController) {
+        this.addMusicController = addMusicController;
     }
 
     @FXML

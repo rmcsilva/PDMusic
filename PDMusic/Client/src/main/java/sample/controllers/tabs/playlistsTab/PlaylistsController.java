@@ -7,9 +7,17 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import sample.controllers.ScreenController;
 import sample.controllers.tabs.TabCommunication;
+import sample.models.MusicViewModel;
 import sample.models.PlaylistViewModel;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PlaylistsController extends TabCommunication {
+
+    private AddPlaylistController addPlaylistController;
+    private PlaylistSelectedController playlistSelectedController;
+    private SelectMusicsController selectMusicsController;
 
     @FXML
     private JFXTreeTableView<PlaylistViewModel> ttvPlaylists;
@@ -30,6 +38,18 @@ public class PlaylistsController extends TabCommunication {
 
     public void addPlaylist(PlaylistViewModel playlist) {
         playlists.add(playlist);
+    }
+
+    public void setAddPlaylistController(AddPlaylistController addPlaylistController) {
+        this.addPlaylistController = addPlaylistController;
+    }
+
+    public void setPlaylistSelectedController(PlaylistSelectedController playlistSelectedController) {
+        this.playlistSelectedController = playlistSelectedController;
+    }
+
+    public void setSelectMusicsController(SelectMusicsController selectMusicsController) {
+        this.selectMusicsController = selectMusicsController;
     }
 
     @FXML
