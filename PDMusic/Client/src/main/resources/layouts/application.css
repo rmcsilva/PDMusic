@@ -8,12 +8,16 @@
     src: url('../fonts/Roboto-Regular.ttf');
 }
 
-.root {
+*
+{
     -primary-color: #c62828;
     -primary-dark-color: #8e0000;
     -primary-light-color: #ff5f52;
     -secondary-color: #222F3E;
     -secondary-color-dark: #162837;
+}
+
+.root {
     -fx-background: -secondary-color;
     -fx-base: -secondary-color-dark;
 }
@@ -43,8 +47,8 @@
     -jfx-button-type: RAISED;
     -fx-background-color: -primary-color;
     -fx-font-size: 16;
+    -fx-font-family: "Roboto Medium";
     -fx-text-fill: white;
-    -fx-font-family: "Roboto Medium"
 }
 
 .jfx-button {
@@ -52,7 +56,7 @@
     -fx-background-color: -primary-dark-color;
     -fx-text-fill: white;
     -fx-font-size: 18;
-    -fx-font-family: "Roboto Medium"
+    -fx-font-family: "Roboto Medium";
 }
 
 .jfx-button .jfx-rippler {
