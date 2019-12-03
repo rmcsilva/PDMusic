@@ -14,6 +14,8 @@ import static sample.controllers.LayoutsConstants.LAYOUT_LOGIN;
 
 public class ClientMain extends Application {
 
+    private LoginController loginController;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         ScreenController screenController = ScreenController.getInstance();
@@ -22,7 +24,7 @@ public class ClientMain extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_LOGIN));
         screenController.addScreen(ScreenController.Screen.LOGIN, fxmlLoader.load());
-        LoginController loginController = fxmlLoader.getController();
+        loginController = fxmlLoader.getController();
         loginController.setServersDirectoryIP(serversDirectoryIP);
 
         Parent root = screenController.getPane(ScreenController.Screen.LOGIN);
@@ -41,5 +43,11 @@ public class ClientMain extends Application {
         }
 
         launch(args);
+    }
+
+    @Override
+    public void stop(){
+        //Stop CommunicationHandler Thread if active
+        loginController.stopCommunicationHandler();
     }
 }
