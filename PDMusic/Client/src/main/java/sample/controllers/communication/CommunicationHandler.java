@@ -3,7 +3,8 @@ package sample.controllers.communication;
 import org.json.JSONObject;
 import sample.Communication;
 import sample.controllers.MainController;
-import sample.exceptions.CountExceededException;
+import sample.controllers.communication.Exceptions.NoServerAvailable;
+import sample.exceptions.NoServersDirectory;
 import sample.models.ServerInformation;
 
 import java.io.BufferedReader;
@@ -26,7 +27,7 @@ public class CommunicationHandler extends Thread implements Communication {
 
     private boolean isRunning = true;
 
-    public CommunicationHandler(String serversDirectoryIP) throws CountExceededException, IOException {
+    public CommunicationHandler(String serversDirectoryIP) throws IOException, NoServerAvailable, NoServersDirectory {
         serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP);
         handleConnections();
         notificationHandler = new NotificationHandler(this);
@@ -36,7 +37,7 @@ public class CommunicationHandler extends Thread implements Communication {
         return isRunning;
     }
 
-    public void handleConnections() throws CountExceededException, IOException {
+    public void handleConnections() throws IOException, NoServerAvailable, NoServersDirectory {
         ServerInformation serverInformation = serversDirectoryCommunication.connectToServersDirectory();
         connectToServer(serverInformation.getIp(), serverInformation.getPort());
     }
@@ -107,10 +108,10 @@ public class CommunicationHandler extends Thread implements Communication {
                 System.out.println("Server shutdown");
                 try {
                     handleConnections();
-                } catch (CountExceededException | IOException ex) {
+                } catch (NoServerAvailable | NoServersDirectory | IOException ex) {
                     shutdown();
+                    System.out.println(e);
                     e.printStackTrace();
-                    System.out.println("Could not connect so servers directory!");
                     return;
                 }
             }

@@ -8,6 +8,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
 import sample.controllers.communication.CommunicationHandler;
+import sample.controllers.communication.Exceptions.NoServerAvailable;
+import sample.exceptions.NoServersDirectory;
 import sample.exceptions.CountExceededException;
 
 import java.io.IOException;
@@ -59,8 +61,7 @@ public class LoginController implements Initializable {
         this.serversDirectoryIP = serversDirectoryIP;
     }
 
-    public void startCommunicationHandler() throws IOException, CountExceededException {
-        //TODO: Catch exceptions and show alerts based on them
+    public void startCommunicationHandler() throws IOException, NoServerAvailable, NoServersDirectory {
         if (communicationHandler == null || !communicationHandler.isRunning()) {
             communicationHandler = new CommunicationHandler(serversDirectoryIP);
             communicationHandler.start();
@@ -68,7 +69,7 @@ public class LoginController implements Initializable {
     }
 
     @FXML
-    void login(ActionEvent event) throws IOException, CountExceededException {
+    void login(ActionEvent event) throws IOException {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
@@ -76,7 +77,15 @@ public class LoginController implements Initializable {
             return;
         }
 
-        startCommunicationHandler();
+        try {
+            startCommunicationHandler();
+        } catch (NoServerAvailable | NoServersDirectory e) {
+            //TODO: Catch exceptions and show alerts based on them
+            System.out.println(e);
+            e.printStackTrace();
+            return;
+        }
+
 
         if (mainController == null) {
             //Add Main Menu Layout
@@ -101,5 +110,11 @@ public class LoginController implements Initializable {
     void register(MouseEvent event) throws IOException, CountExceededException {
         //TODO: Add the current username to the register screen
         screenController.activate(ScreenController.Screen.REGISTER);
+    }
+
+    public void stopCommunicationHandler() {
+        if (communicationHandler != null && communicationHandler.isRunning()) {
+            communicationHandler.logout();
+        }
     }
 }

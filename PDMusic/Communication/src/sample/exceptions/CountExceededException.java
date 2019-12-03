@@ -19,7 +19,7 @@ public class CountExceededException extends Exception {
     }
 
     public void incrementCounter() throws CountExceededException {
-        if (counter > limit) throw this;
         ++counter;
+        if (counter > limit) throw this;
     }
 }

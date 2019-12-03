@@ -2,6 +2,8 @@ package sample.controllers.communication;
 
 import org.json.JSONObject;
 import sample.ServersDirectoryInformation;
+import sample.controllers.communication.Exceptions.NoServerAvailable;
+import sample.exceptions.NoServersDirectory;
 import sample.exceptions.CountExceededException;
 import sample.models.ServerInformation;
 
@@ -23,7 +25,7 @@ public class ServersDirectoryCommunication implements ServersDirectoryInformatio
         this.serversDirectoryIP = serversDirectoryIP;
     }
 
-    public ServerInformation connectToServersDirectory() throws CountExceededException {
+    public ServerInformation connectToServersDirectory() throws NoServersDirectory, NoServerAvailable {
         CountExceededException countExceededException = new CountExceededException(3);
 
         while (true) {
@@ -31,11 +33,15 @@ public class ServersDirectoryCommunication implements ServersDirectoryInformatio
                 connectToServersDirectory(serversDirectoryIP);
                 return receiveServerInformation();
             } catch (IOException e) {
-                System.out.println("Could not connect to serversDirectory! Counter: "
-                        + countExceededException.getCounter() +
-                        " Limit: " + countExceededException.getLimit()
-                );
-                countExceededException.incrementCounter();
+                try {
+                    System.out.println("Could not connect to serversDirectory! Counter: "
+                            + countExceededException.getCounter() +
+                            " Limit: " + countExceededException.getLimit()
+                    );
+                    countExceededException.incrementCounter();
+                } catch (CountExceededException cee) {
+                    throw new NoServersDirectory();
+                }
             }
         }
     }
@@ -56,7 +62,7 @@ public class ServersDirectoryCommunication implements ServersDirectoryInformatio
         datagramSocket.send(datagramPacket);
     }
 
-    private ServerInformation receiveServerInformation() throws IOException {
+    private ServerInformation receiveServerInformation() throws IOException, NoServerAvailable {
         System.out.println("Waiting for Server Information...");
 
         byte[] bArray = new byte[datagramPacketSize];
@@ -65,6 +71,11 @@ public class ServersDirectoryCommunication implements ServersDirectoryInformatio
 
         String response = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
         JSONObject json = new JSONObject(response);
+
+        //If there is not IP on the response then that are no servers
+        if (!json.has(IP)) {
+            throw new NoServerAvailable();
+        }
 
         String ip = json.getString(IP);
         int port = json.getInt(PORT);

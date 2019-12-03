@@ -5,6 +5,8 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;
+import sample.controllers.communication.Exceptions.NoServerAvailable;
+import sample.exceptions.NoServersDirectory;
 import sample.exceptions.CountExceededException;
 
 import java.io.IOException;
@@ -48,8 +50,15 @@ public class RegisterController {
         if (!getFieldValues()) {
             return;
         }
+        try {
+            loginController.startCommunicationHandler();
+        } catch (NoServerAvailable | NoServersDirectory e) {
+            //TODO: Catch exceptions and show alerts based on them
+            System.out.println(e);
+            e.printStackTrace();
+            return;
+        }
         //TODO: Send data back to login
-        loginController.startCommunicationHandler();
         loginController.getCommunicationHandler().register(name, username, password);
         loginController.setUsernameFieldText(username);
 
