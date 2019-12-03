@@ -44,18 +44,16 @@ public class MainController implements Initializable, LayoutsConstants {
 
     @FXML
     private MusicsController musicsController;
+    private AddMusicController addMusicController;
     @FXML
     private PlaylistsController playlistsController;
+    private PlaylistSelectedController playlistSelectedController;
+    private SelectMusicsController selectMusicsController;
+    private AddPlaylistController addPlaylistController;
 
     private ScreenController screenController;
 
     private CommunicationHandler communicationHandler;
-
-    private ObservableList<MusicViewModel> musics;
-    private ObservableList<MusicViewModel> musicsInPlaylist;
-    private ObservableList<MusicViewModel> musicsNotInPlaylist;
-
-    private ObservableList<PlaylistViewModel> playlists;
 
     private String username;
 
@@ -66,12 +64,7 @@ public class MainController implements Initializable, LayoutsConstants {
         musicsController.setMainController(this);
         playlistsController.setMainController(this);
 
-        playlists = FXCollections.observableArrayList();
-
-        musics = FXCollections.observableArrayList();
-        musicsInPlaylist = FXCollections.observableArrayList();
-        musicsNotInPlaylist = FXCollections.observableArrayList();
-        setupMusicsTreeTableView(musicsController.getTtvMusics(), musics);
+        setupMusicsTreeTableView(musicsController.getTtvMusics(), musicsController.getMusics());
         setupPlaylistsTreeTableView(playlistsController.getTtvPlaylists());
 
         setupScreenController();
@@ -92,11 +85,11 @@ public class MainController implements Initializable, LayoutsConstants {
     }
 
     public void addMusic(String username, String name, String author, String album, int year, int duration, String genre) {
-        musics.add(new MusicViewModel(name, author, album, genre, year, duration, username));
+        musicsController.addMusic(new MusicViewModel(name, author, album, genre, year, duration, username));
     }
 
     public void addPlaylist(String username,  String name) {
-        playlists.add(new PlaylistViewModel(name, username));
+        playlistsController.addPlaylist(new PlaylistViewModel(name, username));
     }
 
     private void setupScreenController() {
@@ -107,26 +100,28 @@ public class MainController implements Initializable, LayoutsConstants {
             //Add Music Menu Layout
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_ADD_MUSIC));
             screenController.addScreen(ScreenController.Screen.ADD_MUSIC, fxmlLoader.load());
-            ((AddMusicController) fxmlLoader.getController()).setMainController(this);
+            addMusicController = fxmlLoader.getController();
+            addMusicController.setMainController(this);
 
             //Playlist Selected Layout
             fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_PLAYLIST_SELECTED));
             screenController.addScreen(ScreenController.Screen.PLAYLIST_SELECTED, fxmlLoader.load());
-            PlaylistSelectedController playlistSelectedController = fxmlLoader.getController();
+            playlistSelectedController = fxmlLoader.getController();
             playlistSelectedController.setMainController(this);
-            setupMusicsTreeTableView(playlistSelectedController.getTtvMusicsInPlaylist(), musicsInPlaylist);
+            setupMusicsTreeTableView(playlistSelectedController.getTtvMusicsInPlaylist(), playlistSelectedController.getMusicsInPlaylist());
 
             //Add Playlist Layout
             fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_ADD_PLAYLIST));
             screenController.addScreen(ScreenController.Screen.ADD_PLAYLIST, fxmlLoader.load());
-            ((AddPlaylistController) fxmlLoader.getController()).setMainController(this);
+            addPlaylistController = fxmlLoader.getController();
+            addPlaylistController.setMainController(this);
 
             //Select Musics Layout
             fxmlLoader = new FXMLLoader(getClass().getResource(LAYOUT_TAB_SELECT_MUSICS));
             screenController.addScreen(ScreenController.Screen.SELECT_MUSICS, fxmlLoader.load());
-            SelectMusicsController selectMusicsController = fxmlLoader.getController();
+            selectMusicsController = fxmlLoader.getController();
             selectMusicsController.setMainController(this);
-            setupMusicsTreeTableView(selectMusicsController.getTtvMusicsNotInPlaylist(), musicsNotInPlaylist);
+            setupMusicsTreeTableView(selectMusicsController.getTtvMusicsNotInPlaylist(), selectMusicsController.getMusicsNotInPlaylist());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -180,7 +175,7 @@ public class MainController implements Initializable, LayoutsConstants {
         playlistName.prefWidthProperty().bind(ttvPlaylists.widthProperty().divide(NUMBER_PLAYLIST_COLUMNS));
         username.prefWidthProperty().bind(ttvPlaylists.widthProperty().divide(NUMBER_PLAYLIST_COLUMNS));
 
-        final TreeItem<PlaylistViewModel> root = new RecursiveTreeItem<>(playlists, RecursiveTreeObject::getChildren);
+        final TreeItem<PlaylistViewModel> root = new RecursiveTreeItem<>(playlistsController.getPlaylists(), RecursiveTreeObject::getChildren);
         ttvPlaylists.getColumns().setAll(playlistName, username);
         ttvPlaylists.setRoot(root);
         ttvPlaylists.setShowRoot(false);

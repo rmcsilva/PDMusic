@@ -1,6 +1,8 @@
 package sample.controllers.tabs.playlistsTab;
 
 import com.jfoenix.controls.JFXTreeTableView;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import sample.controllers.ScreenController;
@@ -12,8 +14,22 @@ public class SelectMusicsController extends TabCommunication {
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusicsNotInPlaylist;
 
+    private ObservableList<MusicViewModel> musicsNotInPlaylist;
+
+    public SelectMusicsController() {
+        musicsNotInPlaylist = FXCollections.observableArrayList();
+    }
+
     public JFXTreeTableView<MusicViewModel> getTtvMusicsNotInPlaylist() {
         return ttvMusicsNotInPlaylist;
+    }
+
+    public ObservableList<MusicViewModel> getMusicsNotInPlaylist() {
+        return musicsNotInPlaylist;
+    }
+
+    public void addMusicNotInPlaylist(MusicViewModel music) {
+        musicsNotInPlaylist.add(music);
     }
 
     @FXML
