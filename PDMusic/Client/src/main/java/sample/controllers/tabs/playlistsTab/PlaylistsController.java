@@ -112,6 +112,7 @@ public class PlaylistsController extends TabCommunication {
         //If there are no musics in playlist just add all the available musics to be selected
         if (musicsInPlaylist.isEmpty()) {
             selectMusicsController.setMusicsNotInPlaylist(musics);
+            return;
         }
         // Prepare a union
         Set<MusicViewModel> union = new HashSet<>(musics);
