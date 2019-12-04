@@ -1,6 +1,5 @@
 package sample;
 
-//import sample.MySQLAcess;
 import org.json.JSONObject;
 import sample.communication.ClientCommunication;
 import sample.communication.ServersDirectoryCommunication;
@@ -23,22 +22,13 @@ public class ServerMain {
             return;
         }
 
-        ServerSocket serverSocket = new ServerSocket(0);
-
-        String serverAddress = InetAddress.getLocalHost().getHostAddress();
-        int serverPort = serverSocket.getLocalPort();
-
-        System.out.println("Server running at " + InetAddress.getLocalHost().getHostAddress() + ":" + serverSocket.getLocalPort());
-
-        ServerInformation serverInformation = new ServerInformation(serverAddress, serverPort);
-
-        ServersDirectoryCommunication serversDirectoryCommunication = new ServersDirectoryCommunication(args[0], serverInformation);
-
-        while (true) {
-            System.out.println("Connecting to client");
-            Socket socket = serverSocket.accept();
-            Thread thread = new Thread(new ClientCommunication(socket));
-            thread.start();
+        try {
+            ServerController serverController = new ServerController(args[0]);
+            serverController.start();
+        } catch (CountExceededException e) {
+            System.out.println("Servers Directory is not running!");
+            e.printStackTrace();
+            return;
         }
     }
 }
