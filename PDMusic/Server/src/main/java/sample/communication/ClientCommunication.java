@@ -32,6 +32,7 @@ public class ClientCommunication implements Runnable, Communication {
                 jsonRequest = br.readLine();
                 //Check null
                 JSONObject request = new JSONObject(jsonRequest);
+                response = new JSONObject();
 
                 switch (request.getString(REQUEST)) {
                     case REQUEST_LOGIN:
@@ -69,9 +70,19 @@ public class ClientCommunication implements Runnable, Communication {
                         String playlistName = request.getString(PLAYLIST_NAME);
 
                         System.out.println("Add Playlist -> Username: " + this.username +
-                                " Playlist Name: " + playlistName);
+                                " PlaylistName: " + playlistName);
 
                         addPlaylist(playlistName);
+                        break;
+                    case REQUEST_ADD_MUSIC_TO_PLAYLIST:
+                        String musicToAdd = request.getString(MUSIC_NAME);
+                        String playlistForMusic = request.getString(PLAYLIST_NAME);
+
+                        System.out.println("Add Music To Playlist -> Username: " + this.username +
+                                " MusicToAdd: " + musicToAdd +
+                                " PlaylistForMusic: " + playlistForMusic);
+
+                        addMusicToPlaylist(musicToAdd, playlistForMusic);
                         break;
                     case REQUEST_LOGOUT:
                         System.out.println("Logout -> Username: " + this.username);
@@ -100,7 +111,6 @@ public class ClientCommunication implements Runnable, Communication {
         //TODO: Apply restrictions
         this.username = username;
 
-        response = new JSONObject();
         response.put(RESPONSE, REQUEST_LOGIN);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, LOGIN_SUCCESS);
@@ -112,7 +122,6 @@ public class ClientCommunication implements Runnable, Communication {
 
     @Override
     public void register(String name, String username, String password) throws IOException {
-        response = new JSONObject();
         response.put(RESPONSE, REQUEST_REGISTER);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, username + " " + REGISTER_SUCCESS);
@@ -123,7 +132,6 @@ public class ClientCommunication implements Runnable, Communication {
 
     @Override
     public void addMusic(String name, String author, String album, int year, int duration, String genre) {
-        response = new JSONObject();
         response.put(RESPONSE, REQUEST_ADD_MUSIC);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, ADD_MUSIC_SUCCESS);
@@ -142,7 +150,6 @@ public class ClientCommunication implements Runnable, Communication {
 
     @Override
     public void addPlaylist(String name) {
-        response = new JSONObject();
         response.put(RESPONSE, REQUEST_ADD_PLAYLIST);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, ADD_PLAYLIST_SUCCESS);
@@ -155,8 +162,21 @@ public class ClientCommunication implements Runnable, Communication {
     }
 
     @Override
+    public void addMusicToPlaylist(String musicName, String playlistName) {
+        response.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, ADD_MUSIC_TO_PLAYLIST_SUCCESS);
+        //Put music and playlist details
+        response.put(USERNAME, username);
+        response.put(MUSIC_NAME, musicName);
+        response.put(PLAYLIST_NAME, playlistName);
+
+        sendResponse(response);
+        System.out.println(ADD_MUSIC_TO_PLAYLIST_SUCCESS);
+    }
+
+    @Override
     public void logout() {
-        response = new JSONObject();
         response.put(RESPONSE, REQUEST_LOGOUT);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, LOGOUT_SUCCESS);

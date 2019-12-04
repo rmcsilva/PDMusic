@@ -1,10 +1,11 @@
 package sample.controllers.communication;
 
 import org.json.JSONObject;
-import sample.JSONConstants;
 import sample.Notifications;
 import sample.controllers.MainController;
 import sample.controllers.ScreenController;
+
+import java.util.NoSuchElementException;
 
 public class NotificationHandler implements Notifications {
 
@@ -62,6 +63,15 @@ public class NotificationHandler implements Notifications {
                 //TODO: Show error
 
                 break;
+            case REQUEST_ADD_MUSIC_TO_PLAYLIST:
+                System.out.println("Add Music To Playlist Response -> Status: " + responseStatus);
+
+                if (approved) {
+                    parseMusicToAddToPlaylistFromJSON(response);
+                }
+                //TODO: Show error
+
+                break;
             case REQUEST_LOGOUT:
                 System.out.println("Logout Response -> Status: " + responseStatus);
 
@@ -101,9 +111,21 @@ public class NotificationHandler implements Notifications {
         String playlistName = playlist.getString(PLAYLIST_NAME);
 
         System.out.println("Add Playlist -> Username: " + username +
-                " Playlist Name: " + playlistName);
+                " PlaylistName: " + playlistName);
 
         addPlaylistNotification(username, playlistName);
+    }
+
+    private void parseMusicToAddToPlaylistFromJSON(JSONObject musicToAddToPlaylist) {
+        String username = musicToAddToPlaylist.getString(USERNAME);
+        String musicName = musicToAddToPlaylist.getString(MUSIC_NAME);
+        String playlistName = musicToAddToPlaylist.getString(PLAYLIST_NAME);
+
+        System.out.println("Add Music To Playlist -> Username: " + username +
+                " MusicName: " + musicName +
+                " PlaylistName: " + playlistName);
+
+        addMusicToPlaylistNotification(musicName, playlistName);
     }
 
     private boolean isResponseApproved(String responseStatus) {
@@ -131,6 +153,15 @@ public class NotificationHandler implements Notifications {
     public void addPlaylistNotification(String username, String name) {
         mainController.addPlaylist(username, name);
         //TODO: Show alert
+    }
+
+    @Override
+    public void addMusicToPlaylistNotification(String musicName, String playlistName) {
+        try {
+            mainController.addMusicToPlaylist(playlistName, musicName);
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

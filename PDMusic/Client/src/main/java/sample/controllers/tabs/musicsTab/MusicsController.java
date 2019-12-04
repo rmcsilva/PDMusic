@@ -9,6 +9,8 @@ import sample.controllers.ScreenController;
 import sample.controllers.tabs.TabCommunication;
 import sample.models.MusicViewModel;
 
+import java.util.NoSuchElementException;
+
 
 public class MusicsController extends TabCommunication {
 
@@ -37,6 +39,13 @@ public class MusicsController extends TabCommunication {
 
     public void setAddMusicController(AddMusicController addMusicController) {
         this.addMusicController = addMusicController;
+    }
+
+    public MusicViewModel getMusicByName(String musicName) throws NoSuchElementException {
+        for (MusicViewModel music : musics) {
+            if (music.getMusicName().equals(musicName)) return music;
+        }
+        throw new NoSuchElementException("Music not found");
     }
 
     @FXML

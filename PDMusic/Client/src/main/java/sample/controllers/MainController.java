@@ -7,7 +7,6 @@ import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,6 +31,7 @@ import sample.models.PlaylistViewModel;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable, LayoutsConstants {
@@ -74,6 +74,10 @@ public class MainController implements Initializable, LayoutsConstants {
         return username;
     }
 
+    public ObservableList<MusicViewModel> getMusics() {
+        return musicsController.getMusics();
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -88,11 +92,17 @@ public class MainController implements Initializable, LayoutsConstants {
     }
 
     public void addMusic(String username, String name, String author, String album, int year, int duration, String genre) {
-        musicsController.addMusic(new MusicViewModel(name, author, album, genre, year, duration, username));
+        MusicViewModel music = new MusicViewModel(name, author, album, genre, year, duration, username);
+        musicsController.addMusic(music);
+        selectMusicsController.addMusicNotInPlaylist(music);
     }
 
     public void addPlaylist(String username,  String name) {
         playlistsController.addPlaylist(new PlaylistViewModel(name, username));
+    }
+
+    public void addMusicToPlaylist(String playlistName, String musicName) throws NoSuchElementException {
+        playlistsController.addMusicToPlaylist(playlistName, musicsController.getMusicByName(musicName));
     }
 
     private void setupScreenController() {
@@ -124,6 +134,7 @@ public class MainController implements Initializable, LayoutsConstants {
             screenController.addScreen(ScreenController.Screen.SELECT_MUSICS, fxmlLoader.load());
             selectMusicsController = fxmlLoader.getController();
             selectMusicsController.setMainController(this);
+            selectMusicsController.setPlaylistsController(playlistsController);
             setupMusicsTreeTableView(selectMusicsController.getTtvMusicsNotInPlaylist(), selectMusicsController.getMusicsNotInPlaylist());
 
             //Add controllers to PlaylistController

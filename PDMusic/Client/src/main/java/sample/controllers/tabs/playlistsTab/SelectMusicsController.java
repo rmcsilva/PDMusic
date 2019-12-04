@@ -14,6 +14,8 @@ public class SelectMusicsController extends TabCommunication {
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusicsNotInPlaylist;
 
+    private PlaylistsController playlistsController;
+
     private ObservableList<MusicViewModel> musicsNotInPlaylist;
 
     public SelectMusicsController() {
@@ -29,16 +31,33 @@ public class SelectMusicsController extends TabCommunication {
     }
 
     public void setMusicsNotInPlaylist(ObservableList<MusicViewModel> musicsNotInPlaylist) {
-        this.musicsNotInPlaylist = musicsNotInPlaylist;
+        this.musicsNotInPlaylist.setAll(musicsNotInPlaylist);
     }
 
     public void addMusicNotInPlaylist(MusicViewModel music) {
         musicsNotInPlaylist.add(music);
     }
 
+    public void removeMusicNotInPlaylist(MusicViewModel music) {
+        musicsNotInPlaylist.remove(music);
+    }
+
+    public void setPlaylistsController(PlaylistsController playlistsController) {
+        this.playlistsController = playlistsController;
+    }
+
     @FXML
     void addMusicToPlaylist(ActionEvent event) {
-        //TODO: Add music to playlist
+        //Check if music is selected
+        if (ttvMusicsNotInPlaylist.getSelectionModel().getSelectedItem() == null) return;
+        //Get selected playlist musics
+        MusicViewModel selectedMusic = ttvMusicsNotInPlaylist.getSelectionModel().getSelectedItem().getValue();
+        String musicName = selectedMusic.getMusicName();
+        String playlistName = playlistsController.getSelectedPlaylistName();
+        //Check if a playlist is selected
+        if (playlistName == null) return;
+        //Send request to add music to playlist
+        getMainController().getCommunicationHandler().addMusicToPlaylist(musicName, playlistName);
         goBackToSelectedPlaylist();
     }
 
