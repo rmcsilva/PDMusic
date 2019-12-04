@@ -8,20 +8,33 @@ import java.net.Socket;
 
 public class ClientCommunication implements Runnable, Communication {
 
+    public final String USERNAME_UNDEFINED = "undefined";
+
+    private static int counter = 0;
+    private final int id;
+
     private Socket socket;
     private PrintWriter pw;
     private BufferedReader br;
+
+    private ClientNotificationsHandler clientNotificationsHandler;
 
     private boolean isRunning = true;
 
     private JSONObject response;
 
-    private String username = "undefined";
+    private String username = USERNAME_UNDEFINED;
 
-    public ClientCommunication(Socket clientSocket) throws IOException {
+    public ClientCommunication(Socket clientSocket, ClientNotificationsHandler clientNotificationsHandler) throws IOException {
         this.socket = clientSocket;
         pw = new PrintWriter(socket.getOutputStream());
         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        id = counter++;
+        this.clientNotificationsHandler = clientNotificationsHandler;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void run() {
@@ -39,7 +52,7 @@ public class ClientCommunication implements Runnable, Communication {
                         String username = request.getString(USERNAME);
                         String password = request.getString(PASSWORD);
 
-                        System.out.println("Login -> Username: " + username);
+                        System.out.println("Login -> ID: " + id + " Username: " + username);
 
                         login(username, password);
                         break;
@@ -48,7 +61,7 @@ public class ClientCommunication implements Runnable, Communication {
                         username = request.getString(USERNAME);
                         password = request.getString(PASSWORD);
 
-                        System.out.println("Register -> Username: " + username + " Name: " + name);
+                        System.out.println("Register -> ID: " + id + " Username: " + username + " Name: " + name);
 
                         register(name, username, password);
                         break;
@@ -60,7 +73,7 @@ public class ClientCommunication implements Runnable, Communication {
                         int duration = request.getInt(DURATION);
                         String genre = request.getString(GENRE);
 
-                        System.out.println("Add Music -> Username: " + this.username +
+                        System.out.println("Add Music -> ID: " + id + " Username: " + this.username +
                                 " MusicName: " + musicName + " Author: " + author + " Year: " + year +
                                 " Duration: " + duration + " Genre: " + genre);
 
@@ -69,7 +82,7 @@ public class ClientCommunication implements Runnable, Communication {
                     case REQUEST_ADD_PLAYLIST:
                         String playlistName = request.getString(PLAYLIST_NAME);
 
-                        System.out.println("Add Playlist -> Username: " + this.username +
+                        System.out.println("Add Playlist -> ID: " + id + " Username: " + this.username +
                                 " PlaylistName: " + playlistName);
 
                         addPlaylist(playlistName);
@@ -78,14 +91,15 @@ public class ClientCommunication implements Runnable, Communication {
                         String musicToAdd = request.getString(MUSIC_NAME);
                         String playlistForMusic = request.getString(PLAYLIST_NAME);
 
-                        System.out.println("Add Music To Playlist -> Username: " + this.username +
+                        System.out.println("Add Music To Playlist -> ID: " + id +
+                                " Username: " + this.username +
                                 " MusicToAdd: " + musicToAdd +
                                 " PlaylistForMusic: " + playlistForMusic);
 
                         addMusicToPlaylist(musicToAdd, playlistForMusic);
                         break;
                     case REQUEST_LOGOUT:
-                        System.out.println("Logout -> Username: " + this.username);
+                        System.out.println("Logout -> ID: " + id + " Username: " + this.username);
 
                         logout();
                         break;
@@ -101,7 +115,7 @@ public class ClientCommunication implements Runnable, Communication {
         }
     }
 
-    private synchronized void sendResponse(JSONObject response) {
+    synchronized void sendResponse(JSONObject response) {
         pw.println(response.toString());
         pw.flush();
     }
@@ -132,9 +146,6 @@ public class ClientCommunication implements Runnable, Communication {
 
     @Override
     public void addMusic(String name, String author, String album, int year, int duration, String genre) {
-        response.put(RESPONSE, REQUEST_ADD_MUSIC);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, ADD_MUSIC_SUCCESS);
         //Put music details
         response.put(USERNAME, username);
         response.put(MUSIC_NAME, name);
@@ -143,6 +154,12 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(YEAR, year);
         response.put(DURATION, duration);
         response.put(GENRE, genre);
+        //Send notification
+        clientNotificationsHandler.addMusicNotification(id, new JSONObject(response.toString()));
+        //Put response data
+        response.put(RESPONSE, REQUEST_ADD_MUSIC);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, ADD_MUSIC_SUCCESS);
 
         sendResponse(response);
         System.out.println(ADD_MUSIC_SUCCESS);
@@ -150,12 +167,15 @@ public class ClientCommunication implements Runnable, Communication {
 
     @Override
     public void addPlaylist(String name) {
-        response.put(RESPONSE, REQUEST_ADD_PLAYLIST);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, ADD_PLAYLIST_SUCCESS);
         //Put playlist details
         response.put(USERNAME, username);
         response.put(PLAYLIST_NAME, name);
+        //Send notification
+        clientNotificationsHandler.addPlaylistNotification(id, new JSONObject(response.toString()));
+        //Put response data
+        response.put(RESPONSE, REQUEST_ADD_PLAYLIST);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, ADD_PLAYLIST_SUCCESS);
 
         sendResponse(response);
         System.out.println(ADD_PLAYLIST_SUCCESS);
@@ -163,13 +183,16 @@ public class ClientCommunication implements Runnable, Communication {
 
     @Override
     public void addMusicToPlaylist(String musicName, String playlistName) {
-        response.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, ADD_MUSIC_TO_PLAYLIST_SUCCESS);
         //Put music and playlist details
         response.put(USERNAME, username);
         response.put(MUSIC_NAME, musicName);
         response.put(PLAYLIST_NAME, playlistName);
+        //Send notification
+        clientNotificationsHandler.addMusicToPlaylistNotification(id, new JSONObject(response.toString()));
+        //Put response data
+        response.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, ADD_MUSIC_TO_PLAYLIST_SUCCESS);
 
         sendResponse(response);
         System.out.println(ADD_MUSIC_TO_PLAYLIST_SUCCESS);
@@ -183,6 +206,8 @@ public class ClientCommunication implements Runnable, Communication {
 
         sendResponse(response);
         System.out.println(LOGOUT_SUCCESS);
+
+        clientNotificationsHandler.clientLogout(id);
 
         shutdown();
     }

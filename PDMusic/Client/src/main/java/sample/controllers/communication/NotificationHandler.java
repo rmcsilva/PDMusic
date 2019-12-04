@@ -1,13 +1,12 @@
 package sample.controllers.communication;
 
 import org.json.JSONObject;
-import sample.Notifications;
 import sample.controllers.MainController;
 import sample.controllers.ScreenController;
 
 import java.util.NoSuchElementException;
 
-public class NotificationHandler implements Notifications {
+public class NotificationHandler implements ClientNotifications {
 
     private CommunicationHandler communicationHandler;
 
@@ -88,6 +87,22 @@ public class NotificationHandler implements Notifications {
     }
 
     public void handleServerNotification(JSONObject notification) {
+        switch (notification.getString(NOTIFICATION)) {
+            case REQUEST_ADD_MUSIC:
+                System.out.println("Add Music Notification");
+                parseMusicFromJSON(notification);
+                break;
+            case REQUEST_ADD_PLAYLIST:
+                System.out.println("Add Playlist Notification");
+                parsePlaylistFromJSON(notification);
+                break;
+            case REQUEST_ADD_MUSIC_TO_PLAYLIST:
+                System.out.println("Add Music To Playlist Notification ");
+                parseMusicToAddToPlaylistFromJSON(notification);
+                break;
+            default:
+                break;
+        }
     }
 
     private void parseMusicFromJSON(JSONObject music) {

@@ -1,7 +1,7 @@
 package sample;
 
 import sample.communication.ClientCommunication;
-import sample.communication.ClientNotifications;
+import sample.communication.ClientNotificationsHandler;
 import sample.communication.ServersDirectoryCommunication;
 import sample.exceptions.CountExceededException;
 import sample.models.ServerInformation;
@@ -20,9 +20,12 @@ public class ServerController extends Thread {
 
     ServersDirectoryCommunication serversDirectoryCommunication;
 
+    ClientNotificationsHandler clientNotificationsHandler;
+
     public ServerController(String serversDirectoryIP) throws IOException, CountExceededException {
         startServer();
         serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, serverInformation);
+        clientNotificationsHandler = new ClientNotificationsHandler(this);
     }
 
     private void startServer() throws IOException {
@@ -36,6 +39,10 @@ public class ServerController extends Thread {
         serverInformation = new ServerInformation(serverAddress, serverPort);
     }
 
+    public void clientLoggedOut() {
+        //TODO: Warn Servers Directory that client logged out
+    }
+
     @Override
     public void run() {
         while (isServerRunning) {
@@ -43,7 +50,9 @@ public class ServerController extends Thread {
 
             try {
                 Socket socket = serverSocket.accept();
-                Thread thread = new Thread(new ClientCommunication(socket));
+                ClientCommunication client = new ClientCommunication(socket, clientNotificationsHandler);
+                clientNotificationsHandler.addClient(client);
+                Thread thread = new Thread(client);
                 thread.start();
             } catch (IOException e) {
                 e.printStackTrace();
