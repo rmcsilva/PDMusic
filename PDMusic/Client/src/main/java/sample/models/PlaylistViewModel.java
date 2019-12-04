@@ -27,4 +27,19 @@ public class PlaylistViewModel extends RecursiveTreeObject<PlaylistViewModel> {
     public StringProperty usernameProperty() {
         return username;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof PlaylistViewModel)) {
+            return false;
+        }
+
+        PlaylistViewModel playlistViewModel = (PlaylistViewModel) obj;
+
+        return getName().equals(playlistViewModel.getName());
+    }
 }

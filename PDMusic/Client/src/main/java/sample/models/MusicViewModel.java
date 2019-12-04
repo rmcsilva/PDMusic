@@ -75,4 +75,19 @@ public class MusicViewModel extends RecursiveTreeObject<MusicViewModel> {
     public StringProperty usernameProperty() {
         return username;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof MusicViewModel)) {
+            return false;
+        }
+
+        MusicViewModel musicViewModel = (MusicViewModel)obj;
+
+        return getMusicName().equals(musicViewModel.getMusicName());
+    }
 }
