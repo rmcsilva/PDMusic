@@ -5,9 +5,7 @@ import sample.models.ServerInformation;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.PriorityQueue;
 
 import static sample.JSONConstants.REQUEST;
@@ -46,6 +44,45 @@ public class CommunicationHandler extends Thread {
         }
     }
 
+    private void handleRequest(JSONObject request) {
+        JSONObject response = new JSONObject();
+        ServerInformation serverInformation;
+
+        switch (request.getString(REQUEST)) {
+            case SERVER:
+                serverInformation = getServerInformationFromRequest(request);
+                serversInformation.add(serverInformation);
+                System.out.print("Server request -> ");
+                break;
+            case CLIENT:
+                if (serversInformation.isEmpty()) break;
+
+                serverInformation = findBestServerForClient();
+
+                response.put(IP, serverInformation.getIp());
+                response.put(PORT, serverInformation.getPort());
+
+                putResponseInDatagramPacket(response);
+
+                System.out.print("Client request -> ");
+                break;
+            default:
+                break;
+        }
+    }
+
+    private ServerInformation getServerInformationFromRequest(JSONObject request) {
+        String ip = request.getString(IP);
+        int port = request.getInt(PORT);
+
+        return new ServerInformation(ip, port);
+    }
+
+    private void putResponseInDatagramPacket(JSONObject response) {
+        byte[] bArray = response.toString().getBytes();
+        datagramPacket.setData(bArray, 0, bArray.length);
+    }
+
     @Override
     public void run() {
         while (isRunning) {
@@ -58,33 +95,8 @@ public class CommunicationHandler extends Thread {
                 String jsonRequest = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
 
                 JSONObject request = new JSONObject(jsonRequest);
-                JSONObject response = new JSONObject();
 
-                switch (request.getString(REQUEST)) {
-                    case SERVER:
-                        String ip = request.getString(IP);
-                        int port = request.getInt(PORT);
-
-                        serversInformation.add(new ServerInformation(ip, port));
-                        //TODO: Send response
-                        System.out.print("Server request -> ");
-                        break;
-                    case CLIENT:
-                        if (serversInformation.isEmpty()) break;
-            
-                        ServerInformation serverInformation = findBestServerForClient();
-
-                        response.put(IP, serverInformation.getIp());
-                        response.put(PORT, serverInformation.getPort());
-
-                        bArray = response.toString().getBytes();
-                        datagramPacket.setData(bArray, 0, bArray.length);
-
-                        System.out.print("Client request -> ");
-                        break;
-                    default:
-                        break;
-                }
+                handleRequest(request);
 
                 System.out.println("Packet received from " + datagramPacket.getAddress().getHostAddress()
                         + ":" + datagramPacket.getPort()
