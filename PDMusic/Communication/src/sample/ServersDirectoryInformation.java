@@ -1,6 +1,10 @@
 package sample;
 
+import sample.exceptions.CountExceededException;
+import sample.exceptions.NoServersDirectory;
+
 import java.io.IOException;
+import java.net.InetAddress;
 
 public interface ServersDirectoryInformation {
 
@@ -8,12 +12,14 @@ public interface ServersDirectoryInformation {
     int serversDirectoryPort = 5001;
     int socketsTimeout = 10000;
 
+    int NUMBER_OF_CONNECTION_ATTEMPTS = 3;
+
     //JSON key values
     String CLIENT = "client";
     String SERVER = "server";
     String IP = "ip";
     String PORT = "port";
 
-    void connectToServersDirectory(String sdIp) throws IOException;
+    void connectToServersDirectory(InetAddress serversDirectoryAddress) throws NoServersDirectory;
 
 }

@@ -4,6 +4,7 @@ import sample.communication.ClientCommunication;
 import sample.communication.ClientNotificationsHandler;
 import sample.communication.ServersDirectoryCommunication;
 import sample.exceptions.CountExceededException;
+import sample.exceptions.NoServersDirectory;
 import sample.models.ServerInformation;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class ServerController extends Thread {
 
     ClientNotificationsHandler clientNotificationsHandler;
 
-    public ServerController(String serversDirectoryIP) throws IOException, CountExceededException {
+    public ServerController(String serversDirectoryIP) throws IOException, NoServersDirectory {
         startServer();
         serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, serverInformation);
         clientNotificationsHandler = new ClientNotificationsHandler(this);

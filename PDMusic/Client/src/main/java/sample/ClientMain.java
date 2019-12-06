@@ -8,8 +8,6 @@ import javafx.stage.Stage;
 import sample.controllers.LoginController;
 import sample.controllers.ScreenController;
 
-import java.io.IOException;
-
 import static sample.controllers.LayoutsConstants.LAYOUT_LOGIN;
 
 public class ClientMain extends Application {
@@ -36,7 +34,7 @@ public class ClientMain extends Application {
         primaryStage.show();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Sintaxe: java Client <ServersDirectoryIP>");
             return;

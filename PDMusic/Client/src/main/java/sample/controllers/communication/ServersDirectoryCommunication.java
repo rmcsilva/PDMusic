@@ -8,77 +8,91 @@ import sample.exceptions.CountExceededException;
 import sample.models.ServerInformation;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 
 import static sample.JSONConstants.REQUEST;
 
 public class ServersDirectoryCommunication implements ServersDirectoryInformation {
 
-    private String serversDirectoryIP;
+    private InetAddress serversDirectoryAddress;
 
     private DatagramSocket datagramSocket;
     private DatagramPacket datagramPacket;
 
-    public ServersDirectoryCommunication(String serversDirectoryIP) {
-        this.serversDirectoryIP = serversDirectoryIP;
+    private JSONObject serversDirectoryResponse;
+
+    public ServersDirectoryCommunication(String serversDirectoryIP) throws UnknownHostException {
+        serversDirectoryAddress = InetAddress.getByName(serversDirectoryIP);
     }
 
-    public ServerInformation connectToServersDirectory() throws NoServersDirectory, NoServerAvailable {
-        CountExceededException countExceededException = new CountExceededException(3);
+    public ServerInformation connectToServersDirectory() throws NoServersDirectory, NoServerAvailable, SocketException {
+        datagramSocket = new DatagramSocket();
+        datagramSocket.setSoTimeout(socketsTimeout);
 
-        while (true) {
-            try {
-                connectToServersDirectory(serversDirectoryIP);
-                return receiveServerInformation();
-            } catch (IOException e) {
-                try {
-                    System.out.println("Could not connect to serversDirectory! Counter: "
-                            + countExceededException.getCounter() +
-                            " Limit: " + countExceededException.getLimit()
-                    );
-                    countExceededException.incrementCounter();
-                } catch (CountExceededException cee) {
-                    throw new NoServersDirectory();
-                }
-            }
-        }
+        connectToServersDirectory(serversDirectoryAddress);
+        return receiveServerInformation();
     }
 
     @Override
-    public void connectToServersDirectory(String sdIP) throws IOException {
-        InetAddress serversDirectoryAddress = InetAddress.getByName(sdIP);
+    public void connectToServersDirectory(InetAddress serversDirectoryAddress) throws NoServersDirectory {
         System.out.println("Connecting to Servers Directory at " + serversDirectoryAddress.getHostAddress());
 
         JSONObject request = new JSONObject();
         request.put(REQUEST, CLIENT);
 
-        byte[] bArray = request.toString().getBytes();
+        try {
+            sendPacketAndWaitForResponse(serversDirectoryAddress, request);
+        } catch (CountExceededException e) {
+            throw new NoServersDirectory();
+        }
+    }
 
+    private void sendPacketAndWaitForResponse(InetAddress serversDirectoryAddress, JSONObject request) throws CountExceededException {
+        CountExceededException countExceededException = new CountExceededException(NUMBER_OF_CONNECTION_ATTEMPTS);
+
+        while (true) {
+            try {
+                sendRequestToServersDirectory(serversDirectoryAddress, request);
+                receiveServersDirectoryResponse();
+                return;
+            } catch (IOException e) {
+                System.out.println("Could not connect to serversDirectory! Counter: "
+                        + countExceededException.getCounter() +
+                        " Limit: " + countExceededException.getLimit()
+                );
+                countExceededException.incrementCounter();
+            }
+        }
+    }
+
+
+    private void sendRequestToServersDirectory(InetAddress serversDirectoryAddress, JSONObject request) throws IOException {
+        byte[] bArray = request.toString().getBytes();
         datagramPacket = new DatagramPacket(bArray, bArray.length, serversDirectoryAddress, serversDirectoryPort);
-        datagramSocket = new DatagramSocket();
-        datagramSocket.setSoTimeout(socketsTimeout);
         datagramSocket.send(datagramPacket);
     }
 
-    private ServerInformation receiveServerInformation() throws IOException, NoServerAvailable {
-        System.out.println("Waiting for Server Information...");
+    private void receiveServersDirectoryResponse() throws IOException {
+        System.out.println("Waiting for ServersDirectory Response...");
 
         byte[] bArray = new byte[datagramPacketSize];
         datagramPacket = new DatagramPacket(bArray, bArray.length);
         datagramSocket.receive(datagramPacket);
 
         String response = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
-        JSONObject json = new JSONObject(response);
+        serversDirectoryResponse = new JSONObject(response);
+    }
+
+    private ServerInformation receiveServerInformation() throws NoServerAvailable {
+        System.out.println("Getting Server Information...");
 
         //If there is not IP on the response then that are no servers
-        if (!json.has(IP)) {
+        if (!serversDirectoryResponse.has(IP)) {
             throw new NoServerAvailable();
         }
 
-        String ip = json.getString(IP);
-        int port = json.getInt(PORT);
+        String ip = serversDirectoryResponse.getString(IP);
+        int port = serversDirectoryResponse.getInt(PORT);
 
         datagramSocket.close();
 
