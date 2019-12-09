@@ -46,7 +46,7 @@ public class CommunicationHandler extends Thread implements Communication {
         socket = new Socket(ip, port);
         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         pw = new PrintWriter(socket.getOutputStream());
-        System.out.println("connected to server!");
+        System.out.println("Connected to Server " + ip + ":" + port + "!");
     }
 
     private void sendRequest(JSONObject jsonRequest) {

@@ -38,4 +38,24 @@ public class ServerInformation {
     public void clientLogout() {
         --numberOfClients;
     }
+
+    @Override
+    public String toString() {
+        return ip + ":" + port;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof ServerInformation)) {
+            return false;
+        }
+
+        ServerInformation serverInformation = (ServerInformation) obj;
+
+        return ip.equals(serverInformation.getIp()) && port == serverInformation.getPort();
+    }
 }

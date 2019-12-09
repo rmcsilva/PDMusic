@@ -13,7 +13,7 @@ import java.net.InetAddress;
 
 import static sample.JSONConstants.REQUEST;
 
-public class ServersDirectoryCommunication implements ServersDirectoryInformation {
+public class ServersDirectoryCommunication implements ServersDirectoryInformation, sample.ServersDirectoryCommunication {
 
     private InetAddress serversDirectoryAddress;
 
@@ -38,14 +38,18 @@ public class ServersDirectoryCommunication implements ServersDirectoryInformatio
 
         JSONObject request = new JSONObject();
         request.put(REQUEST, SERVER);
-        request.put(IP, serverInformation.getIp());
-        request.put(PORT, serverInformation.getPort());
+        addServerInformationToRequest(serverInformation, request);
 
         try {
             sendPacketAndWaitForResponse(serversDirectoryAddress, request);
         } catch (CountExceededException e) {
             throw new NoServersDirectory();
         }
+    }
+
+    private void addServerInformationToRequest(ServerInformation serverInformation, JSONObject request) {
+        request.put(IP, serverInformation.getIp());
+        request.put(PORT, serverInformation.getPort());
     }
 
     private void sendPacketAndWaitForResponse(InetAddress serversDirectoryAddress, JSONObject request) throws CountExceededException {
@@ -80,7 +84,20 @@ public class ServersDirectoryCommunication implements ServersDirectoryInformatio
         datagramSocket.receive(datagramPacket);
     }
 
-        datagramSocket.close();
+    @Override
+    public void clientDisconnected(ServerInformation serverInformation) {
+        JSONObject request = new JSONObject();
+        request.put(REQUEST, CLIENT_DISCONNECTED);
+        addServerInformationToRequest(serverInformation, request);
+
+        try {
+            System.out.println("Sending Client Disconnected Request to Servers Directory!");
+            sendPacketAndWaitForResponse(serversDirectoryAddress, request);
+            System.out.println("Servers Directory Confirmed Client Disconnected Request!");
+        } catch (CountExceededException e) {
+            System.out.println("Could not send Client Disconnected Request to ServersDirectory!");
+        }
+    }
     }
 
 }

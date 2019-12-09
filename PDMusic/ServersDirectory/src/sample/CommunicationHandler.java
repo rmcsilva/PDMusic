@@ -12,7 +12,7 @@ import static sample.JSONConstants.REQUEST;
 import static sample.ServersDirectoryInformation.*;
 import static sample.ServersDirectoryInformation.PORT;
 
-public class CommunicationHandler extends Thread {
+public class CommunicationHandler extends Thread implements ServersDirectoryCommunication {
 
     private PriorityQueue<ServerInformation> serversInformation;
 
@@ -26,12 +26,23 @@ public class CommunicationHandler extends Thread {
         datagramSocket = new DatagramSocket(serversDirectoryPort);
     }
 
-    public ServerInformation findBestServerForClient() {
+    private ServerInformation findBestServerForClient() {
         ServerInformation serverInformation = serversInformation.poll();
         assert serverInformation != null;
         serverInformation.newClient();
         serversInformation.add(serverInformation);
         return serverInformation;
+    }
+
+    private void removeClientFromServer(ServerInformation affectedServer) {
+        for (ServerInformation server : serversInformation) {
+            if (server.equals(affectedServer)) {
+                server.clientLogout();
+                serversInformation.remove(server);
+                serversInformation.add(server);
+                break;
+            }
+        }
     }
 
     public void shutdown() {
@@ -52,7 +63,7 @@ public class CommunicationHandler extends Thread {
             case SERVER:
                 serverInformation = getServerInformationFromRequest(request);
                 serversInformation.add(serverInformation);
-                System.out.print("Server request -> ");
+                System.out.print("Server Request, details " + serverInformation + " -> ");
                 break;
             case CLIENT:
                 if (serversInformation.isEmpty()) break;
@@ -64,7 +75,13 @@ public class CommunicationHandler extends Thread {
 
                 putResponseInDatagramPacket(response);
 
-                System.out.print("Client request -> ");
+                System.out.print("Client Request, connect to Server " + serverInformation + " -> ");
+                break;
+            case CLIENT_DISCONNECTED:
+                serverInformation = getServerInformationFromRequest(request);
+                clientDisconnected(serverInformation);
+
+                System.out.print("Client Disconnected Request, affected Server " + serverInformation + " -> ");
                 break;
             default:
                 break;
@@ -107,5 +124,10 @@ public class CommunicationHandler extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void clientDisconnected(ServerInformation serverInformation) {
+        removeClientFromServer(serverInformation);
     }
 }

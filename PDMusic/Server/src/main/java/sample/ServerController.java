@@ -41,13 +41,13 @@ public class ServerController extends Thread {
     }
 
     public void clientLoggedOut() {
-        //TODO: Warn Servers Directory that client logged out
+        serversDirectoryCommunication.clientDisconnected(serverInformation);
     }
 
     @Override
     public void run() {
         while (isServerRunning) {
-            System.out.println("Connecting to client");
+            System.out.println("Waiting for a Client to connect!");
 
             try {
                 Socket socket = serverSocket.accept();
