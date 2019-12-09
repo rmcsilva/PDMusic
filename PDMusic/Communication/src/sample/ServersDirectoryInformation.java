@@ -18,7 +18,7 @@ public interface ServersDirectoryInformation {
     String CLIENT = "client";
     String SERVER = "server";
     String IP = "ip";
-    String PORT = "port";
+    String TCP_PORT = "tcpPort";
 
     void connectToServersDirectory(InetAddress serversDirectoryAddress) throws NoServersDirectory;
 

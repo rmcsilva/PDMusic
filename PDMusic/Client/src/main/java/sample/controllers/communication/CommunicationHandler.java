@@ -39,7 +39,7 @@ public class CommunicationHandler extends Thread implements Communication {
 
     public void handleConnections() throws IOException, NoServerAvailable, NoServersDirectory {
         ServerInformation serverInformation = serversDirectoryCommunication.connectToServersDirectory();
-        connectToServer(serverInformation.getIp(), serverInformation.getPort());
+        connectToServer(serverInformation.getIp(), serverInformation.getTcpPort());
     }
 
     private void connectToServer(String ip, int port) throws IOException {

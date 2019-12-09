@@ -37,7 +37,8 @@ public class ClientNotificationsHandler implements ServerNotifications {
             //Only send notifications to other clients
             int id = clientCommunication.getId();
             if (id != senderId) {
-                System.out.println("Notification Sent To -> ID: " + id + " Type: " + notification.getString(NOTIFICATION));
+                System.out.println("Notification Sent To -> ID: " + id +
+                        " Type: " + notification.getString(NOTIFICATION) + "\n");
                 clientCommunication.sendResponse(notification);
             }
         }

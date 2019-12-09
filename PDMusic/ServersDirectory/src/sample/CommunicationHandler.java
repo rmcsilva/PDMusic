@@ -10,11 +10,13 @@ import java.util.PriorityQueue;
 
 import static sample.JSONConstants.REQUEST;
 import static sample.ServersDirectoryInformation.*;
-import static sample.ServersDirectoryInformation.PORT;
+import static sample.ServersDirectoryInformation.TCP_PORT;
 
 public class CommunicationHandler extends Thread implements ServersDirectoryCommunication {
 
     private PriorityQueue<ServerInformation> serversInformation;
+
+    private ServerPingHandler serverPingHandler;
 
     private DatagramSocket datagramSocket;
     private DatagramPacket datagramPacket;
@@ -24,9 +26,16 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
     public CommunicationHandler() throws SocketException {
         serversInformation = new PriorityQueue<>(Comparator.comparingInt(ServerInformation::getNumberOfClients));
         datagramSocket = new DatagramSocket(serversDirectoryPort);
+        serverPingHandler = new ServerPingHandler(this);
+        serverPingHandler.start();
+        System.out.println("Starting Server Periodic Ping!\n");
     }
 
-    private ServerInformation findBestServerForClient() {
+    public synchronized PriorityQueue<ServerInformation> getServersInformation() {
+        return serversInformation;
+    }
+
+    private synchronized ServerInformation findBestServerForClient() {
         ServerInformation serverInformation = serversInformation.poll();
         assert serverInformation != null;
         serverInformation.newClient();
@@ -34,19 +43,31 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         return serverInformation;
     }
 
-    private void removeClientFromServer(ServerInformation affectedServer) {
-        for (ServerInformation server : serversInformation) {
+    private synchronized void removeClientFromServer(ServerInformation affectedServer) {
+        for (ServerInformation server : getServersInformation()) {
             if (server.equals(affectedServer)) {
                 server.clientLogout();
                 serversInformation.remove(server);
                 serversInformation.add(server);
-                break;
+                return;
             }
         }
     }
 
+    private synchronized boolean removeServerFromQueue(ServerInformation serverToRemove) {
+        for (ServerInformation server : getServersInformation()) {
+            if (server.equals(serverToRemove)) {
+                serversInformation.remove(server);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void shutdown() {
         isRunning = false;
+
+        serverPingHandler.shutdown();
 
         try {
             datagramSocket.setSoTimeout(socketsTimeout);
@@ -61,7 +82,7 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
 
         switch (request.getString(REQUEST)) {
             case SERVER:
-                serverInformation = getServerInformationFromRequest(request);
+                serverInformation = getServerFullInformationFromRequest(request);
                 serversInformation.add(serverInformation);
                 System.out.print("Server Request, details " + serverInformation + " -> ");
                 break;
@@ -71,14 +92,14 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
                 serverInformation = findBestServerForClient();
 
                 response.put(IP, serverInformation.getIp());
-                response.put(PORT, serverInformation.getPort());
+                response.put(TCP_PORT, serverInformation.getTcpPort());
 
                 putResponseInDatagramPacket(response);
 
                 System.out.print("Client Request, connect to Server " + serverInformation + " -> ");
                 break;
             case CLIENT_DISCONNECTED:
-                serverInformation = getServerInformationFromRequest(request);
+                serverInformation = getServerTCPInformationFromRequest(request);
                 clientDisconnected(serverInformation);
 
                 System.out.print("Client Disconnected Request, affected Server " + serverInformation + " -> ");
@@ -88,9 +109,17 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         }
     }
 
-    private ServerInformation getServerInformationFromRequest(JSONObject request) {
+    ServerInformation getServerFullInformationFromRequest(JSONObject request) {
         String ip = request.getString(IP);
-        int port = request.getInt(PORT);
+        int tcpPort = request.getInt(TCP_PORT);
+        int udpPort = request.getInt(UDP_PORT);
+
+        return new ServerInformation(ip, tcpPort, udpPort);
+    }
+
+    ServerInformation getServerTCPInformationFromRequest(JSONObject request) {
+        String ip = request.getString(IP);
+        int port = request.getInt(TCP_PORT);
 
         return new ServerInformation(ip, port);
     }
@@ -116,7 +145,7 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
                 handleRequest(request);
 
                 System.out.println("Packet received from " + datagramPacket.getAddress().getHostAddress()
-                        + ":" + datagramPacket.getPort()
+                        + ":" + datagramPacket.getPort() + "\n"
                 );
 
                 datagramSocket.send(datagramPacket);
@@ -127,7 +156,26 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
     }
 
     @Override
+    public void periodicPing(ServerInformation serverInformation) {
+        for (ServerInformation server : getServersInformation()) {
+            if (server.equals(serverInformation)) {
+                server.resetPingCounter();
+                System.out.println("Got ping response from Server -> " + server);
+                return;
+            }
+        }
+    }
+
+    @Override
     public void clientDisconnected(ServerInformation serverInformation) {
         removeClientFromServer(serverInformation);
+    }
+
+    @Override
+    public void serverDisconnected(ServerInformation serverInformation) {
+        if (removeServerFromQueue(serverInformation)) {
+            //TODO: Warn other servers
+            System.out.println("Server " + serverInformation + " is no longer active!");
+        }
     }
 }

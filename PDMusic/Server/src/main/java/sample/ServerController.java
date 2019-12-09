@@ -3,7 +3,6 @@ package sample;
 import sample.communication.ClientCommunication;
 import sample.communication.ClientNotificationsHandler;
 import sample.communication.ServersDirectoryCommunication;
-import sample.exceptions.CountExceededException;
 import sample.exceptions.NoServersDirectory;
 import sample.models.ServerInformation;
 
@@ -26,6 +25,8 @@ public class ServerController extends Thread {
     public ServerController(String serversDirectoryIP) throws IOException, NoServersDirectory {
         startServer();
         serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, serverInformation);
+        serversDirectoryCommunication.setDaemon(true);
+        serversDirectoryCommunication.start();
         clientNotificationsHandler = new ClientNotificationsHandler(this);
     }
 
@@ -47,7 +48,7 @@ public class ServerController extends Thread {
     @Override
     public void run() {
         while (isServerRunning) {
-            System.out.println("Waiting for a Client to connect!");
+            System.out.println("Waiting for a Client to connect!\n");
 
             try {
                 Socket socket = serverSocket.accept();
@@ -64,8 +65,11 @@ public class ServerController extends Thread {
     private void shutdown() {
         isServerRunning = false;
 
+        serversDirectoryCommunication.shutdown();
+        clientNotificationsHandler.serverShutdown();
+
         try {
-            Socket socket = new Socket(serverInformation.getIp(), serverInformation.getPort());
+            Socket socket = new Socket(serverInformation.getIp(), serverInformation.getTcpPort());
             socket.close();
             serverSocket.close();
         } catch (IOException e) {

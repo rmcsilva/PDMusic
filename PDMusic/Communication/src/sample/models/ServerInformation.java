@@ -6,29 +6,52 @@ import java.net.UnknownHostException;
 public class ServerInformation {
 
     private String ip;
-    private int port;
-    private int numberOfClients;
+    private int tcpPort, udpPort;
+    private int numberOfClients, pingCounter;
 
-    public ServerInformation(String ip, int port) {
+    public ServerInformation(String ip, int tcpPort) {
         this.ip = ip;
-        this.port = port;
-        numberOfClients = 0;
+        this.tcpPort = tcpPort;
+        numberOfClients = pingCounter = 0;
+    }
+
+    public ServerInformation(String ip, int tcpPort, int udpPort) {
+        this.ip = ip;
+        this.tcpPort = tcpPort;
+        this.udpPort = udpPort;
+        numberOfClients = pingCounter = 0;
     }
 
     public int getNumberOfClients() {
         return numberOfClients;
     }
 
+    public int getPingCounter() {
+        return pingCounter;
+    }
+
     public String getIp() {
         return ip;
     }
 
-    public int getPort() {
-        return port;
+    public int getTcpPort() {
+        return tcpPort;
+    }
+
+    public int getUdpPort() {
+        return udpPort;
     }
 
     public InetAddress getAddress() throws UnknownHostException {
         return InetAddress.getByName(ip);
+    }
+
+    public void resetPingCounter() {
+        pingCounter = 0;
+    }
+
+    public void pingServer() {
+        ++pingCounter;
     }
 
     public void newClient() {
@@ -41,7 +64,7 @@ public class ServerInformation {
 
     @Override
     public String toString() {
-        return ip + ":" + port;
+        return ip + ":" + tcpPort;
     }
 
     @Override
@@ -56,6 +79,6 @@ public class ServerInformation {
 
         ServerInformation serverInformation = (ServerInformation) obj;
 
-        return ip.equals(serverInformation.getIp()) && port == serverInformation.getPort();
+        return ip.equals(serverInformation.getIp()) && tcpPort == serverInformation.getTcpPort();
     }
 }

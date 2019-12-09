@@ -92,7 +92,7 @@ public class ServersDirectoryCommunication implements ServersDirectoryInformatio
         }
 
         String ip = serversDirectoryResponse.getString(IP);
-        int port = serversDirectoryResponse.getInt(PORT);
+        int port = serversDirectoryResponse.getInt(TCP_PORT);
 
         datagramSocket.close();
 
