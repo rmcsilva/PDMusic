@@ -1,17 +1,8 @@
 package sample;
 
-import org.json.JSONObject;
-import sample.communication.ClientCommunication;
-import sample.communication.ServersDirectoryCommunication;
-import sample.exceptions.CountExceededException;
 import sample.exceptions.NoServersDirectory;
-import sample.models.ServerInformation;
 
 import java.io.IOException;
-import java.net.*;
-
-import static sample.JSONConstants.REQUEST;
-import static sample.ServersDirectoryInformation.*;
 
 public class ServerMain {
 
@@ -23,14 +14,6 @@ public class ServerMain {
             return;
         }
 
-        try {
-            ServerController serverController = new ServerController(args[0]);
-            serverController.start();
-        } catch (CountExceededException e) {
-            System.out.println("Servers Directory is not running!");
-            e.printStackTrace();
-            return;
-        }
         ServerController serverController = new ServerController(args[0]);
         serverController.start();
     }

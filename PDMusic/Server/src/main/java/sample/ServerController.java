@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 
 public class ServerController extends Thread {
 
@@ -18,16 +19,19 @@ public class ServerController extends Thread {
 
     boolean isServerRunning = true;
 
+    HashSet<ServerInformation> servers;
+
     ServersDirectoryCommunication serversDirectoryCommunication;
 
     ClientNotificationsHandler clientNotificationsHandler;
 
     public ServerController(String serversDirectoryIP) throws IOException, NoServersDirectory {
         startServer();
-        serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, serverInformation);
+        serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, serverInformation, this);
         serversDirectoryCommunication.setDaemon(true);
         serversDirectoryCommunication.start();
         clientNotificationsHandler = new ClientNotificationsHandler(this);
+        servers = new HashSet<>();
     }
 
     private void startServer() throws IOException {
@@ -43,6 +47,18 @@ public class ServerController extends Thread {
 
     public void clientLoggedOut() {
         serversDirectoryCommunication.clientDisconnected(serverInformation);
+    }
+
+    public HashSet<ServerInformation> getServers() {
+        return servers;
+    }
+
+    public synchronized void addServerIP(ServerInformation server) {
+        servers.add(server);
+    }
+
+    public synchronized void removeServerIP(ServerInformation server) {
+        servers.remove(server);
     }
 
     @Override

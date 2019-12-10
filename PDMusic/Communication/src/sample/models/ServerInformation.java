@@ -2,8 +2,9 @@ package sample.models;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Comparator;
 
-public class ServerInformation {
+public class ServerInformation implements Comparable<ServerInformation> {
 
     private String ip;
     private int tcpPort, udpPort;
@@ -80,5 +81,10 @@ public class ServerInformation {
         ServerInformation serverInformation = (ServerInformation) obj;
 
         return ip.equals(serverInformation.getIp()) && tcpPort == serverInformation.getTcpPort();
+    }
+
+    @Override
+    public int compareTo(ServerInformation o) {
+        return getNumberOfClients() - o.getNumberOfClients();
     }
 }

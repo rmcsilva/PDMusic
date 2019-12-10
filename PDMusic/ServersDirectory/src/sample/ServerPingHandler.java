@@ -9,6 +9,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 
 import static sample.JSONConstants.REQUEST;
 import static sample.ServersDirectoryCommunication.PING;
@@ -55,8 +56,6 @@ public class ServerPingHandler extends Thread {
                     communicationHandler.periodicPing(serverInformation);
 
                     datagramSocket.send(datagramPacket);
-
-                    System.out.println("Ping response from -> " + serverInformation + "\n");
                 } else {
                     System.out.println("Unrecognized request type!\n");
                 }
@@ -80,15 +79,17 @@ public class ServerPingHandler extends Thread {
 
                 server.pingServer();
                 System.out.println("Pinging Server -> " + server +
-                        ", current counter: " + server.getPingCounter() + "\n");
+                        ", current counter: " + server.getPingCounter());
                 if (server.getPingCounter() > PING_LIMIT) {
                     System.out.println("Server " + server + " exceeded the ping limit!\n");
-                    communicationHandler.serverDisconnected(server);
+                    CompletableFuture.runAsync(() -> communicationHandler.serverDisconnected(server));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+        System.out.println("Pinged all servers!\n");
     }
 
     void shutdown() {
