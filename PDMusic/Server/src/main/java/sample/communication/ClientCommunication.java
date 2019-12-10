@@ -42,69 +42,73 @@ public class ClientCommunication implements Runnable, Communication {
 
         try {
             while (isRunning) {
-                jsonRequest = br.readLine();
-                //Check null
-                JSONObject request = new JSONObject(jsonRequest);
-                response = new JSONObject();
+                try {
+                    jsonRequest = br.readLine();
+                    //Check null
 
-                switch (request.getString(REQUEST)) {
-                    case REQUEST_LOGIN:
-                        String username = request.getString(USERNAME);
-                        String password = request.getString(PASSWORD);
+                    JSONObject request = new JSONObject(jsonRequest);
+                    response = new JSONObject();
+                    switch (request.getString(REQUEST)) {
+                        case REQUEST_LOGIN:
+                            String username = request.getString(USERNAME);
+                            String password = request.getString(PASSWORD);
 
-                        System.out.println("Login -> ID: " + id + " Username: " + username);
+                            System.out.println("Login -> ID: " + id + " Username: " + username);
 
-                        login(username, password);
-                        break;
-                    case REQUEST_REGISTER:
-                        String name = request.getString(NAME);
-                        username = request.getString(USERNAME);
-                        password = request.getString(PASSWORD);
+                            login(username, password);
+                            break;
+                        case REQUEST_REGISTER:
+                            String name = request.getString(NAME);
+                            username = request.getString(USERNAME);
+                            password = request.getString(PASSWORD);
 
-                        System.out.println("Register -> ID: " + id + " Username: " + username + " Name: " + name);
+                            System.out.println("Register -> ID: " + id + " Username: " + username + " Name: " + name);
 
-                        register(name, username, password);
-                        break;
-                    case REQUEST_ADD_MUSIC:
-                        String musicName = request.getString(MUSIC_NAME);
-                        String author = request.getString(AUTHOR);
-                        String album = request.getString(ALBUM);
-                        int year = request.getInt(YEAR);
-                        int duration = request.getInt(DURATION);
-                        String genre = request.getString(GENRE);
+                            register(name, username, password);
+                            break;
+                        case REQUEST_ADD_MUSIC:
+                            String musicName = request.getString(MUSIC_NAME);
+                            String author = request.getString(AUTHOR);
+                            String album = request.getString(ALBUM);
+                            int year = request.getInt(YEAR);
+                            int duration = request.getInt(DURATION);
+                            String genre = request.getString(GENRE);
 
-                        System.out.println("Add Music -> ID: " + id + " Username: " + this.username +
-                                " MusicName: " + musicName + " Author: " + author + " Year: " + year +
-                                " Duration: " + duration + " Genre: " + genre);
+                            System.out.println("Add Music -> ID: " + id + " Username: " + this.username +
+                                    " MusicName: " + musicName + " Author: " + author + " Year: " + year +
+                                    " Duration: " + duration + " Genre: " + genre);
 
-                        addMusic(musicName, author, album, year, duration, genre);
-                        break;
-                    case REQUEST_ADD_PLAYLIST:
-                        String playlistName = request.getString(PLAYLIST_NAME);
+                            addMusic(musicName, author, album, year, duration, genre);
+                            break;
+                        case REQUEST_ADD_PLAYLIST:
+                            String playlistName = request.getString(PLAYLIST_NAME);
 
-                        System.out.println("Add Playlist -> ID: " + id + " Username: " + this.username +
-                                " PlaylistName: " + playlistName);
+                            System.out.println("Add Playlist -> ID: " + id + " Username: " + this.username +
+                                    " PlaylistName: " + playlistName);
 
-                        addPlaylist(playlistName);
-                        break;
-                    case REQUEST_ADD_MUSIC_TO_PLAYLIST:
-                        String musicToAdd = request.getString(MUSIC_NAME);
-                        String playlistForMusic = request.getString(PLAYLIST_NAME);
+                            addPlaylist(playlistName);
+                            break;
+                        case REQUEST_ADD_MUSIC_TO_PLAYLIST:
+                            String musicToAdd = request.getString(MUSIC_NAME);
+                            String playlistForMusic = request.getString(PLAYLIST_NAME);
 
-                        System.out.println("Add Music To Playlist -> ID: " + id +
-                                " Username: " + this.username +
-                                " MusicToAdd: " + musicToAdd +
-                                " PlaylistForMusic: " + playlistForMusic);
+                            System.out.println("Add Music To Playlist -> ID: " + id +
+                                    " Username: " + this.username +
+                                    " MusicToAdd: " + musicToAdd +
+                                    " PlaylistForMusic: " + playlistForMusic);
 
-                        addMusicToPlaylist(musicToAdd, playlistForMusic);
-                        break;
-                    case REQUEST_LOGOUT:
-                        System.out.println("Logout -> ID: " + id + " Username: " + this.username);
+                            addMusicToPlaylist(musicToAdd, playlistForMusic);
+                            break;
+                        case REQUEST_LOGOUT:
+                            System.out.println("Logout -> ID: " + id + " Username: " + this.username);
 
-                        logout();
-                        break;
-                    default:
-                        break;
+                            logout();
+                            break;
+                        default:
+                            break;
+                    }
+                }catch (NullPointerException e){
+                    isRunning = false;
                 }
             }
         } catch (IOException e) {

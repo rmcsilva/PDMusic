@@ -84,7 +84,7 @@ public class ServerController extends Thread {
         }
     }
 
-    private void shutdown() {
+    public void shutdown() {
         isServerRunning = false;
 
         serversDirectoryCommunication.shutdown();
