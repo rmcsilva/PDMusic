@@ -100,6 +100,10 @@ public class NotificationHandler implements ClientNotifications {
                 System.out.println("Add Music To Playlist Notification ");
                 parseMusicToAddToPlaylistFromJSON(notification);
                 break;
+            case SERVER_SHUTDOWN:
+                System.out.println("Server Shutdown Notification");
+                serverShutdown();
+                break;
             default:
                 break;
         }
@@ -181,5 +185,7 @@ public class NotificationHandler implements ClientNotifications {
 
     @Override
     public void serverShutdown() {
+        communicationHandler.shutdown();
+        screenController.activate(ScreenController.Screen.LOGIN);
     }
 }

@@ -5,6 +5,7 @@ import sample.Communication;
 import sample.controllers.MainController;
 import sample.controllers.communication.Exceptions.NoServerAvailable;
 import sample.exceptions.NoServersDirectory;
+import sample.models.ClientInformation;
 import sample.models.ServerInformation;
 
 import java.io.BufferedReader;
@@ -18,6 +19,8 @@ public class CommunicationHandler extends Thread implements Communication {
 
     private ServersDirectoryCommunication serversDirectoryCommunication;
     private NotificationHandler notificationHandler;
+
+    private ClientInformation clientInformation;
 
     private Socket socket;
     private BufferedReader br;
@@ -100,20 +103,24 @@ public class CommunicationHandler extends Thread implements Communication {
                 }
 
             } catch (NullPointerException e) {
-                shutdown();
-                e.printStackTrace();
-                System.out.println("Client logged out");
-            } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Server shutdown");
                 try {
                     handleConnections();
+                    login(clientInformation.getUsername(), clientInformation.getPassword());
+                } catch (ConnectException ce) {
+                    notificationHandler.serverShutdown();
+                    System.out.println("Could not connect to server! Try again latter!");
+                    ce.printStackTrace();
                 } catch (NoServerAvailable | NoServersDirectory | IOException ex) {
-                    shutdown();
-                    System.out.println(e);
-                    e.printStackTrace();
+                    notificationHandler.serverShutdown();
+                    System.out.println(ex);
+                    ex.printStackTrace();
                     return;
                 }
+            } catch (IOException e) {
+                notificationHandler.serverShutdown();
+                e.printStackTrace();
             }
         }
     }
@@ -124,6 +131,8 @@ public class CommunicationHandler extends Thread implements Communication {
         request.put(REQUEST , REQUEST_LOGIN);
         request.put(USERNAME, username);
         request.put(PASSWORD, password);
+
+        clientInformation = new ClientInformation(username, password);
 
         sendRequest(request);
     }

@@ -17,6 +17,10 @@ public class ClientNotificationsHandler implements ServerNotifications {
         clientCommunications = new ArrayList<>();
     }
 
+    public boolean isServerRunning() {
+        return serverController.isServerRunning();
+    }
+
     public void addClient(ClientCommunication newClient) {
         clientCommunications.add(newClient);
     }
@@ -68,5 +72,9 @@ public class ClientNotificationsHandler implements ServerNotifications {
 
     @Override
     public void serverShutdown() {
+        JSONObject serverShutdown = new JSONObject();
+        serverShutdown.put(NOTIFICATION, SERVER_SHUTDOWN);
+        //Sends the notification to all the clients, senderId starts at 0
+        sendNotificationToClients(-1, serverShutdown);
     }
 }

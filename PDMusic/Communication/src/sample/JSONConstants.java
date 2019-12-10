@@ -30,6 +30,9 @@ public interface JSONConstants {
     //Logout request
     String REQUEST_LOGOUT = "logout";
 
+    //Server Shutdown Request
+    String SERVER_SHUTDOWN = "serverShutdown";
+
     //Response keys
     String RESPONSE = "response";
     //Response keys status

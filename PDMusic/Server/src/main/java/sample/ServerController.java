@@ -47,6 +47,10 @@ public class ServerController extends Thread {
         serverInformation = new ServerInformation(serverAddress, serverPort);
     }
 
+    public boolean isServerRunning() {
+        return isServerRunning;
+    }
+
     public void clientLoggedOut() {
         serversDirectoryCommunication.clientDisconnected(serverInformation);
     }
@@ -91,8 +95,6 @@ public class ServerController extends Thread {
         clientNotificationsHandler.serverShutdown();
 
         try {
-            Socket socket = new Socket(serverInformation.getIp(), serverInformation.getTcpPort());
-            socket.close();
             serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();

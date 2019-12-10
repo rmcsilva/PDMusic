@@ -1,10 +1,8 @@
 package sample;
 
-import sample.communication.CommandController;
 import sample.exceptions.NoServersDirectory;
 
 import java.io.IOException;
-import java.util.Scanner;
 
 public class ServerMain {
 
@@ -19,7 +17,7 @@ public class ServerMain {
         ServerController serverController = new ServerController(args[0]);
         serverController.start();
 
-        Thread commandManager = new Thread(new CommandController(true, serverController));
+        CommandController commandManager = new CommandController(serverController);
         commandManager.start();
 
     }

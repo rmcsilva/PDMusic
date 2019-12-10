@@ -44,7 +44,6 @@ public class ClientCommunication implements Runnable, Communication {
             while (isRunning) {
                 try {
                     jsonRequest = br.readLine();
-                    //Check null
 
                     JSONObject request = new JSONObject(jsonRequest);
                     response = new JSONObject();
@@ -109,10 +108,15 @@ public class ClientCommunication implements Runnable, Communication {
                     }
                 }catch (NullPointerException e){
                     isRunning = false;
+                    //If server is running warn servers directory that client logged out
+                    if (clientNotificationsHandler.isServerRunning()) {
+                        logout();
+                    }
+                    System.out.println("Client Disconnected -> ID: " + id + " Username: " + username);
+                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {
-            //TODO: Warn SeversDirectory that Client logged out
             e.printStackTrace();
         } finally {
             shutdown();
