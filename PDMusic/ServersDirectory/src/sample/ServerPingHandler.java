@@ -18,7 +18,7 @@ import static sample.ServersDirectoryInformation.*;
 
 public class ServerPingHandler extends Thread {
 
-    private ServerInformation primaryServer;
+    private ServerInformation primaryServer = null;
 
     CommunicationHandler communicationHandler;
 
@@ -32,6 +32,14 @@ public class ServerPingHandler extends Thread {
         timer = new Timer();
         timer.schedule(new Ping(), 0, //initial delay
                 10 * 1000); //subsequent rate
+    }
+
+    public synchronized ServerInformation getPrimaryServer() {
+        return primaryServer;
+    }
+
+    public synchronized void setPrimaryServer(ServerInformation primaryServer) {
+        this.primaryServer = primaryServer;
     }
 
     @Override
@@ -49,13 +57,19 @@ public class ServerPingHandler extends Thread {
                 JSONObject request = new JSONObject(jsonRequest);
 
                 if (request.getString(REQUEST).equals(PING)) {
-                    //TODO: Setup primary server
-
                     ServerInformation serverInformation = communicationHandler.getServerTCPInformationFromRequest(request);
 
                     communicationHandler.periodicPing(serverInformation);
 
                     datagramSocket.send(datagramPacket);
+
+                    //Check if it needs to setup the primary server
+                    if (primaryServer == null) {
+                        setPrimaryServer(serverInformation);
+                        System.out.println("Server " + serverInformation + " is the Primary Server!\n");
+                        CompletableFuture.runAsync(() -> communicationHandler.primaryServer(primaryServer));
+                    }
+
                 } else {
                     System.out.println("Unrecognized request type!\n");
                 }

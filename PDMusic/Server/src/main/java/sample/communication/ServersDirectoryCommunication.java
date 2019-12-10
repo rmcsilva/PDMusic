@@ -116,12 +116,17 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
             case SERVER_CONNECTED:
                 serverNotification = getServerInformationFromNotification(notification);
                 serverConnected(serverNotification);
-                System.out.println("Server connected notification -> Server " + serverNotification);
+                System.out.println("Server Connected notification -> Server " + serverNotification + "\n");
                 break;
             case SERVER_DISCONNECTED:
                 serverNotification = getServerInformationFromNotification(notification);
                 serverDisconnected(serverNotification);
-                System.out.println("Server disconnected notification -> Server " + serverNotification);
+                System.out.println("Server Disconnected notification -> Server " + serverNotification + "\n");
+                break;
+            case PRIMARY_SERVER:
+                serverNotification = getServerInformationFromNotification(notification);
+                primaryServer(serverNotification);
+                System.out.println("Primary Server notification -> Server " + serverNotification + "\n");
                 break;
             default:
                 System.out.println("Invalid notification!\n");
@@ -195,6 +200,15 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
     @Override
     public void serverDisconnected(ServerInformation serverInformation) {
         serverController.removeServerIP(serverInformation);
+        sendNotificationResponse();
+    }
+
+    @Override
+    public void primaryServer(ServerInformation serverInformation) {
+        if (serverInformation.equals(this.serverInformation)) {
+            System.out.println("Setting up as the Primary Server!\n");
+            serverController.setupAsPrimaryServer();
+        }
         sendNotificationResponse();
     }
 

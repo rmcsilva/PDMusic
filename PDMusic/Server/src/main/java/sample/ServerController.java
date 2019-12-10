@@ -19,6 +19,8 @@ public class ServerController extends Thread {
 
     boolean isServerRunning = true;
 
+    boolean isPrimaryServer = false;
+
     HashSet<ServerInformation> servers;
 
     ServersDirectoryCommunication serversDirectoryCommunication;
@@ -59,6 +61,10 @@ public class ServerController extends Thread {
 
     public synchronized void removeServerIP(ServerInformation server) {
         servers.remove(server);
+    }
+
+    public void setupAsPrimaryServer() {
+        isPrimaryServer = true;
     }
 
     @Override

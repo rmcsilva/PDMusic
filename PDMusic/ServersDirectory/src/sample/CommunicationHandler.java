@@ -191,23 +191,29 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         }
     }
 
-    private void sendNotificationToAllServers(JSONObject notification, ServerInformation sender) {
+    private void sendNotificationToServers(JSONObject notification, ServerInformation sender, boolean sendToSender) {
         notification.put(IP, sender.getIp());
         notification.put(TCP_PORT, sender.getTcpPort());
 
         for (ServerInformation server : serversInformation) {
-            if (!server.equals(sender)) {
-                try {
-                    System.out.println("Sending notification " + notification.getString(REQUEST)
-                            + " to Server -> " + server);
-                    sendNotificationAndWaitForResponse(notification, server);
-                    System.out.println("Notification sent successfully!\n");
-                } catch (CountExceededException e) {
-                    System.out.println("Could not send " + notification.getString(REQUEST) +
-                            " notification to Server " + sender + "\n");
-                    e.printStackTrace();
+            //Check if it needs to send the notification to the sender
+            if (!sendToSender) {
+                if (server.equals(sender)) {
+                    continue;
                 }
             }
+
+            try {
+                System.out.println("Sending notification " + notification.getString(REQUEST)
+                        + " to Server -> " + server);
+                sendNotificationAndWaitForResponse(notification, server);
+                System.out.println("Notification " + notification.getString(REQUEST) + " sent successfully!\n");
+            } catch (CountExceededException e) {
+                System.out.println("Could not send " + notification.getString(REQUEST) +
+                        " notification to Server " + sender + "\n");
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -265,7 +271,7 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         JSONObject notification = new JSONObject();
         notification.put(REQUEST, SERVER_CONNECTED);
 
-        sendNotificationToAllServers(notification, serverInformation);
+        sendNotificationToServers(notification, serverInformation, false);
     }
 
     @Override
@@ -274,7 +280,19 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
             JSONObject notification = new JSONObject();
             notification.put(REQUEST, SERVER_DISCONNECTED);
             System.out.println("Server " + serverInformation + " is no longer active!\n");
-            sendNotificationToAllServers(notification, serverInformation);
+            sendNotificationToServers(notification, serverInformation, true);
+            //Check if primary server disconnected
+            if (serverInformation.equals(serverPingHandler.getPrimaryServer())) {
+                System.out.println("Primary Server " + serverInformation + " Disconnected!\n");
+                serverPingHandler.setPrimaryServer(null);
+            }
         }
+    }
+
+    @Override
+    public void primaryServer(ServerInformation serverInformation) {
+        JSONObject notification = new JSONObject();
+        notification.put(REQUEST, PRIMARY_SERVER);
+        sendNotificationToServers(notification, serverInformation, true);
     }
 }
