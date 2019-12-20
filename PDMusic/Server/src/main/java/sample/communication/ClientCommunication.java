@@ -19,18 +19,21 @@ public class ClientCommunication implements Runnable, Communication {
 
     private ClientNotificationsHandler clientNotificationsHandler;
 
+    private ServerCommunication serverCommunication;
+
     private boolean isRunning = true;
 
     private JSONObject response;
 
     private String username = USERNAME_UNDEFINED;
 
-    public ClientCommunication(Socket clientSocket, ClientNotificationsHandler clientNotificationsHandler) throws IOException {
+    public ClientCommunication(Socket clientSocket, ClientNotificationsHandler clientNotificationsHandler, ServerCommunication serverCommunication) throws IOException {
         this.socket = clientSocket;
         pw = new PrintWriter(socket.getOutputStream());
         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         id = counter++;
         this.clientNotificationsHandler = clientNotificationsHandler;
+        this.serverCommunication = serverCommunication;
     }
 
     public int getId() {
@@ -74,7 +77,8 @@ public class ClientCommunication implements Runnable, Communication {
                             String genre = request.getString(GENRE);
 
                             System.out.println("Add Music -> ID: " + id + " Username: " + this.username +
-                                    " MusicName: " + musicName + " Author: " + author + " Year: " + year +
+                                    " MusicName: " + musicName + " Author: " + author +
+                                    " Album: " + album + " Year: " + year +
                                     " Duration: " + duration + " Genre: " + genre);
 
                             addMusic(musicName, author, album, year, duration, genre);
@@ -147,6 +151,8 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(RESPONSE, REQUEST_REGISTER);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, username + " " + REGISTER_SUCCESS);
+        //Send notification
+        serverCommunication.registerNotification(new JSONObject(response.toString()));
 
         sendResponse(response);
         System.out.println(username + REGISTER_SUCCESS);
@@ -163,6 +169,7 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(DURATION, duration);
         response.put(GENRE, genre);
         //Send notification
+        serverCommunication.addMusicNotification(new JSONObject(response.toString()));
         clientNotificationsHandler.addMusicNotification(id, new JSONObject(response.toString()));
         //Put response data
         response.put(RESPONSE, REQUEST_ADD_MUSIC);
@@ -179,6 +186,7 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(USERNAME, username);
         response.put(PLAYLIST_NAME, name);
         //Send notification
+        serverCommunication.addPlaylistNotification(new JSONObject(response.toString()));
         clientNotificationsHandler.addPlaylistNotification(id, new JSONObject(response.toString()));
         //Put response data
         response.put(RESPONSE, REQUEST_ADD_PLAYLIST);
@@ -196,6 +204,7 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(MUSIC_NAME, musicName);
         response.put(PLAYLIST_NAME, playlistName);
         //Send notification
+        serverCommunication.addMusicToPlaylistNotification(new JSONObject(response.toString()));
         clientNotificationsHandler.addMusicToPlaylistNotification(id, new JSONObject(response.toString()));
         //Put response data
         response.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);

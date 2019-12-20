@@ -2,6 +2,7 @@ package sample;
 
 import sample.communication.ClientCommunication;
 import sample.communication.ClientNotificationsHandler;
+import sample.communication.ServerCommunication;
 import sample.communication.ServersDirectoryCommunication;
 import sample.exceptions.NoServersDirectory;
 import sample.models.ServerInformation;
@@ -14,26 +15,32 @@ import java.util.HashSet;
 
 public class ServerController extends Thread {
 
-    ServerSocket serverSocket;
-    ServerInformation serverInformation;
+    private ServerSocket serverSocket;
+    private ServerInformation serverInformation;
 
-    boolean isServerRunning = true;
+    private boolean isServerRunning = true;
 
-    boolean isPrimaryServer = false;
+    private HashSet<ServerInformation> servers;
 
-    HashSet<ServerInformation> servers;
+    private ServerCommunication serverCommunication;
 
-    ServersDirectoryCommunication serversDirectoryCommunication;
+    private ServersDirectoryCommunication serversDirectoryCommunication;
 
-    ClientNotificationsHandler clientNotificationsHandler;
+    private ClientNotificationsHandler clientNotificationsHandler;
 
-    public ServerController(String serversDirectoryIP) throws IOException, NoServersDirectory {
+    public ServerController(String serversDirectoryIP, String nic) throws IOException, NoServersDirectory {
         startServer();
-        serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, serverInformation, this);
+        serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, this);
         serversDirectoryCommunication.setDaemon(true);
         serversDirectoryCommunication.start();
-        clientNotificationsHandler = new ClientNotificationsHandler(this);
         servers = new HashSet<>();
+        serverCommunication = new ServerCommunication(this, nic);
+        serverCommunication.start();
+        clientNotificationsHandler = new ClientNotificationsHandler(this);
+    }
+
+    public ServerInformation getServerInformation() {
+        return serverInformation;
     }
 
     private void startServer() throws IOException {
@@ -55,11 +62,12 @@ public class ServerController extends Thread {
         serversDirectoryCommunication.clientDisconnected(serverInformation);
     }
 
-    public HashSet<ServerInformation> getServers() {
+    public synchronized HashSet<ServerInformation> getServers() {
         return servers;
     }
 
     public synchronized void addServerIP(ServerInformation server) {
+        System.out.println("Added server " + server);
         servers.add(server);
     }
 
@@ -68,7 +76,7 @@ public class ServerController extends Thread {
     }
 
     public void setupAsPrimaryServer() {
-        isPrimaryServer = true;
+        serverCommunication.setupAsPrimaryServer();
     }
 
     @Override
@@ -78,7 +86,7 @@ public class ServerController extends Thread {
 
             try {
                 Socket socket = serverSocket.accept();
-                ClientCommunication client = new ClientCommunication(socket, clientNotificationsHandler);
+                ClientCommunication client = new ClientCommunication(socket, clientNotificationsHandler, serverCommunication);
                 clientNotificationsHandler.addClient(client);
                 Thread thread = new Thread(client);
                 thread.start();

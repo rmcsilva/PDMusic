@@ -28,8 +28,8 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
     private int notificationPort;
     private DatagramSocket requestsDatagramSocket;
 
-    public ServersDirectoryCommunication(String serversDirectoryIP, ServerInformation serverInformation, ServerController serverController) throws NoServersDirectory, IOException {
-        this.serverInformation = serverInformation;
+    public ServersDirectoryCommunication(String serversDirectoryIP, ServerController serverController) throws NoServersDirectory, IOException {
+        serverInformation = serverController.getServerInformation();
         serversDirectoryAddress = InetAddress.getByName(serversDirectoryIP);
 
         notificationsDatagramSocket = new DatagramSocket();
