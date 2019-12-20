@@ -2,11 +2,12 @@ package sample.communication;
 
 import org.json.JSONObject;
 import sample.ServerController;
+import sample.communication.interfaces.ClientNotifications;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientNotificationsHandler implements ServerNotifications {
+public class ClientNotificationsHandler implements ClientNotifications {
 
     private ServerController serverController;
 
