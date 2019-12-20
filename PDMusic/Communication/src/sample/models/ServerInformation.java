@@ -84,6 +84,11 @@ public class ServerInformation implements Comparable<ServerInformation> {
     }
 
     @Override
+    public int hashCode() {
+        return udpPort * ip.hashCode();
+    }
+
+    @Override
     public int compareTo(ServerInformation o) {
         return getNumberOfClients() - o.getNumberOfClients();
     }
