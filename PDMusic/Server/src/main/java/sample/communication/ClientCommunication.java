@@ -2,8 +2,14 @@ package sample.communication;
 
 import org.json.JSONObject;
 import sample.Communication;
+import sample.communication.files.DownloadMusic;
+import sample.communication.files.UploadMusic;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ClientCommunication implements Runnable, Communication {
@@ -12,6 +18,8 @@ public class ClientCommunication implements Runnable, Communication {
 
     private static int counter = 0;
     private final int id;
+
+    ServerSocket musicTransferServerSocket;
 
     private Socket socket;
     private PrintWriter pw;
@@ -32,6 +40,7 @@ public class ClientCommunication implements Runnable, Communication {
         pw = new PrintWriter(socket.getOutputStream());
         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         id = counter++;
+        musicTransferServerSocket = new ServerSocket(0);
         this.clientNotificationsHandler = clientNotificationsHandler;
         this.serverCommunication = serverCommunication;
     }
@@ -83,6 +92,13 @@ public class ClientCommunication implements Runnable, Communication {
 
                             addMusic(musicName, author, album, year, duration, genre);
                             break;
+                        case REQUEST_GET_MUSIC:
+                            musicName = request.getString(MUSIC_NAME);
+
+                            System.out.println("Get Music -> ID: " + id + " Requested Music: " + musicName);
+
+                            getMusic(musicName);
+                            break;
                         case REQUEST_ADD_PLAYLIST:
                             String playlistName = request.getString(PLAYLIST_NAME);
 
@@ -110,7 +126,7 @@ public class ClientCommunication implements Runnable, Communication {
                         default:
                             break;
                     }
-                }catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     isRunning = false;
                     //If server is running warn servers directory that client logged out
                     if (clientNotificationsHandler.isServerRunning()) {
@@ -175,9 +191,46 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(RESPONSE, REQUEST_ADD_MUSIC);
         response.put(STATUS, APPROVED);
         response.put(DETAILS, ADD_MUSIC_SUCCESS);
+        //TODO: Only send port if approved
+        response.put(PORT, musicTransferServerSocket.getLocalPort());
 
         sendResponse(response);
         System.out.println(ADD_MUSIC_SUCCESS);
+
+        downloadMusicFromClient(name);
+    }
+
+    @Override
+    public void getMusic(String musicName) {
+        response.put(MUSIC_NAME, musicName);
+        response.put(PORT, musicTransferServerSocket.getLocalPort());
+
+        //Put response data
+        response.put(RESPONSE, REQUEST_GET_MUSIC);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, GET_MUSIC_SUCCESS);
+
+        sendResponse(response);
+
+        uploadMusicToClient(musicName);
+    }
+
+    private void uploadMusicToClient(String musicName) {
+        try {
+            UploadMusic uploadMusic = new UploadMusic(musicName, musicTransferServerSocket.accept());
+            uploadMusic.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+    private void downloadMusicFromClient(String musicName) {
+        //TODO: Separate Exceptions!
+        //TODO: Send to all servers
+        try {
+            DownloadMusic downloadMusic = new DownloadMusic(musicName, musicTransferServerSocket.accept());
+            downloadMusic.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -20,6 +20,10 @@ public interface JSONConstants {
     String DURATION = "duration";
     String GENRE = "genre";
 
+    //Get Music request keys
+    String REQUEST_GET_MUSIC = "getMusic";
+    String PORT = "musicPort";
+
     //Playlist request keys
     String REQUEST_ADD_PLAYLIST = "addPlaylist";
     String PLAYLIST_NAME = "playlistName";
@@ -44,10 +48,11 @@ public interface JSONConstants {
     //Message Details
     String LOGIN_SUCCESS = "Login Successful!\n";
     String REGISTER_SUCCESS = "Registered Successfully!\n";
-    String ADD_MUSIC_SUCCESS = "Music Added Successfully\n";
-    String ADD_PLAYLIST_SUCCESS = "Playlist Added Successfully\n";
-    String ADD_MUSIC_TO_PLAYLIST_SUCCESS = "Music Added To Playlist Successfully\n";
-    String LOGOUT_SUCCESS = "Logged Out Successfully\n";
+    String ADD_MUSIC_SUCCESS = "Music Added Successfully!\n";
+    String GET_MUSIC_SUCCESS = "Music Ready To Begin Download!\n";
+    String ADD_PLAYLIST_SUCCESS = "Playlist Added Successfully!\n";
+    String ADD_MUSIC_TO_PLAYLIST_SUCCESS = "Music Added To Playlist Successfully!\n";
+    String LOGOUT_SUCCESS = "Logged Out Successfully!\n";
 
     //Notification keys
     String NOTIFICATION = "notification";

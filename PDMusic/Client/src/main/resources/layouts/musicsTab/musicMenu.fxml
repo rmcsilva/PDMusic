@@ -60,7 +60,7 @@
                                 </HBox.margin>
                             </JFXButton>
                             <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0"
-                                       text="Play">
+                                       text="Play" onAction="#playMusic">
                                 <font>
                                     <Font name="Roboto Medium" size="14.0"/>
                                 </font>

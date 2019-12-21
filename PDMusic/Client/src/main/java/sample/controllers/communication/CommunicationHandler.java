@@ -12,7 +12,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.*;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.Socket;
 
 
 public class CommunicationHandler extends Thread implements Communication {
@@ -38,6 +40,10 @@ public class CommunicationHandler extends Thread implements Communication {
 
     public boolean isRunning() {
         return isRunning;
+    }
+
+    protected InetAddress getSocketAddress() {
+        return socket.getInetAddress();
     }
 
     public void handleConnections() throws IOException, NoServerAvailable, NoServersDirectory {
@@ -158,6 +164,15 @@ public class CommunicationHandler extends Thread implements Communication {
         request.put(YEAR, year);
         request.put(DURATION, duration);
         request.put(GENRE, genre);
+
+        sendRequest(request);
+    }
+
+    @Override
+    public void getMusic(String musicName) {
+        request = new JSONObject();
+        request.put(REQUEST , REQUEST_GET_MUSIC);
+        request.put(MUSIC_NAME, musicName);
 
         sendRequest(request);
     }

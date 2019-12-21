@@ -59,6 +59,13 @@ public class MusicsController extends TabCommunication {
         getMainController().changeMusicsTab(ScreenController.Screen.ADD_MUSIC);
     }
 
-
-
+    @FXML
+    void playMusic(ActionEvent actionEvent) {
+        if (ttvMusics.getSelectionModel().getSelectedItem() == null) return;
+        //Get selected music
+        MusicViewModel selectedMusic = ttvMusics.getSelectionModel().getSelectedItem().getValue();
+        //TODO: Check if music file is already downloaded or needs to be downloaded
+        getMainController().getCommunicationHandler().getMusic(selectedMusic.getMusicName());
+        //TODO: Play music
+    }
 }

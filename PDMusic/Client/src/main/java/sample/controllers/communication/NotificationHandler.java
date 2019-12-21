@@ -3,7 +3,11 @@ package sample.controllers.communication;
 import org.json.JSONObject;
 import sample.controllers.MainController;
 import sample.controllers.ScreenController;
+import sample.controllers.communication.files.DownloadMusic;
+import sample.controllers.communication.files.UploadMusic;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.NoSuchElementException;
 
 public class NotificationHandler implements ClientNotifications {
@@ -49,6 +53,14 @@ public class NotificationHandler implements ClientNotifications {
 
                 if (approved) {
                     parseMusicFromJSON(response);
+                }
+                //TODO: Show error
+                break;
+            case REQUEST_GET_MUSIC:
+                System.out.println("Get Music Response -> Status: " + responseStatus);
+
+                if (approved) {
+                    parseMusicToDownloadFromJSON(response);
                 }
                 //TODO: Show error
 
@@ -118,11 +130,24 @@ public class NotificationHandler implements ClientNotifications {
         int duration = music.getInt(DURATION);
         String genre = music.getString(GENRE);
 
-        System.out.println("Add Music -> " + "Username: " + username +
+        System.out.println("Add Music -> Username: " + username +
                 " MusicName: " + musicName + " Author: " + author + " Year: " + year +
                 " Duration: " + duration + " Genre: " + genre);
 
         addMusicNotification(username, musicName, author, album, year, duration, genre);
+
+        //Upload music to server
+        int port = music.getInt(PORT);
+        uploadMusic(musicName, port);
+    }
+
+    private void parseMusicToDownloadFromJSON(JSONObject musicToDownload) {
+        String musicName = musicToDownload.getString(MUSIC_NAME);
+        int port = musicToDownload.getInt(PORT);
+
+        System.out.println("Download Music -> " + musicName + " Port: " + port);
+
+        downloadMusic(musicName, port);
     }
 
     private void parsePlaylistFromJSON(JSONObject playlist) {
@@ -166,6 +191,26 @@ public class NotificationHandler implements ClientNotifications {
     public void addMusicNotification(String username, String name, String author, String album, int year, int duration, String genre) {
         mainController.addMusic(username, name, author, album, year, duration, genre);
         //TODO: Show alert
+    }
+
+    @Override
+    public void downloadMusic(String musicName, int port) {
+        try {
+            DownloadMusic downloadMusic = new DownloadMusic(musicName, new Socket(communicationHandler.getSocketAddress(), port));
+            downloadMusic.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void uploadMusic(String musicName, int port) {
+        try {
+            UploadMusic uploadMusic = new UploadMusic(musicName, new Socket(communicationHandler.getSocketAddress(), port));
+            uploadMusic.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
