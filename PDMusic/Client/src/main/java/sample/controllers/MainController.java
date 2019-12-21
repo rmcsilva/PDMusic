@@ -20,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.TextAlignment;
 import sample.controllers.communication.CommunicationHandler;
+import sample.controllers.communication.files.ClientFileManager;
 import sample.controllers.tabs.musicsTab.AddMusicController;
 import sample.controllers.tabs.musicsTab.MusicsController;
 import sample.controllers.tabs.playlistsTab.AddPlaylistController;
@@ -60,6 +61,8 @@ public class MainController implements Initializable, LayoutsConstants {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         screenController = ScreenController.getInstance();
+        //Setup client music files location
+        new ClientFileManager();
 
         musicsController.setMainController(this);
         playlistsController.setMainController(this);

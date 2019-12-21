@@ -4,6 +4,7 @@ import sample.communication.ClientCommunication;
 import sample.communication.ClientNotificationsHandler;
 import sample.communication.ServerCommunication;
 import sample.communication.ServersDirectoryCommunication;
+import sample.communication.files.ServerFileManager;
 import sample.exceptions.NoServersDirectory;
 import sample.models.ServerInformation;
 
@@ -29,13 +30,19 @@ public class ServerController extends Thread {
     private ClientNotificationsHandler clientNotificationsHandler;
 
     public ServerController(String serversDirectoryIP, String nic) throws IOException, NoServersDirectory {
+        //Setup server music files location
+        new ServerFileManager();
+
         startServer();
+
         serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, this);
         serversDirectoryCommunication.setDaemon(true);
         serversDirectoryCommunication.start();
+
         servers = new HashSet<>();
         serverCommunication = new ServerCommunication(this, nic);
         serverCommunication.start();
+
         clientNotificationsHandler = new ClientNotificationsHandler(this);
     }
 
