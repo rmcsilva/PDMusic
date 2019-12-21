@@ -221,6 +221,9 @@ public class ServerCommunication extends Thread implements ServerNotifications {
     }
 
     private void createRequest(int requestID, JSONObject request) {
+        //If there are no servers there is no need to send a request
+        if (serverController.getServers().isEmpty()) return;
+
         request.put(NOTIFICATION_ID, requestID);
         request.put(NOTIFICATION_IP, serverInformation.getIp());
         request.put(NOTIFICATION_TCP_PORT, serverInformation.getTcpPort());

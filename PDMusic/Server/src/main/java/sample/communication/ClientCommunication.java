@@ -221,6 +221,8 @@ public class ClientCommunication implements Runnable, Communication {
             uploadMusic.start();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
 
     private void downloadMusicFromClient(String musicName) {
         //TODO: Separate Exceptions!

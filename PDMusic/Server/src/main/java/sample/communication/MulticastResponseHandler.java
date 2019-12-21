@@ -40,6 +40,11 @@ public class MulticastResponseHandler extends Thread {
             System.out.println("Sent Multicast Request ID -> " + requestID + "\n");
             try {
                 TimeUnit.SECONDS.sleep(waitSeconds);
+                //Check if there are active servers
+                if (serverCommunication.getServers().isEmpty()) {
+                    System.out.println("Multicast Request ID " + requestID + " canceled because there are no more servers active!\n");
+                    return;
+                }
             } catch (InterruptedException e) {
                 System.out.println("Received all responses for multicast request ID -> " + requestID + "\n");
             }
