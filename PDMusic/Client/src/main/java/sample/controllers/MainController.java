@@ -1,12 +1,10 @@
 package sample.controllers;
 
-import com.jfoenix.controls.JFXTabPane;
-import com.jfoenix.controls.JFXTreeTableColumn;
-import com.jfoenix.controls.JFXTreeTableView;
-import com.jfoenix.controls.RecursiveTreeItem;
+import com.jfoenix.controls.*;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +16,11 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 import sample.controllers.communication.CommunicationHandler;
 import sample.controllers.communication.files.ClientFileManager;
 import sample.controllers.tabs.musicsTab.AddMusicController;
@@ -30,10 +32,14 @@ import sample.controllers.tabs.playlistsTab.SelectMusicsController;
 import sample.models.MusicViewModel;
 import sample.models.PlaylistViewModel;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
+
+import static java.lang.Math.floor;
+import static java.lang.String.format;
 
 public class MainController implements Initializable, LayoutsConstants {
 
@@ -42,6 +48,23 @@ public class MainController implements Initializable, LayoutsConstants {
 
     @FXML
     public Tab musicsTab, playlistsTab;
+
+    private MediaPlayer musicPlayer;
+
+    @FXML
+    public JFXButton playPauseButton;
+    public FontAwesomeIconView playPauseIcon;
+
+    private final FontAwesomeIcon playIcon = FontAwesomeIcon.PLAY_CIRCLE;
+    private final FontAwesomeIcon pauseIcon = FontAwesomeIcon.PAUSE_CIRCLE;
+
+    double volume = 50;
+    public JFXSlider musicVolumeSlider;
+
+    public JFXSlider musicPositionSlider;
+    public Label musicCurrentTimeLabel;
+    public Label musicEndTimeLabel;
+    private Duration musicDuration = null;
 
     @FXML
     private MusicsController musicsController;
@@ -72,6 +95,8 @@ public class MainController implements Initializable, LayoutsConstants {
 
         setupScreenController();
         configureTabPane();
+        setupMusicButtonsAndSliders();
+    }
 
     public String getUsername() {
         return username;
@@ -106,6 +131,17 @@ public class MainController implements Initializable, LayoutsConstants {
 
     public void addMusicToPlaylist(String playlistName, String musicName) throws NoSuchElementException {
         playlistsController.addMusicToPlaylist(playlistName, musicsController.getMusicByName(musicName));
+    }
+
+    public void playMusic(String musicName) {
+        String musicPath = ClientFileManager.getMusicPath(musicName);
+        Media media = new Media(new File(musicPath).toURI().toString());
+        if (musicPlayer != null) {
+            musicPlayer.dispose();
+        }
+        musicPlayer = new MediaPlayer(media);
+        musicPlayer.setAutoPlay(true);
+        setupMusicPlayer();
     }
 
     private void setupScreenController() {
@@ -206,6 +242,81 @@ public class MainController implements Initializable, LayoutsConstants {
         ttvPlaylists.setShowRoot(false);
     }
 
+    private void setupMusicButtonsAndSliders() {
+        //Setup playPauseButton
+        playPauseIcon.setIcon(playIcon);
+        playPauseButton.setOnAction( event -> {
+            if (musicPlayer != null) {
+                updateValues();
+                Status status = musicPlayer.getStatus();
+
+                if (status == Status.PAUSED
+                        || status == Status.READY
+                        || status == Status.STOPPED) {
+                    musicPlayer.play();
+                } else {
+                    musicPlayer.pause();
+                }
+            }
+        });
+
+        //Setup musicPositionSlider
+        musicPositionSlider.valueProperty().addListener( observable -> {
+            if (musicPlayer != null) {
+                if (musicPositionSlider.isValueChanging() || musicPositionSlider.isPressed()) {
+                    // multiply duration by percentage calculated by slider position
+                    if (musicDuration != null) {
+                        musicPlayer.seek(musicDuration.multiply(musicPositionSlider.getValue() / 100.0));
+                    }
+                    updateValues();
+                }
+            }
+        });
+
+        //Setup Volume Slider
+        musicVolumeSlider.valueProperty().addListener( observable -> {
+            volume = musicVolumeSlider.getValue();
+            if (musicPlayer != null) {
+                musicPlayer.setVolume(volume / 100);
+            }
+        });
+    }
+
+    private void setupMusicPlayer() {
+        //Setup Music Volume
+        musicPlayer.setVolume(volume / 100);
+
+        //Setup Time
+        musicPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> updateValues());
+
+        musicPlayer.setOnReady(() -> {
+            musicDuration = musicPlayer.getMedia().getDuration();
+            updateValues();
+        });
+
+        musicPlayer.setOnPlaying(() -> playPauseIcon.setIcon(pauseIcon));
+
+        musicPlayer.setOnPaused(() -> playPauseIcon.setIcon(playIcon));
+
+        musicPlayer.setOnEndOfMedia(() -> {
+            //TODO: Move to next song
+            musicPlayer.pause();
+        });
+    }
+
+    protected void updateValues() {
+        if (musicEndTimeLabel != null && musicPositionSlider != null && musicDuration != null) {
+            Platform.runLater(() -> {
+                Duration currentTime = musicPlayer.getCurrentTime();
+                setupMusicTimeLabels(currentTime, musicDuration);
+                musicPositionSlider.setDisable(musicDuration.isUnknown());
+                if (!musicPositionSlider.isDisabled() && musicDuration.greaterThan(Duration.ZERO) && !musicPositionSlider.isValueChanging()) {
+                    musicPositionSlider.setValue(currentTime.divide(musicDuration).toMillis() * 100.0);
+                }
+            });
+        }
+    }
+
     public void changeMusicsTab(ScreenController.Screen screen) {
         musicsTab.setContent(screenController.getPane(screen));
     }
@@ -249,5 +360,41 @@ public class MainController implements Initializable, LayoutsConstants {
 
         tab.setText("");
         tab.setGraphic(tabPane);
+    }
+
+    private void setupMusicTimeLabels(Duration elapsed, Duration duration) {
+        int intElapsed = (int) floor(elapsed.toSeconds());
+        int elapsedHours = intElapsed / (60 * 60);
+        if (elapsedHours > 0) {
+            intElapsed -= elapsedHours * 60 * 60;
+        }
+        int elapsedMinutes = intElapsed / 60;
+        int elapsedSeconds = intElapsed - elapsedHours * 60 * 60
+                - elapsedMinutes * 60;
+
+        if (duration.greaterThan(Duration.ZERO)) {
+            int intDuration = (int) floor(duration.toSeconds());
+            int durationHours = intDuration / (60 * 60);
+            if (durationHours > 0) {
+                intDuration -= durationHours * 60 * 60;
+            }
+            int durationMinutes = intDuration / 60;
+            int durationSeconds = intDuration - durationHours * 60 * 60
+                    - durationMinutes * 60;
+            if (durationHours > 0) {
+                musicCurrentTimeLabel.setText(format("%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds));
+                musicEndTimeLabel.setText(format("%d:%02d:%02d", durationHours, durationMinutes, durationSeconds));
+            } else {
+                musicCurrentTimeLabel.setText(format("%02d:%02d", elapsedMinutes, elapsedSeconds));
+                musicEndTimeLabel.setText(format("%02d:%02d", durationMinutes, durationSeconds));
+            }
+        } else {
+            musicEndTimeLabel.setText("");
+            if (elapsedHours > 0) {
+                musicCurrentTimeLabel.setText(format("%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds));
+            } else {
+                musicCurrentTimeLabel.setText(format("%02d:%02d", elapsedMinutes, elapsedSeconds));
+            }
+        }
     }
 }

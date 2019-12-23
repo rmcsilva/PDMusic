@@ -21,6 +21,10 @@ public class FileManager {
         }
     }
 
+    public static String getMusicPath(String musicName) {
+        return musicFolderPathName + File.separator + musicName + musicFormat;
+    }
+
     public static FileInputStream getPdMusic(String musicName) throws IOException {
         String musicPath = new File(musicFolderPathName + File.separator + musicName + musicFormat).getCanonicalPath();
         return new FileInputStream(musicPath);
@@ -28,6 +32,10 @@ public class FileManager {
 
     public static String getPdMusicDestination(String musicName) throws IOException {
         //TODO: Check if file already exists
-        return musicFolderPathName + File.separator + musicName + musicFormat;
+        return getMusicPath(musicName);
+    }
+
+    public static boolean isMusicAvailable(String musicName) {
+        return new File(getMusicPath(musicName)).isFile();
     }
 }

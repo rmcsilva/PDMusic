@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import sample.controllers.ScreenController;
+import sample.controllers.communication.files.ClientFileManager;
 import sample.controllers.tabs.TabCommunication;
 import sample.models.MusicViewModel;
 
@@ -64,8 +65,16 @@ public class MusicsController extends TabCommunication {
         if (ttvMusics.getSelectionModel().getSelectedItem() == null) return;
         //Get selected music
         MusicViewModel selectedMusic = ttvMusics.getSelectionModel().getSelectedItem().getValue();
-        //TODO: Check if music file is already downloaded or needs to be downloaded
-        getMainController().getCommunicationHandler().getMusic(selectedMusic.getMusicName());
-        //TODO: Play music
+        String musicName = selectedMusic.getMusicName();
+        //Check if music is available to be played
+        if (!ClientFileManager.isMusicAvailable(musicName)) {
+            //Download music from server
+            getMainController().getCommunicationHandler().getMusic(musicName);
+            //TODO: Show notification that music is downloading
+            return;
+        }
+
+        //Play music
+        getMainController().playMusic(musicName);
     }
 }

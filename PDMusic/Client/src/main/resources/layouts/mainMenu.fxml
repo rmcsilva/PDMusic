@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXSlider?>
 <?import com.jfoenix.controls.JFXTabPane?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.image.Image?>
@@ -66,6 +69,79 @@
                     </tabs>
                 </JFXTabPane>
             </center>
+            <bottom>
+                <VBox BorderPane.alignment="CENTER">
+                    <children>
+                        <Separator prefWidth="200.0"/>
+                        <HBox>
+                            <children>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <VBox styleClass="music">
+                                    <children>
+                                        <HBox alignment="CENTER">
+                                            <children>
+                                                <FontAwesomeIconView glyphName="STEP_BACKWARD" size="24"
+                                                                     styleClass="icons-color">
+                                                    <HBox.margin>
+                                                        <Insets/>
+                                                    </HBox.margin>
+                                                </FontAwesomeIconView>
+                                                <JFXButton fx:id="playPauseButton" alignment="CENTER"
+                                                           contentDisplay="GRAPHIC_ONLY" text=" ">
+                                                    <graphic>
+                                                        <FontAwesomeIconView fx:id="playPauseIcon"
+                                                                             glyphName="PLAY_CIRCLE" size="48"
+                                                                             styleClass="icons-color"/>
+                                                    </graphic>
+                                                </JFXButton>
+                                                <FontAwesomeIconView glyphName="STEP_FORWARD" size="24"
+                                                                     styleClass="icons-color"/>
+                                            </children>
+                                            <VBox.margin>
+                                                <Insets top="6.0"/>
+                                            </VBox.margin>
+                                        </HBox>
+                                        <HBox alignment="CENTER">
+                                            <children>
+                                                <Label fx:id="musicCurrentTimeLabel" styleClass="text"/>
+                                                <JFXSlider fx:id="musicPositionSlider" prefWidth="400.0">
+                                                    <HBox.margin>
+                                                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+                                                    </HBox.margin>
+                                                </JFXSlider>
+                                                <Label fx:id="musicEndTimeLabel" styleClass="text"/>
+                                            </children>
+                                            <VBox.margin>
+                                                <Insets bottom="6.0"/>
+                                            </VBox.margin>
+                                        </HBox>
+                                    </children>
+                                    <HBox.margin>
+                                        <Insets left="136.0"/>
+                                    </HBox.margin>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <HBox alignment="CENTER">
+                                    <children>
+                                        <FontAwesomeIconView glyphName="VOLUME_UP" size="24" styleClass="icons-color">
+                                            <HBox.margin>
+                                                <Insets right="12.0"/>
+                                            </HBox.margin>
+                                        </FontAwesomeIconView>
+                                        <JFXSlider fx:id="musicVolumeSlider" maxWidth="100.0"/>
+                                    </children>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                    <HBox.margin>
+                                        <Insets right="24.0"/>
+                                    </HBox.margin>
+                                </HBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </bottom>
         </BorderPane>
     </children>
 </StackPane>
