@@ -1,25 +1,29 @@
 package sample.controllers.tabs.playlistsTab;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import sample.controllers.ScreenController;
 import sample.controllers.tabs.TabCommunication;
 import sample.models.MusicViewModel;
 import sample.models.PlaylistViewModel;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.net.URL;
+import java.util.*;
 
-public class PlaylistsController extends TabCommunication {
+public class PlaylistsController extends TabCommunication implements Initializable {
 
     private AddPlaylistController addPlaylistController;
     private PlaylistSelectedController playlistSelectedController;
     private SelectMusicsController selectMusicsController;
+
+    @FXML
+    public JFXButton removePlaylistButton;
+    public JFXButton editPlaylistButton;
 
     @FXML
     private JFXTreeTableView<PlaylistViewModel> ttvPlaylists;
@@ -34,12 +38,34 @@ public class PlaylistsController extends TabCommunication {
         playlistMusics = new HashMap<>();
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        ttvPlaylists.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(ttvPlaylists.getSelectionModel().getSelectedItem() != null) {
+                String playlistUsername = getSelectedPlaylist().getUsername();
+                String username = getMainController().getUsername();
+                //Check if current user can edit or remove the current music
+                if (playlistUsername.equals(username)) {
+                    enableEditAndRemoveButtons();
+                } else {
+                    disableEditAndRemoveButtons();
+                }
+            } else {
+                disableEditAndRemoveButtons();
+            }
+        });
+    }
+
     public JFXTreeTableView<PlaylistViewModel> getTtvPlaylists() {
         return ttvPlaylists;
     }
 
     public ObservableList<PlaylistViewModel> getPlaylists() {
         return playlists;
+    }
+
+    private PlaylistViewModel getSelectedPlaylist() {
+        return ttvPlaylists.getSelectionModel().getSelectedItem().getValue();
     }
 
     public void addPlaylist(PlaylistViewModel playlist) {
@@ -76,6 +102,16 @@ public class PlaylistsController extends TabCommunication {
         this.selectMusicsController = selectMusicsController;
     }
 
+    private void enableEditAndRemoveButtons() {
+        removePlaylistButton.setDisable(false);
+        editPlaylistButton.setDisable(false);
+    }
+
+    private void disableEditAndRemoveButtons() {
+        removePlaylistButton.setDisable(true);
+        editPlaylistButton.setDisable(true);
+    }
+
     @FXML
     void addPlaylistMenu(ActionEvent event) {
         goToAddPlaylistMenu();
@@ -83,7 +119,8 @@ public class PlaylistsController extends TabCommunication {
 
     @FXML
     void editPlaylistMenu(ActionEvent event) {
-        //TODO: Pass data
+        if (ttvPlaylists.getSelectionModel().getSelectedItem() == null) return;
+        addPlaylistController.editPlaylist(getSelectedPlaylist());
         goToAddPlaylistMenu();
     }
 
@@ -95,12 +132,13 @@ public class PlaylistsController extends TabCommunication {
     void selectPlaylist(ActionEvent event) {
         if (ttvPlaylists.getSelectionModel().getSelectedItem() == null) return;
         //Get selected playlist musics
-        PlaylistViewModel selectedPlaylist = ttvPlaylists.getSelectionModel().getSelectedItem().getValue();
+        PlaylistViewModel selectedPlaylist = getSelectedPlaylist();
         //Only change values if the playlist is different than the one that is selected
         if (selectedPlaylistKey == null || !selectedPlaylistKey.equals(selectedPlaylist.getName())){
             selectedPlaylistKey = selectedPlaylist.getName();
             ObservableList<MusicViewModel> musicsInPlaylist = playlistMusics.get(selectedPlaylistKey);
             //Update content
+            playlistSelectedController.setPlaylistName(selectedPlaylistKey);
             playlistSelectedController.setMusicsInPlaylist(musicsInPlaylist);
             setupMusicsNotInPlaylist(getMainController().getMusics(), musicsInPlaylist);
         }
@@ -125,5 +163,4 @@ public class PlaylistsController extends TabCommunication {
         // Set the selected musics to ones that are unique
         selectMusicsController.setMusicsNotInPlaylist(FXCollections.observableArrayList(union));
     }
-
 }

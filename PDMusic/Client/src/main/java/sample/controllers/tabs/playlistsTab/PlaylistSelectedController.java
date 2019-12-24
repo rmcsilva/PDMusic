@@ -6,12 +6,14 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import sample.controllers.ScreenController.Screen;
 import sample.controllers.tabs.TabCommunication;
 import sample.models.MusicViewModel;
 
 public class PlaylistSelectedController extends TabCommunication {
 
+    public Text playlistNameText;
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusicsInPlaylist;
 
@@ -35,6 +37,10 @@ public class PlaylistSelectedController extends TabCommunication {
 
     void addMusicToCurrentPlaylist(MusicViewModel music) {
         musicsInPlaylist.add(music);
+    }
+
+    public void setPlaylistName(String playlistName) {
+        playlistNameText.setText(playlistName);
     }
 
     @FXML
