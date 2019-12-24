@@ -158,6 +158,9 @@ public class ServerCommunication extends Thread implements ServerNotifications {
                         " MusicName: " + musicName + " Author: " + author +
                         " Album: " + album + " Year: " + year +
                         " Duration: " + duration + " Genre: " + genre);
+
+                requestAcknowledgment.put(RESPONSE, REQUEST_EDIT_MUSIC);
+
                 break;
             case REQUEST_ADD_PLAYLIST:
                 String playlistName = request.getString(PLAYLIST_NAME);

@@ -39,6 +39,15 @@ public class PlaylistSelectedController extends TabCommunication {
         musicsInPlaylist.add(music);
     }
 
+    public void editMusic(String musicToEdit, MusicViewModel newMusic) {
+        for (MusicViewModel music: musicsInPlaylist) {
+            if (musicToEdit.equals(music.getMusicName())) {
+                music.replace(newMusic);
+                return;
+            }
+        }
+    }
+
     public void setPlaylistName(String playlistName) {
         playlistNameText.setText(playlistName);
     }

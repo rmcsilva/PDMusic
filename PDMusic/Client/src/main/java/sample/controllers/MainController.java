@@ -136,6 +136,7 @@ public class MainController implements Initializable, LayoutsConstants {
     public void editMusic(String username, String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
         MusicViewModel music = new MusicViewModel(name, author, album, genre, year, duration, username);
         musicsController.editMusic(musicToEdit, music);
+        playlistSelectedController.editMusic(musicToEdit, music);
         selectMusicsController.editMusic(musicToEdit, music);
     }
 

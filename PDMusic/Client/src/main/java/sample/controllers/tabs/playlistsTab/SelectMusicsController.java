@@ -45,11 +45,13 @@ public class SelectMusicsController extends TabCommunication {
     public void editMusic(String musicToEdit, MusicViewModel newMusic) {
         for (MusicViewModel music: musicsNotInPlaylist) {
             if (musicToEdit.equals(music.getMusicName())) {
-                music = newMusic;
+                music.replace(newMusic);
                 return;
             }
         }
-        musicsNotInPlaylist.add(newMusic);
+                return;
+            }
+        }
     }
 
     public void setPlaylistsController(PlaylistsController playlistsController) {

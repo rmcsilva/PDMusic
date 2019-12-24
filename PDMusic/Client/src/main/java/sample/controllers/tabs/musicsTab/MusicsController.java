@@ -71,7 +71,6 @@ public class MusicsController extends TabCommunication implements Initializable 
                 return;
             }
         }
-        musics.add(newMusic);
     }
 
     public void setAddMusicController(AddMusicController addMusicController) {
@@ -107,7 +106,6 @@ public class MusicsController extends TabCommunication implements Initializable 
     @FXML
     void editMusicMenu(ActionEvent event) {
         if (ttvMusics.getSelectionModel().getSelectedItem() == null) return;
-        addMusicController.editMusic(getSelectedMusic());
         getMainController().changeMusicsTab(ScreenController.Screen.ADD_MUSIC);
     }
 

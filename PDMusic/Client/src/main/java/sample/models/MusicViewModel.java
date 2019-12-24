@@ -82,7 +82,6 @@ public class MusicViewModel extends RecursiveTreeObject<MusicViewModel> {
         genre.set(music.getGenre());
         year.set(music.getYear());
         duration.set(music.getDuration());
-        username.set(music.getUsername());
     }
 
     @Override
