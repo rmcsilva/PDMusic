@@ -109,6 +109,14 @@ public class ClientCommunication implements Runnable, Communication {
 
                             editMusic(musicToEdit, musicName, author, album, year, duration, genre);
                             break;
+                        case REQUEST_REMOVE_MUSIC:
+                            musicName = request.getString(MUSIC_NAME);
+
+                            System.out.println("Remove Music -> ID: " + id + " Username: " + this.username +
+                                    " MusicToEdit: " + musicName);
+
+                            removeMusic(musicName);
+                            break;
                         case REQUEST_GET_MUSIC:
                             musicName = request.getString(MUSIC_NAME);
 
@@ -240,6 +248,25 @@ public class ClientCommunication implements Runnable, Communication {
         System.out.println(EDIT_MUSIC_SUCCESS);
 
         downloadMusicFromClient(name);
+    }
+
+    @Override
+    public void removeMusic(String musicToRemove) {
+        //Put music details
+        response.put(USERNAME, username);
+        response.put(MUSIC_NAME, musicToRemove);
+        //Send notification
+        serverCommunication.removeMusicNotification(new JSONObject(response.toString()));
+        clientNotificationsHandler.removeMusicNotification(id, new JSONObject(response.toString()));
+        //Put response data
+        response.put(RESPONSE, REQUEST_REMOVE_MUSIC);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, REMOVE_MUSIC_SUCCESS);
+
+        sendResponse(response);
+        System.out.println(REMOVE_MUSIC_SUCCESS);
+    }
+
     @Override
     public void getMusic(String musicName) {
         response.put(MUSIC_NAME, musicName);

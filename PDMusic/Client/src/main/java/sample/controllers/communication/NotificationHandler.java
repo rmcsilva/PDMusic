@@ -68,6 +68,14 @@ public class NotificationHandler implements ClientNotifications {
                 }
                 //TODO: Show error
                 break;
+            case REQUEST_REMOVE_MUSIC:
+                System.out.println("Remove Music Response -> Status: " + responseStatus);
+
+                if (approved) {
+                    parseMusicToRemoveFromJSON(response);
+                }
+                //TODO: Show error
+                break;
             case REQUEST_GET_MUSIC:
                 System.out.println("Get Music Response -> Status: " + responseStatus);
 
@@ -120,6 +128,10 @@ public class NotificationHandler implements ClientNotifications {
                 System.out.println("Edit music notification");
                 parseMusicFromJSON(notification, false);
                 break;
+            case REQUEST_REMOVE_MUSIC:
+                System.out.println("Remove music notification");
+                parseMusicToRemoveFromJSON(notification);
+                break;
             case REQUEST_ADD_PLAYLIST:
                 System.out.println("Add Playlist Notification");
                 parsePlaylistFromJSON(notification);
@@ -135,6 +147,13 @@ public class NotificationHandler implements ClientNotifications {
             default:
                 break;
         }
+    }
+
+    private void parseMusicToRemoveFromJSON(JSONObject music) {
+        String username = music.getString(USERNAME);
+        String musicToRemove = music.getString(MUSIC_NAME);
+
+        removeMusicNotification(username, musicToRemove);
     }
 
     private void parseMusicFromJSON(JSONObject music, boolean addMusic) {
@@ -219,6 +238,12 @@ public class NotificationHandler implements ClientNotifications {
     @Override
     public void editMusicNotification(String username, String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
         mainController.editMusic(username, musicToEdit, name, author, album, year, duration, genre);
+        //TODO: Show alert
+    }
+
+    @Override
+    public void removeMusicNotification(String username, String musicToRemove) {
+        mainController.removeMusic(musicToRemove);
         //TODO: Show alert
     }
 

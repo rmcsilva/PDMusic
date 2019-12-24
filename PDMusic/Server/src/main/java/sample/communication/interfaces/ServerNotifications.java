@@ -12,6 +12,7 @@ public interface ServerNotifications extends JSONConstants {
     void registerNotification(JSONObject register);
     void addMusicNotification(JSONObject music);
     void editMusicNotification(JSONObject music);
+    void removeMusicNotification(JSONObject music);
     void addPlaylistNotification(JSONObject playlist);
     void addMusicToPlaylistNotification(JSONObject musicToPlaylist);
     void serverShutdown();

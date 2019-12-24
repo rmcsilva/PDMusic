@@ -140,6 +140,12 @@ public class MainController implements Initializable, LayoutsConstants {
         selectMusicsController.editMusic(musicToEdit, music);
     }
 
+    public void removeMusic(String musicToRemove) {
+        musicsController.removeMusic(musicToRemove);
+        playlistSelectedController.removeMusic(musicToRemove);
+        selectMusicsController.removeMusic(musicToRemove);
+    }
+
     public void playMusic(String musicName) {
         String musicPath = ClientFileManager.getMusicPath(musicName);
         Media media = new Media(new File(musicPath).toURI().toString());
@@ -307,6 +313,7 @@ public class MainController implements Initializable, LayoutsConstants {
 
         musicPlayer.setOnEndOfMedia(() -> {
             //TODO: Move to next song
+            musicPlayer.stop();
             musicPlayer.pause();
         });
     }

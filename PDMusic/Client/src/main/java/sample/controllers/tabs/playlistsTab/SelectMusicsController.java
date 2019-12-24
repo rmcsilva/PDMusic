@@ -49,6 +49,12 @@ public class SelectMusicsController extends TabCommunication {
                 return;
             }
         }
+    }
+
+    public void removeMusic(String musicToRemove) {
+        for (MusicViewModel music: musicsNotInPlaylist) {
+            if (musicToRemove.equals(music.getMusicName())) {
+                musicsNotInPlaylist.remove(music);
                 return;
             }
         }

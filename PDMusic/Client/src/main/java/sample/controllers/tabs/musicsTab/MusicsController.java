@@ -73,6 +73,15 @@ public class MusicsController extends TabCommunication implements Initializable 
         }
     }
 
+    public void removeMusic(String musicToRemove) {
+        for (MusicViewModel music: musics) {
+            if (musicToRemove.equals(music.getMusicName())) {
+                musics.remove(music);
+                return;
+            }
+        }
+    }
+
     public void setAddMusicController(AddMusicController addMusicController) {
         this.addMusicController = addMusicController;
     }
@@ -107,6 +116,12 @@ public class MusicsController extends TabCommunication implements Initializable 
     void editMusicMenu(ActionEvent event) {
         if (ttvMusics.getSelectionModel().getSelectedItem() == null) return;
         getMainController().changeMusicsTab(ScreenController.Screen.ADD_MUSIC);
+    }
+
+    @FXML
+    public void removeMusicButton(ActionEvent actionEvent) {
+        if (ttvMusics.getSelectionModel().getSelectedItem() == null) return;
+        getMainController().getCommunicationHandler().removeMusic(getSelectedMusic().getMusicName());
     }
 
     @FXML

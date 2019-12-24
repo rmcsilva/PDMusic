@@ -48,6 +48,15 @@ public class PlaylistSelectedController extends TabCommunication {
         }
     }
 
+    public void removeMusic(String musicToRemove) {
+        for (MusicViewModel music: musicsInPlaylist) {
+            if (musicToRemove.equals(music.getMusicName())) {
+                musicsInPlaylist.remove(music);
+                return;
+            }
+        }
+    }
+
     public void setPlaylistName(String playlistName) {
         playlistNameText.setText(playlistName);
     }

@@ -32,7 +32,8 @@
                     <HBox>
                         <children>
                             <Region HBox.hgrow="ALWAYS"/>
-                            <JFXButton fx:id="removeMusicButton" alignment="CENTER" contentDisplay="RIGHT"
+                            <JFXButton fx:id="removeMusicButton" onAction="#removeMusicButton" alignment="CENTER"
+                                       contentDisplay="RIGHT"
                                        prefHeight="48.0" prefWidth="192.0"
                                        text="Remove">
                                 <font>
