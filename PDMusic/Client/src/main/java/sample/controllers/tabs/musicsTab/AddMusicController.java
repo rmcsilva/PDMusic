@@ -5,12 +5,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import sample.controllers.ScreenController;
 import sample.controllers.tabs.TabCommunication;
+import sample.models.MusicViewModel;
 
 
 public class AddMusicController extends TabCommunication {
 
     @FXML
     private JFXTextField musicNameField, authorField, albumField, yearField, durationField, genreField;
+
+    private boolean editMusic = false;
 
     private boolean isMusicSelected = false;
 
@@ -42,6 +45,17 @@ public class AddMusicController extends TabCommunication {
         return true;
     }
 
+    public void editMusic(MusicViewModel musicViewModel) {
+        editMusic = true;
+        isMusicSelected = false;
+        musicNameField.setText(musicViewModel.getMusicName());
+        authorField.setText(musicViewModel.getAuthor());
+        albumField.setText(musicViewModel.getAlbum());
+        yearField.setText(String.valueOf(musicViewModel.getYear()));
+        durationField.setText(String.valueOf(musicViewModel.getDuration()));
+        genreField.setText(musicViewModel.getGenre());
+    }
+
     private void clearFields() {
         musicNameField.clear();
         authorField.clear();
@@ -71,6 +85,8 @@ public class AddMusicController extends TabCommunication {
     @FXML
     void cancelMusicChanges(ActionEvent event) {
         isMusicSelected = false;
+        editMusic = false;
+        clearFields();
         goBackToMusicsMenu();
     }
 

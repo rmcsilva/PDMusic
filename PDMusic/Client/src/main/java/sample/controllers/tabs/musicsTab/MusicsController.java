@@ -1,21 +1,29 @@
 package sample.controllers.tabs.musicsTab;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import sample.controllers.ScreenController;
 import sample.controllers.communication.files.ClientFileManager;
 import sample.controllers.tabs.TabCommunication;
 import sample.models.MusicViewModel;
 
+import java.net.URL;
 import java.util.NoSuchElementException;
+import java.util.ResourceBundle;
 
 
-public class MusicsController extends TabCommunication {
+public class MusicsController extends TabCommunication implements Initializable {
 
     private AddMusicController addMusicController;
+
+    @FXML
+    public JFXButton editMusicButton;
+    public JFXButton removeMusicButton;
 
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusics;
@@ -24,6 +32,24 @@ public class MusicsController extends TabCommunication {
 
     public MusicsController() {
         musics = FXCollections.observableArrayList();
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        ttvMusics.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(ttvMusics.getSelectionModel().getSelectedItem() != null) {
+                String musicUsername = getSelectedMusic().getUsername();
+                String username = getMainController().getUsername();
+                //Check if current user can edit or remove the current music
+                if (musicUsername.equals(username)) {
+                    enableEditAndRemoveButtons();
+                } else {
+                    disableEditAndRemoveButtons();
+                }
+            } else {
+                disableEditAndRemoveButtons();
+            }
+        });
     }
 
     public JFXTreeTableView<MusicViewModel> getTtvMusics() {
@@ -49,6 +75,20 @@ public class MusicsController extends TabCommunication {
         throw new NoSuchElementException("Music not found");
     }
 
+    private void enableEditAndRemoveButtons() {
+        removeMusicButton.setDisable(false);
+        editMusicButton.setDisable(false);
+    }
+
+    private void disableEditAndRemoveButtons() {
+        removeMusicButton.setDisable(true);
+        editMusicButton.setDisable(true);
+    }
+
+    private MusicViewModel getSelectedMusic() {
+        return ttvMusics.getSelectionModel().getSelectedItem().getValue();
+    }
+
     @FXML
     void addMusicMenu(ActionEvent event) {
         getMainController().changeMusicsTab(ScreenController.Screen.ADD_MUSIC);
@@ -56,7 +96,8 @@ public class MusicsController extends TabCommunication {
 
     @FXML
     void editMusicMenu(ActionEvent event) {
-        //TODO: Pass data
+        if (ttvMusics.getSelectionModel().getSelectedItem() == null) return;
+        addMusicController.editMusic(getSelectedMusic());
         getMainController().changeMusicsTab(ScreenController.Screen.ADD_MUSIC);
     }
 
@@ -64,7 +105,7 @@ public class MusicsController extends TabCommunication {
     void playMusic(ActionEvent actionEvent) {
         if (ttvMusics.getSelectionModel().getSelectedItem() == null) return;
         //Get selected music
-        MusicViewModel selectedMusic = ttvMusics.getSelectionModel().getSelectedItem().getValue();
+        MusicViewModel selectedMusic = getSelectedMusic();
         String musicName = selectedMusic.getMusicName();
         //Check if music is available to be played
         if (!ClientFileManager.isMusicAvailable(musicName)) {
