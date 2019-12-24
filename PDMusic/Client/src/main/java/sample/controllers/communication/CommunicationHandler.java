@@ -154,16 +154,30 @@ public class CommunicationHandler extends Thread implements Communication {
         sendRequest(request);
     }
 
-    @Override
-    public void addMusic(String name, String author, String album, int year, int duration, String genre) {
-        request = new JSONObject();
-        request.put(REQUEST , REQUEST_ADD_MUSIC);
+    private void putMusicInRequest(JSONObject request, String name, String author, String album, int year, int duration, String genre) {
         request.put(MUSIC_NAME, name);
         request.put(AUTHOR, author);
         request.put(ALBUM, album);
         request.put(YEAR, year);
         request.put(DURATION, duration);
         request.put(GENRE, genre);
+    }
+
+    @Override
+    public void addMusic(String name, String author, String album, int year, int duration, String genre) {
+        request = new JSONObject();
+        request.put(REQUEST , REQUEST_ADD_MUSIC);
+        putMusicInRequest(request, name, author, album, year, duration, genre);
+
+        sendRequest(request);
+    }
+
+    @Override
+    public void editMusic(String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
+        request = new JSONObject();
+        request.put(REQUEST, REQUEST_EDIT_MUSIC);
+        request.put(MUSIC_TO_EDIT, musicToEdit);
+        putMusicInRequest(request, name, author, album, year, duration, genre);
 
         sendRequest(request);
     }

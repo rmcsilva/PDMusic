@@ -64,6 +64,16 @@ public class MusicsController extends TabCommunication implements Initializable 
         musics.add(music);
     }
 
+    public void editMusic(String musicToEdit, MusicViewModel newMusic) {
+        for (MusicViewModel music: musics) {
+            if (musicToEdit.equals(music.getMusicName())) {
+                music.replace(newMusic);
+                return;
+            }
+        }
+        musics.add(newMusic);
+    }
+
     public void setAddMusicController(AddMusicController addMusicController) {
         this.addMusicController = addMusicController;
     }

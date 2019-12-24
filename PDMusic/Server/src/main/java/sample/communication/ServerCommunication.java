@@ -144,6 +144,21 @@ public class ServerCommunication extends Thread implements ServerNotifications {
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_MUSIC);
                 break;
+            case REQUEST_EDIT_MUSIC:
+                String musicToEdit = request.getString(MUSIC_TO_EDIT);
+                musicName = request.getString(MUSIC_NAME);
+                author = request.getString(AUTHOR);
+                album = request.getString(ALBUM);
+                year = request.getInt(YEAR);
+                duration = request.getInt(DURATION);
+                genre = request.getString(GENRE);
+
+                System.out.println("Edit Music -> Username: " + username +
+                        " MusicToEdit: " + musicToEdit +
+                        " MusicName: " + musicName + " Author: " + author +
+                        " Album: " + album + " Year: " + year +
+                        " Duration: " + duration + " Genre: " + genre);
+                break;
             case REQUEST_ADD_PLAYLIST:
                 String playlistName = request.getString(PLAYLIST_NAME);
 
@@ -249,6 +264,12 @@ public class ServerCommunication extends Thread implements ServerNotifications {
     @Override
     public void addMusicNotification(JSONObject music) {
         music.put(REQUEST, REQUEST_ADD_MUSIC);
+        createRequest(incrementRequestID(), music);
+    }
+
+    @Override
+    public void editMusicNotification(JSONObject music) {
+        music.put(REQUEST, REQUEST_EDIT_MUSIC);
         createRequest(incrementRequestID(), music);
     }
 

@@ -60,6 +60,12 @@ public class ClientNotificationsHandler implements ClientNotifications {
     }
 
     @Override
+    public void editMusicNotification(int senderID, JSONObject music) {
+        music.put(NOTIFICATION, REQUEST_EDIT_MUSIC);
+        sendNotificationToClients(senderID, music);
+    }
+
+    @Override
     public void addPlaylistNotification(int senderID, JSONObject playlist) {
         playlist.put(NOTIFICATION, REQUEST_ADD_PLAYLIST);
         sendNotificationToClients(senderID, playlist);

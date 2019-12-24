@@ -92,6 +92,23 @@ public class ClientCommunication implements Runnable, Communication {
 
                             addMusic(musicName, author, album, year, duration, genre);
                             break;
+                        case REQUEST_EDIT_MUSIC:
+                            String musicToEdit = request.getString(MUSIC_TO_EDIT);
+                            musicName = request.getString(MUSIC_NAME);
+                            author = request.getString(AUTHOR);
+                            album = request.getString(ALBUM);
+                            year = request.getInt(YEAR);
+                            duration = request.getInt(DURATION);
+                            genre = request.getString(GENRE);
+
+                            System.out.println("Edit Music -> ID: " + id + " Username: " + this.username +
+                                    " MusicToEdit: " + musicToEdit +
+                                    " MusicName: " + musicName + " Author: " + author +
+                                    " Album: " + album + " Year: " + year +
+                                    " Duration: " + duration + " Genre: " + genre);
+
+                            editMusic(musicToEdit, musicName, author, album, year, duration, genre);
+                            break;
                         case REQUEST_GET_MUSIC:
                             musicName = request.getString(MUSIC_NAME);
 
@@ -174,9 +191,7 @@ public class ClientCommunication implements Runnable, Communication {
         System.out.println(username + REGISTER_SUCCESS);
     }
 
-    @Override
-    public void addMusic(String name, String author, String album, int year, int duration, String genre) {
-        //Put music details
+    private void putMusicDetailsInResponse(String name, String author, String album, int year, int duration, String genre) {
         response.put(USERNAME, username);
         response.put(MUSIC_NAME, name);
         response.put(AUTHOR, author);
@@ -184,6 +199,12 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(YEAR, year);
         response.put(DURATION, duration);
         response.put(GENRE, genre);
+    }
+
+    @Override
+    public void addMusic(String name, String author, String album, int year, int duration, String genre) {
+        //Put music details
+        putMusicDetailsInResponse(name, author, album, year, duration, genre);
         //Send notification
         serverCommunication.addMusicNotification(new JSONObject(response.toString()));
         clientNotificationsHandler.addMusicNotification(id, new JSONObject(response.toString()));
@@ -200,6 +221,25 @@ public class ClientCommunication implements Runnable, Communication {
         downloadMusicFromClient(name);
     }
 
+    @Override
+    public void editMusic(String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
+        //Put music details
+        response.put(MUSIC_TO_EDIT, musicToEdit);
+        putMusicDetailsInResponse(name, author, album, year, duration, genre);
+        //Send notification
+        serverCommunication.editMusicNotification(new JSONObject(response.toString()));
+        clientNotificationsHandler.editMusicNotification(id, new JSONObject(response.toString()));
+        //Put response data
+        response.put(RESPONSE, REQUEST_EDIT_MUSIC);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, EDIT_MUSIC_SUCCESS);
+        //TODO: Only send port if approved
+        response.put(PORT, musicTransferServerSocket.getLocalPort());
+
+        sendResponse(response);
+        System.out.println(EDIT_MUSIC_SUCCESS);
+
+        downloadMusicFromClient(name);
     @Override
     public void getMusic(String musicName) {
         response.put(MUSIC_NAME, musicName);

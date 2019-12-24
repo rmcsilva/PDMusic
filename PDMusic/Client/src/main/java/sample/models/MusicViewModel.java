@@ -76,6 +76,15 @@ public class MusicViewModel extends RecursiveTreeObject<MusicViewModel> {
         return username;
     }
 
+    public void replace(MusicViewModel music) {
+        musicName.set(music.getMusicName());
+        author.set(music.getAuthor());
+        genre.set(music.getGenre());
+        year.set(music.getYear());
+        duration.set(music.getDuration());
+        username.set(music.getUsername());
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

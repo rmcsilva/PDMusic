@@ -133,6 +133,12 @@ public class MainController implements Initializable, LayoutsConstants {
         playlistsController.addMusicToPlaylist(playlistName, musicsController.getMusicByName(musicName));
     }
 
+    public void editMusic(String username, String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
+        MusicViewModel music = new MusicViewModel(name, author, album, genre, year, duration, username);
+        musicsController.editMusic(musicToEdit, music);
+        selectMusicsController.editMusic(musicToEdit, music);
+    }
+
     public void playMusic(String musicName) {
         String musicPath = ClientFileManager.getMusicPath(musicName);
         Media media = new Media(new File(musicPath).toURI().toString());

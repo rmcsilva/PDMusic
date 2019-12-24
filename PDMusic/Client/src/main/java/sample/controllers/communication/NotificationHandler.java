@@ -52,7 +52,19 @@ public class NotificationHandler implements ClientNotifications {
                 System.out.println("Add Music Response -> Status: " + responseStatus);
 
                 if (approved) {
-                    parseMusicFromJSON(response);
+                    parseMusicFromJSON(response, true);
+
+                    uploadMusicToServer(response);
+                }
+                //TODO: Show error
+                break;
+            case REQUEST_EDIT_MUSIC:
+                System.out.println("Edit Music Response -> Status: " + responseStatus);
+
+                if (approved) {
+                    parseMusicFromJSON(response, false);
+
+                    uploadMusicToServer(response);
                 }
                 //TODO: Show error
                 break;
@@ -102,7 +114,11 @@ public class NotificationHandler implements ClientNotifications {
         switch (notification.getString(NOTIFICATION)) {
             case REQUEST_ADD_MUSIC:
                 System.out.println("Add Music Notification");
-                parseMusicFromJSON(notification);
+                parseMusicFromJSON(notification, true);
+                break;
+            case REQUEST_EDIT_MUSIC:
+                System.out.println("Edit music notification");
+                parseMusicFromJSON(notification, false);
                 break;
             case REQUEST_ADD_PLAYLIST:
                 System.out.println("Add Playlist Notification");
@@ -121,7 +137,7 @@ public class NotificationHandler implements ClientNotifications {
         }
     }
 
-    private void parseMusicFromJSON(JSONObject music) {
+    private void parseMusicFromJSON(JSONObject music, boolean addMusic) {
         String username = music.getString(USERNAME);
         String musicName = music.getString(MUSIC_NAME);
         String author = music.getString(AUTHOR);
@@ -130,15 +146,22 @@ public class NotificationHandler implements ClientNotifications {
         int duration = music.getInt(DURATION);
         String genre = music.getString(GENRE);
 
-        System.out.println("Add Music -> Username: " + username +
-                " MusicName: " + musicName + " Author: " + author + " Year: " + year +
-                " Duration: " + duration + " Genre: " + genre);
+        //Check if needs to add or edit music
+        if (addMusic) {
+            System.out.println("Add Music -> Username: " + username +
+                    " MusicName: " + musicName + " Author: " + author + " Year: " + year +
+                    " Duration: " + duration + " Genre: " + genre);
 
-        addMusicNotification(username, musicName, author, album, year, duration, genre);
+            addMusicNotification(username, musicName, author, album, year, duration, genre);
+        } else {
+            String musicToEdit = music.getString(MUSIC_TO_EDIT);
 
-        //Upload music to server
-        int port = music.getInt(PORT);
-        uploadMusic(musicName, port);
+            System.out.println("Edit Music -> Username: " + username + " MusicToEdit " + musicToEdit +
+                    " MusicName: " + musicName + " Author: " + author + " Year: " + year +
+                    " Duration: " + duration + " Genre: " + genre);
+
+            editMusicNotification(username, musicToEdit, musicName, author, album, year, duration, genre);
+        }
     }
 
     private void parseMusicToDownloadFromJSON(JSONObject musicToDownload) {
@@ -194,6 +217,12 @@ public class NotificationHandler implements ClientNotifications {
     }
 
     @Override
+    public void editMusicNotification(String username, String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
+        mainController.editMusic(username, musicToEdit, name, author, album, year, duration, genre);
+        //TODO: Show alert
+    }
+
+    @Override
     public void downloadMusic(String musicName, int port) {
         try {
             DownloadMusic downloadMusic = new DownloadMusic(musicName, new Socket(communicationHandler.getSocketAddress(), port));
@@ -201,6 +230,12 @@ public class NotificationHandler implements ClientNotifications {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void uploadMusicToServer(JSONObject response) {
+        //Upload music to server
+        int port = response.getInt(PORT);
+        uploadMusic(response.getString(MUSIC_NAME), port);
     }
 
     @Override

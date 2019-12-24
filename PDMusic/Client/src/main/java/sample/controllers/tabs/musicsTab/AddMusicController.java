@@ -14,6 +14,7 @@ public class AddMusicController extends TabCommunication {
     private JFXTextField musicNameField, authorField, albumField, yearField, durationField, genreField;
 
     private boolean editMusic = false;
+    private String musicToEdit;
 
     private boolean isMusicSelected = false;
 
@@ -47,6 +48,7 @@ public class AddMusicController extends TabCommunication {
 
     public void editMusic(MusicViewModel musicViewModel) {
         editMusic = true;
+        musicToEdit = musicViewModel.getMusicName();
         isMusicSelected = false;
         musicNameField.setText(musicViewModel.getMusicName());
         authorField.setText(musicViewModel.getAuthor());
@@ -72,10 +74,14 @@ public class AddMusicController extends TabCommunication {
             return;
         }
 
-        //TODO: Add music
-        getMainController().getCommunicationHandler().addMusic(musicName, author, album, year, duration, genre);
+        if (editMusic) {
+            getMainController().getCommunicationHandler().editMusic(musicToEdit, musicName, author, album, year, duration, genre);
+        } else {
+            getMainController().getCommunicationHandler().addMusic(musicName, author, album, year, duration, genre);
+        }
 
         isMusicSelected = false;
+        editMusic = false;
 
         clearFields();
 

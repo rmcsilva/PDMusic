@@ -12,6 +12,7 @@ public interface JSONConstants {
     String PASSWORD = "password";
 
     //Music request keys
+    //Add Music
     String REQUEST_ADD_MUSIC = "addMusic";
     String MUSIC_NAME = "musicName";
     String AUTHOR = "author";
@@ -19,6 +20,9 @@ public interface JSONConstants {
     String YEAR = "year";
     String DURATION = "duration";
     String GENRE = "genre";
+    //Edit Music
+    String REQUEST_EDIT_MUSIC = "editMusic";
+    String MUSIC_TO_EDIT = "musicToEdit";
 
     //Get Music request keys
     String REQUEST_GET_MUSIC = "getMusic";
@@ -49,6 +53,7 @@ public interface JSONConstants {
     String LOGIN_SUCCESS = "Login Successful!\n";
     String REGISTER_SUCCESS = "Registered Successfully!\n";
     String ADD_MUSIC_SUCCESS = "Music Added Successfully!\n";
+    String EDIT_MUSIC_SUCCESS = "Music Edited Successfully!\n";
     String GET_MUSIC_SUCCESS = "Music Ready To Begin Download!\n";
     String ADD_PLAYLIST_SUCCESS = "Playlist Added Successfully!\n";
     String ADD_MUSIC_TO_PLAYLIST_SUCCESS = "Music Added To Playlist Successfully!\n";
