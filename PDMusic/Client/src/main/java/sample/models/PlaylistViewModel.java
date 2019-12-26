@@ -28,6 +28,10 @@ public class PlaylistViewModel extends RecursiveTreeObject<PlaylistViewModel> {
         return username;
     }
 
+    public void setName(String name) {
+        this.name.set(name);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

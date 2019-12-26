@@ -10,6 +10,7 @@ public interface ClientNotifications extends JSONConstants {
     void editMusicNotification(int senderID, JSONObject music);
     void removeMusicNotification(int senderID, JSONObject music);
     void addPlaylistNotification(int senderID, JSONObject playlist);
+    void editPlaylistNotification(int senderID, JSONObject playlist);
     void addMusicToPlaylistNotification(int senderID, JSONObject musicToPlaylist);
     void serverShutdown();
 }

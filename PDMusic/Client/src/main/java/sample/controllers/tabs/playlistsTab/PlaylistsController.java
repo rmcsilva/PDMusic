@@ -86,6 +86,21 @@ public class PlaylistsController extends TabCommunication implements Initializab
         }
     }
 
+    public void editPlaylist(String playlistToEdit, String newPlaylistName) {
+        for(PlaylistViewModel playlist: playlists) {
+            if (playlistToEdit.equals(playlist.getName())) {
+                playlist.setName(newPlaylistName);
+                //Change playlist key
+                playlistMusics.put(newPlaylistName, playlistMusics.remove(playlistToEdit));
+                if (playlistToEdit.equals(selectedPlaylistKey)) {
+                    selectedPlaylistKey = newPlaylistName;
+                    changeSelectedPlaylistName();
+                }
+                return;
+            }
+        }
+    }
+
     String getSelectedPlaylistName() {
         return selectedPlaylistKey;
     }
@@ -110,6 +125,10 @@ public class PlaylistsController extends TabCommunication implements Initializab
     private void disableEditAndRemoveButtons() {
         removePlaylistButton.setDisable(true);
         editPlaylistButton.setDisable(true);
+    }
+
+    private void changeSelectedPlaylistName() {
+        playlistSelectedController.setPlaylistName(selectedPlaylistKey);
     }
 
     @FXML
@@ -138,7 +157,7 @@ public class PlaylistsController extends TabCommunication implements Initializab
             selectedPlaylistKey = selectedPlaylist.getName();
             ObservableList<MusicViewModel> musicsInPlaylist = playlistMusics.get(selectedPlaylistKey);
             //Update content
-            playlistSelectedController.setPlaylistName(selectedPlaylistKey);
+            changeSelectedPlaylistName();
             playlistSelectedController.setMusicsInPlaylist(musicsInPlaylist);
             setupMusicsNotInPlaylist(getMainController().getMusics(), musicsInPlaylist);
         }

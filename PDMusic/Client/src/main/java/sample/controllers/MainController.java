@@ -140,6 +140,10 @@ public class MainController implements Initializable, LayoutsConstants {
         selectMusicsController.editMusic(musicToEdit, music);
     }
 
+    public void editPlaylist(String username, String playlistToEdit, String name) {
+        playlistsController.editPlaylist(playlistToEdit, name);
+    }
+
     public void removeMusic(String musicToRemove) {
         musicsController.removeMusic(musicToRemove);
         playlistSelectedController.removeMusic(musicToRemove);

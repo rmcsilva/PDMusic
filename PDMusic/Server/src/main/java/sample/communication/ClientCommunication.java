@@ -132,6 +132,15 @@ public class ClientCommunication implements Runnable, Communication {
 
                             addPlaylist(playlistName);
                             break;
+                        case REQUEST_EDIT_PLAYLIST:
+                            playlistName = request.getString(PLAYLIST_NAME);
+                            String playlistToEdit = request.getString(PLAYLIST_TO_EDIT);
+
+                            System.out.println("Edit Playlist -> ID: " + id + " Username: " + this.username +
+                                    " PlaylistToEdit " + playlistToEdit + " PlaylistName: " + playlistName);
+
+                            editPlaylist(playlistToEdit, playlistName);
+                            break;
                         case REQUEST_ADD_MUSIC_TO_PLAYLIST:
                             String musicToAdd = request.getString(MUSIC_NAME);
                             String playlistForMusic = request.getString(PLAYLIST_NAME);
@@ -317,6 +326,24 @@ public class ClientCommunication implements Runnable, Communication {
 
         sendResponse(response);
         System.out.println(ADD_PLAYLIST_SUCCESS);
+    }
+
+    @Override
+    public void editPlaylist(String playlistToEdit, String name) {
+        //Put playlist details
+        response.put(USERNAME, username);
+        response.put(PLAYLIST_NAME, name);
+        response.put(PLAYLIST_TO_EDIT, playlistToEdit);
+        //Send notification
+        serverCommunication.editPlaylistNotification(new JSONObject(response.toString()));
+        clientNotificationsHandler.editPlaylistNotification(id, new JSONObject(response.toString()));
+        //Put response data
+        response.put(RESPONSE, REQUEST_EDIT_PLAYLIST);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, EDIT_PLAYLIST_SUCCESS);
+
+        sendResponse(response);
+        System.out.println(EDIT_PLAYLIST_SUCCESS);
     }
 
     @Override

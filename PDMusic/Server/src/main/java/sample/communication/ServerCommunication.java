@@ -178,6 +178,18 @@ public class ServerCommunication extends Thread implements ServerNotifications {
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_PLAYLIST);
                 break;
+            case REQUEST_EDIT_PLAYLIST:
+                String playlistToEdit = request.getString(PLAYLIST_TO_EDIT);
+                playlistName = request.getString(PLAYLIST_NAME);
+
+                System.out.println("Edit Playlist -> Username: " + username +
+                        " PlaylistToEdit: " + playlistToEdit +
+                        " PlaylistName: " + playlistName + "\n");
+
+                requestAcknowledgment.put(RESPONSE, REQUEST_ADD_PLAYLIST);
+
+                //TODO: Add to database warn clients
+                break;
             case REQUEST_ADD_MUSIC_TO_PLAYLIST:
                 String musicToAdd = request.getString(MUSIC_NAME);
                 String playlistForMusic = request.getString(PLAYLIST_NAME);
@@ -296,6 +308,12 @@ public class ServerCommunication extends Thread implements ServerNotifications {
         createRequest(incrementRequestID(), playlist);
     }
 
+    @Override
+    public void editPlaylistNotification(JSONObject playlist) {
+        playlist.put(REQUEST, REQUEST_EDIT_PLAYLIST);
+        createRequest(incrementRequestID(), playlist);
+    }
+    
     @Override
     public void addMusicToPlaylistNotification(JSONObject musicToPlaylist) {
         musicToPlaylist.put(REQUEST, REQUEST_ADD_MUSIC_TO_PLAYLIST);

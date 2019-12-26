@@ -31,8 +31,12 @@ public interface JSONConstants {
     String PORT = "musicPort";
 
     //Playlist request keys
+    //Add Playlist
     String REQUEST_ADD_PLAYLIST = "addPlaylist";
     String PLAYLIST_NAME = "playlistName";
+    //Edit Playlist
+    String REQUEST_EDIT_PLAYLIST = "editPlaylist";
+    String PLAYLIST_TO_EDIT = "playlistToEdit";
 
     //Add Music To Playlist request keys
     String REQUEST_ADD_MUSIC_TO_PLAYLIST = "addMusicToPlaylist";
@@ -59,6 +63,7 @@ public interface JSONConstants {
     String REMOVE_MUSIC_SUCCESS = "Music Removed Successfully!\n";
     String GET_MUSIC_SUCCESS = "Music Ready To Begin Download!\n";
     String ADD_PLAYLIST_SUCCESS = "Playlist Added Successfully!\n";
+    String EDIT_PLAYLIST_SUCCESS = "Playlist Edited Successfully!\n";
     String ADD_MUSIC_TO_PLAYLIST_SUCCESS = "Music Added To Playlist Successfully!\n";
     String LOGOUT_SUCCESS = "Logged Out Successfully!\n";
 

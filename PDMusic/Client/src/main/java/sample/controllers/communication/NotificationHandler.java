@@ -89,7 +89,16 @@ public class NotificationHandler implements ClientNotifications {
                 System.out.println("Add Playlist Response -> Status: " + responseStatus);
 
                 if (approved) {
-                    parsePlaylistFromJSON(response);
+                    parsePlaylistFromJSON(response, true);
+                }
+                //TODO: Show error
+
+                break;
+            case REQUEST_EDIT_PLAYLIST:
+                System.out.println("Edit Playlist Response -> Status: " + responseStatus);
+
+                if (approved) {
+                    parsePlaylistFromJSON(response, false);
                 }
                 //TODO: Show error
 
@@ -134,7 +143,11 @@ public class NotificationHandler implements ClientNotifications {
                 break;
             case REQUEST_ADD_PLAYLIST:
                 System.out.println("Add Playlist Notification");
-                parsePlaylistFromJSON(notification);
+                parsePlaylistFromJSON(notification, true);
+                break;
+            case REQUEST_EDIT_PLAYLIST:
+                System.out.println("Edit Playlist Notification");
+                parsePlaylistFromJSON(notification, false);
                 break;
             case REQUEST_ADD_MUSIC_TO_PLAYLIST:
                 System.out.println("Add Music To Playlist Notification ");
@@ -192,14 +205,26 @@ public class NotificationHandler implements ClientNotifications {
         downloadMusic(musicName, port);
     }
 
-    private void parsePlaylistFromJSON(JSONObject playlist) {
+    private void parsePlaylistFromJSON(JSONObject playlist, boolean addPlaylist) {
         String username = playlist.getString(USERNAME);
         String playlistName = playlist.getString(PLAYLIST_NAME);
 
-        System.out.println("Add Playlist -> Username: " + username +
-                " PlaylistName: " + playlistName);
+        //Check if needs to add or edit playlist
+        if (addPlaylist) {
+            System.out.println("Add Playlist -> Username: " + username +
+                    " PlaylistName: " + playlistName);
 
-        addPlaylistNotification(username, playlistName);
+            addPlaylistNotification(username, playlistName);
+        } else {
+            String playlistToEdit = playlist.getString(PLAYLIST_TO_EDIT);
+
+            System.out.println("Edit Playlist -> Username: " + username +
+                    " PlaylistToEdit: " + playlistToEdit +
+                    " PlaylistName: " + playlistName);
+
+            editPlaylistNotification(username, playlistToEdit, playlistName);
+        }
+
     }
 
     private void parseMusicToAddToPlaylistFromJSON(JSONObject musicToAddToPlaylist) {
@@ -227,6 +252,7 @@ public class NotificationHandler implements ClientNotifications {
 
     @Override
     public void databaseInformation() {
+
     }
 
     @Override
@@ -249,7 +275,9 @@ public class NotificationHandler implements ClientNotifications {
 
     @Override
     public void downloadMusic(String musicName, int port) {
+        //TODO: Separate Exceptions!
         try {
+            //TODO: Add to queue of requests
             DownloadMusic downloadMusic = new DownloadMusic(musicName, new Socket(communicationHandler.getSocketAddress(), port));
             downloadMusic.start();
         } catch (IOException e) {
@@ -265,7 +293,9 @@ public class NotificationHandler implements ClientNotifications {
 
     @Override
     public void uploadMusic(String musicName, int port) {
+        //TODO: Separate Exceptions!
         try {
+            //TODO: Add to queue of requests
             UploadMusic uploadMusic = new UploadMusic(musicName, new Socket(communicationHandler.getSocketAddress(), port));
             uploadMusic.start();
         } catch (IOException e) {
@@ -276,6 +306,12 @@ public class NotificationHandler implements ClientNotifications {
     @Override
     public void addPlaylistNotification(String username, String name) {
         mainController.addPlaylist(username, name);
+        //TODO: Show alert
+    }
+
+    @Override
+    public void editPlaylistNotification(String username, String playlistToEdit, String name) {
+        mainController.editPlaylist(username, playlistToEdit, name);
         //TODO: Show alert
     }
 

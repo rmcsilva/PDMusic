@@ -210,6 +210,16 @@ public class CommunicationHandler extends Thread implements Communication {
     }
 
     @Override
+    public void editPlaylist(String playlistToEdit, String name) {
+        request = new JSONObject();
+        request.put(REQUEST, REQUEST_EDIT_PLAYLIST);
+        request.put(PLAYLIST_TO_EDIT, playlistToEdit);
+        request.put(PLAYLIST_NAME, name);
+
+        sendRequest(request);
+    }
+
+    @Override
     public void addMusicToPlaylist(String musicName, String playlistName) {
         request = new JSONObject();
         request.put(REQUEST , REQUEST_ADD_MUSIC_TO_PLAYLIST);

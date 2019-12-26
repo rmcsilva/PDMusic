@@ -14,6 +14,7 @@ public class AddPlaylistController extends TabCommunication {
     private JFXTextField playlistNameField;
 
     private boolean editPlaylist = false;
+    private String playlistToEdit;
 
     @FXML
     void savePlaylist(ActionEvent event) {
@@ -23,8 +24,14 @@ public class AddPlaylistController extends TabCommunication {
             return;
         }
 
-        //TODO: Add playlist
-        getMainController().getCommunicationHandler().addPlaylist(playlistName);
+        //Check to see if it needs to send an add or edit request to the server
+        if (editPlaylist) {
+            getMainController().getCommunicationHandler().editPlaylist(playlistToEdit, playlistName);
+        } else {
+            getMainController().getCommunicationHandler().addPlaylist(playlistName);
+        }
+
+        editPlaylist = false;
 
         clearFields();
 
@@ -40,7 +47,9 @@ public class AddPlaylistController extends TabCommunication {
 
     public void editPlaylist(PlaylistViewModel playlistViewModel) {
         editPlaylist = true;
-        playlistNameField.setText(playlistViewModel.getName());
+        String playlistName = playlistViewModel.getName();
+        playlistToEdit = playlistName;
+        playlistNameField.setText(playlistName);
     }
 
     private void goBackToPlaylistsMenu() {
