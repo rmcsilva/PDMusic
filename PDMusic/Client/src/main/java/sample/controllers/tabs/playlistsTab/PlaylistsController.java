@@ -193,8 +193,15 @@ public class PlaylistsController extends TabCommunication implements Initializab
             ObservableList<MusicViewModel> musicsInPlaylist = playlistMusics.get(selectedPlaylistKey);
             //Update content
             changeSelectedPlaylistName();
+            //Setup Musics
             playlistSelectedController.setMusicsInPlaylist(musicsInPlaylist);
             setupMusicsNotInPlaylist(getMainController().getMusics(), musicsInPlaylist);
+            //Setup Buttons
+            if (selectedPlaylist.getUsername().equals(getUsername())) {
+                playlistSelectedController.showAddAndRemoveButtons();
+            } else {
+                playlistSelectedController.hideAddAndRemoveButtons();
+            }
         }
         //Change tab
         getMainController().changePlaylistsTab(ScreenController.Screen.PLAYLIST_SELECTED);

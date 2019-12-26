@@ -68,8 +68,8 @@
                     <HBox>
                         <children>
                             <Region HBox.hgrow="ALWAYS"/>
-                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#removeMusicFromPlaylist"
-                                       prefHeight="48.0" prefWidth="192.0" text="Remove">
+                            <JFXButton fx:id="removeMusicButton" onAction="#removeMusicFromPlaylist" text="Remove"
+                                       alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0">
                                 <font>
                                     <Font name="Roboto Medium" size="14.0"/>
                                 </font>
@@ -77,8 +77,8 @@
                                     <Insets bottom="24.0" left="12.0" right="12.0" top="12.0"/>
                                 </HBox.margin>
                             </JFXButton>
-                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#addMusicToPlaylistScreen"
-                                       prefHeight="48.0" prefWidth="192.0" text="Add">
+                            <JFXButton fx:id="addMusicButton" onAction="#addMusicToPlaylistScreen" text="Add"
+                                       alignment="CENTER" contentDisplay="RIGHT"  prefHeight="48.0" prefWidth="192.0">
                                 <font>
                                     <Font name="Roboto Medium" size="14.0"/>
                                 </font>

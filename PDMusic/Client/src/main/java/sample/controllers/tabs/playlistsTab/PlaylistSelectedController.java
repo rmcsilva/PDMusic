@@ -1,5 +1,6 @@
 package sample.controllers.tabs.playlistsTab;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,7 +14,11 @@ import sample.models.MusicViewModel;
 
 public class PlaylistSelectedController extends TabCommunication {
 
+    @FXML
     public Text playlistNameText;
+    @FXML
+    public JFXButton addMusicButton, removeMusicButton;
+
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusicsInPlaylist;
 
@@ -63,6 +68,16 @@ public class PlaylistSelectedController extends TabCommunication {
 
     public void setPlaylistName(String playlistName) {
         playlistNameText.setText(playlistName);
+    }
+
+    protected void showAddAndRemoveButtons() {
+        addMusicButton.setVisible(true);
+        removeMusicButton.setVisible(true);
+    }
+
+    protected void hideAddAndRemoveButtons() {
+        addMusicButton.setVisible(false);
+        removeMusicButton.setVisible(false);
     }
 
     @FXML
