@@ -188,6 +188,15 @@ public class ServerCommunication extends Thread implements ServerNotifications {
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_PLAYLIST);
 
+                break;
+            case REQUEST_REMOVE_PLAYLIST:
+                playlistName = request.getString(PLAYLIST_NAME);
+
+                System.out.println("Remove Playlist -> Username: " + username +
+                        " PlaylistToRemove: " + playlistName);
+
+                requestAcknowledgment.put(RESPONSE, REQUEST_REMOVE_PLAYLIST);
+
                 //TODO: Add to database warn clients
                 break;
             case REQUEST_ADD_MUSIC_TO_PLAYLIST:
@@ -313,7 +322,13 @@ public class ServerCommunication extends Thread implements ServerNotifications {
         playlist.put(REQUEST, REQUEST_EDIT_PLAYLIST);
         createRequest(incrementRequestID(), playlist);
     }
-    
+
+    @Override
+    public void removePlaylistNotification(JSONObject playlist) {
+        playlist.put(REQUEST, REQUEST_REMOVE_PLAYLIST);
+        createRequest(incrementRequestID(), playlist);
+    }
+
     @Override
     public void addMusicToPlaylistNotification(JSONObject musicToPlaylist) {
         musicToPlaylist.put(REQUEST, REQUEST_ADD_MUSIC_TO_PLAYLIST);

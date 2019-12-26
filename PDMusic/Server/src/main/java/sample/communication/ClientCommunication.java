@@ -113,7 +113,7 @@ public class ClientCommunication implements Runnable, Communication {
                             musicName = request.getString(MUSIC_NAME);
 
                             System.out.println("Remove Music -> ID: " + id + " Username: " + this.username +
-                                    " MusicToEdit: " + musicName);
+                                    " MusicToRemove: " + musicName);
 
                             removeMusic(musicName);
                             break;
@@ -140,6 +140,14 @@ public class ClientCommunication implements Runnable, Communication {
                                     " PlaylistToEdit " + playlistToEdit + " PlaylistName: " + playlistName);
 
                             editPlaylist(playlistToEdit, playlistName);
+                            break;
+                        case REQUEST_REMOVE_PLAYLIST:
+                            playlistName = request.getString(PLAYLIST_NAME);
+
+                            System.out.println("Remove Playlist -> ID: " + id + " Username: " + this.username +
+                                    " PlaylistToRemove: " + playlistName);
+
+                            removePlaylist(playlistName);
                             break;
                         case REQUEST_ADD_MUSIC_TO_PLAYLIST:
                             String musicToAdd = request.getString(MUSIC_NAME);
@@ -344,6 +352,23 @@ public class ClientCommunication implements Runnable, Communication {
 
         sendResponse(response);
         System.out.println(EDIT_PLAYLIST_SUCCESS);
+    }
+
+    @Override
+    public void removePlaylist(String playlistToRemove) {
+        //Put playlist details
+        response.put(USERNAME, username);
+        response.put(PLAYLIST_NAME, playlistToRemove);
+        //Send notification
+        serverCommunication.removePlaylistNotification(new JSONObject(response.toString()));
+        clientNotificationsHandler.removePlaylistNotification(id, new JSONObject(response.toString()));
+        //Put response data
+        response.put(RESPONSE, REQUEST_REMOVE_PLAYLIST);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, REMOVE_PLAYLIST_SUCCESS);
+
+        sendResponse(response);
+        System.out.println(REMOVE_PLAYLIST_SUCCESS);
     }
 
     @Override

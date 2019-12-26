@@ -101,6 +101,14 @@ public class NotificationHandler implements ClientNotifications {
                     parsePlaylistFromJSON(response, false);
                 }
                 //TODO: Show error
+                break;
+            case REQUEST_REMOVE_PLAYLIST:
+                System.out.println("Remove Playlist Response -> Status: " + responseStatus);
+
+                if (approved) {
+                    parsePlaylistToRemoveFromJSON(response);
+                }
+                //TODO: Show error
 
                 break;
             case REQUEST_ADD_MUSIC_TO_PLAYLIST:
@@ -149,6 +157,10 @@ public class NotificationHandler implements ClientNotifications {
                 System.out.println("Edit Playlist Notification");
                 parsePlaylistFromJSON(notification, false);
                 break;
+            case REQUEST_REMOVE_PLAYLIST:
+                System.out.println("Remove Playlist Notification");
+                parsePlaylistToRemoveFromJSON(notification);
+                break;
             case REQUEST_ADD_MUSIC_TO_PLAYLIST:
                 System.out.println("Add Music To Playlist Notification ");
                 parseMusicToAddToPlaylistFromJSON(notification);
@@ -165,6 +177,9 @@ public class NotificationHandler implements ClientNotifications {
     private void parseMusicToRemoveFromJSON(JSONObject music) {
         String username = music.getString(USERNAME);
         String musicToRemove = music.getString(MUSIC_NAME);
+
+        System.out.println("Remove Music -> Username: " + username +
+                " MusicToRemove: " + musicToRemove);
 
         removeMusicNotification(username, musicToRemove);
     }
@@ -224,7 +239,16 @@ public class NotificationHandler implements ClientNotifications {
 
             editPlaylistNotification(username, playlistToEdit, playlistName);
         }
+    }
 
+    private void parsePlaylistToRemoveFromJSON(JSONObject playlist) {
+        String username = playlist.getString(USERNAME);
+        String playlistToRemove = playlist.getString(PLAYLIST_NAME);
+
+        System.out.println("Remove Playlist -> Username: " + username +
+                " PlaylistToRemove: " + playlistToRemove);
+
+        removePlaylistNotification(username, playlistToRemove);
     }
 
     private void parseMusicToAddToPlaylistFromJSON(JSONObject musicToAddToPlaylist) {
@@ -312,6 +336,12 @@ public class NotificationHandler implements ClientNotifications {
     @Override
     public void editPlaylistNotification(String username, String playlistToEdit, String name) {
         mainController.editPlaylist(username, playlistToEdit, name);
+        //TODO: Show alert
+    }
+
+    @Override
+    public void removePlaylistNotification(String username, String playlistToRemove) {
+        mainController.removePlaylist(playlistToRemove);
         //TODO: Show alert
     }
 

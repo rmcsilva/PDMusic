@@ -37,6 +37,8 @@ public interface JSONConstants {
     //Edit Playlist
     String REQUEST_EDIT_PLAYLIST = "editPlaylist";
     String PLAYLIST_TO_EDIT = "playlistToEdit";
+    //Remove Playlist
+    String REQUEST_REMOVE_PLAYLIST = "removePlaylist";
 
     //Add Music To Playlist request keys
     String REQUEST_ADD_MUSIC_TO_PLAYLIST = "addMusicToPlaylist";
@@ -64,6 +66,7 @@ public interface JSONConstants {
     String GET_MUSIC_SUCCESS = "Music Ready To Begin Download!\n";
     String ADD_PLAYLIST_SUCCESS = "Playlist Added Successfully!\n";
     String EDIT_PLAYLIST_SUCCESS = "Playlist Edited Successfully!\n";
+    String REMOVE_PLAYLIST_SUCCESS = "Playlist Removed Successfully!\n";
     String ADD_MUSIC_TO_PLAYLIST_SUCCESS = "Music Added To Playlist Successfully!\n";
     String LOGOUT_SUCCESS = "Logged Out Successfully!\n";
 

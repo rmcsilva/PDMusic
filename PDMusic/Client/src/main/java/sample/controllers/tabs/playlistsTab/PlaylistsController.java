@@ -2,6 +2,7 @@ package sample.controllers.tabs.playlistsTab;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTreeTableView;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -101,7 +102,22 @@ public class PlaylistsController extends TabCommunication implements Initializab
         }
     }
 
-    String getSelectedPlaylistName() {
+    public void removePlaylist(String playlistToRemove) {
+        for(PlaylistViewModel playlist: playlists) {
+            if (playlistToRemove.equals(playlist.getName())) {
+                playlists.remove(playlist);
+                //Remove playlist key
+                playlistMusics.remove(playlistToRemove);
+                if (playlistToRemove.equals(selectedPlaylistKey)) {
+                    Platform.runLater(() -> getMainController().changePlaylistsTab(ScreenController.Screen.PLAYLISTS));
+                    selectedPlaylistKey = null;
+                }
+                return;
+            }
+        }
+    }
+
+    String getSelectedPlaylistKey() {
         return selectedPlaylistKey;
     }
 
@@ -141,6 +157,12 @@ public class PlaylistsController extends TabCommunication implements Initializab
         if (ttvPlaylists.getSelectionModel().getSelectedItem() == null) return;
         addPlaylistController.editPlaylist(getSelectedPlaylist());
         goToAddPlaylistMenu();
+    }
+
+    @FXML
+    public void removePlaylistButton(ActionEvent actionEvent) {
+        if (ttvPlaylists.getSelectionModel().getSelectedItem() == null) return;
+        getMainController().getCommunicationHandler().removePlaylist(getSelectedPlaylist().getName());
     }
 
     private void goToAddPlaylistMenu() {

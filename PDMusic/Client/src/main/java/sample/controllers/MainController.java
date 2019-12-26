@@ -150,6 +150,10 @@ public class MainController implements Initializable, LayoutsConstants {
         selectMusicsController.removeMusic(musicToRemove);
     }
 
+    public void removePlaylist(String playlistToRemove) {
+        playlistsController.removePlaylist(playlistToRemove);
+    }
+
     public void playMusic(String musicName) {
         String musicPath = ClientFileManager.getMusicPath(musicName);
         Media media = new Media(new File(musicPath).toURI().toString());

@@ -71,7 +71,7 @@ public class SelectMusicsController extends TabCommunication {
         //Get selected playlist musics
         MusicViewModel selectedMusic = ttvMusicsNotInPlaylist.getSelectionModel().getSelectedItem().getValue();
         String musicName = selectedMusic.getMusicName();
-        String playlistName = playlistsController.getSelectedPlaylistName();
+        String playlistName = playlistsController.getSelectedPlaylistKey();
         //Check if a playlist is selected
         if (playlistName == null) return;
         //Send request to add music to playlist
