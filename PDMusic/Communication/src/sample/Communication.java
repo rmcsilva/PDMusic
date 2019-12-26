@@ -14,6 +14,7 @@ public interface Communication extends JSONConstants {
     void editPlaylist(String playlistToEdit, String name);
     void removePlaylist(String playlistToRemove);
     void addMusicToPlaylist(String musicName, String playlistName);
+    void removeMusicFromPlaylist(String musicToRemove, String playlistName);
     void logout();
 
 }

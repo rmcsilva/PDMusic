@@ -42,6 +42,8 @@ public interface JSONConstants {
 
     //Add Music To Playlist request keys
     String REQUEST_ADD_MUSIC_TO_PLAYLIST = "addMusicToPlaylist";
+    //Remove Music From Playlist
+    String REQUEST_REMOVE_MUSIC_FROM_PLAYLIST = "removeMusicFromPlaylist";
 
     //Logout request
     String REQUEST_LOGOUT = "logout";
@@ -68,6 +70,7 @@ public interface JSONConstants {
     String EDIT_PLAYLIST_SUCCESS = "Playlist Edited Successfully!\n";
     String REMOVE_PLAYLIST_SUCCESS = "Playlist Removed Successfully!\n";
     String ADD_MUSIC_TO_PLAYLIST_SUCCESS = "Music Added To Playlist Successfully!\n";
+    String REMOVE_MUSIC_FROM_PLAYLIST_SUCCESS = "Music Remove From Playlist Successfully!\n";
     String LOGOUT_SUCCESS = "Logged Out Successfully!\n";
 
     //Notification keys

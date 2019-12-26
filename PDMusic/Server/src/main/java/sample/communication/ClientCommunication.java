@@ -160,6 +160,17 @@ public class ClientCommunication implements Runnable, Communication {
 
                             addMusicToPlaylist(musicToAdd, playlistForMusic);
                             break;
+                        case REQUEST_REMOVE_MUSIC_FROM_PLAYLIST:
+                            String musicToRemove = request.getString(MUSIC_NAME);
+                            playlistName = request.getString(PLAYLIST_NAME);
+
+                            System.out.println("Remove Music From Playlist -> ID: " + id +
+                                    " Username: " + this.username +
+                                    " MusicToRemove: " + musicToRemove +
+                                    " Playlist: " + playlistName);
+
+                            removeMusicFromPlaylist(musicToRemove, playlistName);
+                            break;
                         case REQUEST_LOGOUT:
                             System.out.println("Logout -> ID: " + id + " Username: " + this.username);
 
@@ -387,6 +398,24 @@ public class ClientCommunication implements Runnable, Communication {
 
         sendResponse(response);
         System.out.println(ADD_MUSIC_TO_PLAYLIST_SUCCESS);
+    }
+
+    @Override
+    public void removeMusicFromPlaylist(String musicToRemove, String playlistName) {
+        //Put music and playlist details
+        response.put(USERNAME, username);
+        response.put(MUSIC_NAME, musicToRemove);
+        response.put(PLAYLIST_NAME, playlistName);
+        //Send notification
+        serverCommunication.removeMusicFromPlaylistNotification(new JSONObject(response.toString()));
+        clientNotificationsHandler.removeMusicFromPlaylistNotification(id, new JSONObject(response.toString()));
+        //Put response data
+        response.put(RESPONSE, REQUEST_REMOVE_MUSIC_FROM_PLAYLIST);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, REMOVE_MUSIC_FROM_PLAYLIST_SUCCESS);
+
+        sendResponse(response);
+        System.out.println(REMOVE_MUSIC_FROM_PLAYLIST_SUCCESS);
     }
 
     @Override

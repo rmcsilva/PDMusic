@@ -96,6 +96,12 @@ public class ClientNotificationsHandler implements ClientNotifications {
     }
 
     @Override
+    public void removeMusicFromPlaylistNotification(int senderID, JSONObject musicFromPlaylist) {
+        musicFromPlaylist.put(NOTIFICATION, REQUEST_REMOVE_MUSIC_FROM_PLAYLIST);
+        sendNotificationToClients(senderID, musicFromPlaylist);
+    }
+
+    @Override
     public void serverShutdown() {
         JSONObject serverShutdown = new JSONObject();
         serverShutdown.put(NOTIFICATION, SERVER_SHUTDOWN);

@@ -13,5 +13,6 @@ public interface ClientNotifications extends JSONConstants {
     void editPlaylistNotification(String username, String playlistToEdit, String name);
     void removePlaylistNotification(String username, String playlistToRemove);
     void addMusicToPlaylistNotification(String musicName, String playlistName);
+    void removeMusicFromPlaylistNotification(String musicToRemove, String playlistName);
     void serverShutdown();
 }

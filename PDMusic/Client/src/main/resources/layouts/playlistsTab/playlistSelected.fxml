@@ -68,8 +68,8 @@
                     <HBox>
                         <children>
                             <Region HBox.hgrow="ALWAYS"/>
-                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" prefHeight="48.0" prefWidth="192.0"
-                                       text="Remove">
+                            <JFXButton alignment="CENTER" contentDisplay="RIGHT" onAction="#removeMusicFromPlaylist"
+                                       prefHeight="48.0" prefWidth="192.0" text="Remove">
                                 <font>
                                     <Font name="Roboto Medium" size="14.0"/>
                                 </font>

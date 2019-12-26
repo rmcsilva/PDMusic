@@ -120,6 +120,15 @@ public class NotificationHandler implements ClientNotifications {
                 //TODO: Show error
 
                 break;
+            case REQUEST_REMOVE_MUSIC_FROM_PLAYLIST:
+                System.out.println("Remove Music From Playlist Response -> Status: " + responseStatus);
+
+                if (approved) {
+                    parseMusicToRemoveFromPlaylistFromJSON(response);
+                }
+                //TODO: Show error
+
+                break;
             case REQUEST_LOGOUT:
                 System.out.println("Logout Response -> Status: " + responseStatus);
 
@@ -164,6 +173,10 @@ public class NotificationHandler implements ClientNotifications {
             case REQUEST_ADD_MUSIC_TO_PLAYLIST:
                 System.out.println("Add Music To Playlist Notification ");
                 parseMusicToAddToPlaylistFromJSON(notification);
+                break;
+            case REQUEST_REMOVE_MUSIC_FROM_PLAYLIST:
+                System.out.println("Remove Music From Playlist Notification ");
+                parseMusicToRemoveFromPlaylistFromJSON(notification);
                 break;
             case SERVER_SHUTDOWN:
                 System.out.println("Server Shutdown Notification");
@@ -263,6 +276,18 @@ public class NotificationHandler implements ClientNotifications {
         addMusicToPlaylistNotification(musicName, playlistName);
     }
 
+    private void parseMusicToRemoveFromPlaylistFromJSON(JSONObject musicToAddToPlaylist) {
+        String username = musicToAddToPlaylist.getString(USERNAME);
+        String musicToRemove = musicToAddToPlaylist.getString(MUSIC_NAME);
+        String playlistName = musicToAddToPlaylist.getString(PLAYLIST_NAME);
+
+        System.out.println("Remove Music From Playlist -> Username: " + username +
+                " MusicToRemove: " + musicToRemove +
+                " PlaylistName: " + playlistName);
+
+        removeMusicFromPlaylistNotification(musicToRemove, playlistName);
+    }
+
     private boolean isResponseApproved(String responseStatus) {
         if (responseStatus.equals(APPROVED)) {
             return true;
@@ -349,6 +374,15 @@ public class NotificationHandler implements ClientNotifications {
     public void addMusicToPlaylistNotification(String musicName, String playlistName) {
         try {
             mainController.addMusicToPlaylist(playlistName, musicName);
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void removeMusicFromPlaylistNotification(String musicToRemove, String playlistName) {
+        try {
+            mainController.removeMusicFromPlaylist(playlistName, musicToRemove);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
         }

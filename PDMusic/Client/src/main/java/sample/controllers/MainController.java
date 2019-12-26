@@ -154,6 +154,10 @@ public class MainController implements Initializable, LayoutsConstants {
         playlistsController.removePlaylist(playlistToRemove);
     }
 
+    public void removeMusicFromPlaylist(String playlistName, String musicToRemove) throws NoSuchElementException {
+        playlistsController.removeMusicFromPlaylist(playlistName, musicsController.getMusicByName(musicToRemove));
+    }
+
     public void playMusic(String musicName) {
         String musicPath = ClientFileManager.getMusicPath(musicName);
         Media media = new Media(new File(musicPath).toURI().toString());

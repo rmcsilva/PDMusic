@@ -209,6 +209,16 @@ public class ServerCommunication extends Thread implements ServerNotifications {
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);
                 break;
+            case REQUEST_REMOVE_MUSIC_FROM_PLAYLIST:
+                String musicToRemove = request.getString(MUSIC_NAME);
+                playlistName = request.getString(PLAYLIST_NAME);
+
+                System.out.println("Remove Music From Playlist -> Username: " + username +
+                        " MusicToRemove: " + musicToRemove +
+                        " Playlist: " + playlistName);
+
+                requestAcknowledgment.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);
+                break;
         }
 
         requestAcknowledgment.put(NOTIFICATION_ID, notificationInformation.getNotificationId());
@@ -333,6 +343,12 @@ public class ServerCommunication extends Thread implements ServerNotifications {
     public void addMusicToPlaylistNotification(JSONObject musicToPlaylist) {
         musicToPlaylist.put(REQUEST, REQUEST_ADD_MUSIC_TO_PLAYLIST);
         createRequest(incrementRequestID(), musicToPlaylist);
+    }
+
+    @Override
+    public void removeMusicFromPlaylistNotification(JSONObject musicFromPlaylist) {
+        musicFromPlaylist.put(REQUEST, REQUEST_REMOVE_MUSIC_FROM_PLAYLIST);
+        createRequest(incrementRequestID(), musicFromPlaylist);
     }
 
     @Override

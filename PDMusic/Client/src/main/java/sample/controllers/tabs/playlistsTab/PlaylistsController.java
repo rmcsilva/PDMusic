@@ -117,6 +117,19 @@ public class PlaylistsController extends TabCommunication implements Initializab
         }
     }
 
+    public void removeMusicFromPlaylist(String playlistName, MusicViewModel musicToRemove) {
+        //Check if playlist exists
+        if (!playlistMusics.containsKey(playlistName)) return;
+        //Get the musics that are in that playlist
+        ObservableList<MusicViewModel> musics = playlistMusics.get(playlistName);
+        musics.remove(musicToRemove);
+        //If the playlist is selected remove the music from it and add it to the selects music controller
+        if (selectedPlaylistKey != null && selectedPlaylistKey.equals(playlistName)) {
+            playlistSelectedController.removeMusicFromCurrentPlaylist(musicToRemove);
+            selectMusicsController.addMusicNotInPlaylist(musicToRemove);
+        }
+    }
+
     String getSelectedPlaylistKey() {
         return selectedPlaylistKey;
     }

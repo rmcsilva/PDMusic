@@ -39,6 +39,10 @@ public class PlaylistSelectedController extends TabCommunication {
         musicsInPlaylist.add(music);
     }
 
+    void removeMusicFromCurrentPlaylist(MusicViewModel musicToRemove) {
+        musicsInPlaylist.remove(musicToRemove);
+    }
+
     public void editMusic(String musicToEdit, MusicViewModel newMusic) {
         for (MusicViewModel music: musicsInPlaylist) {
             if (musicToEdit.equals(music.getMusicName())) {
@@ -64,6 +68,15 @@ public class PlaylistSelectedController extends TabCommunication {
     @FXML
     void addMusicToPlaylistScreen(ActionEvent event) {
         getMainController().changePlaylistsTab(Screen.SELECT_MUSICS);
+    }
+
+    @FXML
+    public void removeMusicFromPlaylist(ActionEvent actionEvent) {
+        //Check if music is selected
+        if (ttvMusicsInPlaylist.getSelectionModel().getSelectedItem() == null) return;
+        String musicName = ttvMusicsInPlaylist.getSelectionModel().getSelectedItem().getValue().getMusicName();
+        //Send request to remove music from playlist
+        getMainController().getCommunicationHandler().removeMusicFromPlaylist(musicName, playlistNameText.getText());
     }
 
     @FXML
