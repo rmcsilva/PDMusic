@@ -8,6 +8,7 @@ public interface ServersDirectoryCommunication {
     int notificationsSocketTimout = 2000;
 
     //JSON key values
+    String SERVERS = "servers";
     String UDP_PORT = "udpPort";
     String PING = "periodicPing";
     String CLIENT_DISCONNECTED = "clientDisconnected";

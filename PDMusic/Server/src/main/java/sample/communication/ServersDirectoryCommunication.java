@@ -1,5 +1,6 @@
 package sample.communication;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import sample.ServerController;
 import sample.ServersDirectoryInformation;
@@ -22,6 +23,8 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
 
     private ServerInformation serverInformation;
 
+    private boolean inSetup = true;
+
     private boolean isRunning = true;
 
     private DatagramSocket notificationsDatagramSocket;
@@ -29,6 +32,7 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
     private DatagramSocket requestsDatagramSocket;
 
     public ServersDirectoryCommunication(String serversDirectoryIP, ServerController serverController) throws NoServersDirectory, IOException {
+        this.serverController = serverController;
         serverInformation = serverController.getServerInformation();
         serversDirectoryAddress = InetAddress.getByName(serversDirectoryIP);
 
@@ -36,8 +40,6 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
         notificationsDatagramSocket.setSoTimeout(socketsTimeout);
 
         connectToServersDirectory(serversDirectoryAddress);
-
-        this.serverController = serverController;
 
         notificationsDatagramSocket.setSoTimeout(0);
         requestsDatagramSocket = new DatagramSocket();
@@ -71,7 +73,12 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
         while (true) {
             try {
                 sendRequestToServersDirectory(datagramSocket, serversDirectoryAddress, port, request);
-                receiveServersDirectoryResponse(datagramSocket);
+                DatagramPacket datagramPacket = receiveServersDirectoryResponse(datagramSocket);
+                //Check if server is in setup
+                if (inSetup) {
+                    String response = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
+                    setupServers(new JSONObject(response));
+                }
                 return;
             } catch (IOException e) {
                 System.out.println("Could not connect to serversDirectory! Counter: "
@@ -83,18 +90,28 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
         }
     }
 
+    private void setupServers(JSONObject response) {
+        inSetup = false;
+        JSONArray servers = response.getJSONArray(SERVERS);
+        for (int i=0; i < servers.length(); i++) {
+            serverController.addServerIP(getServerInformationFromNotification(servers.getJSONObject(i)));
+        }
+    }
+
     private void sendRequestToServersDirectory(DatagramSocket datagramSocket, InetAddress serversDirectoryAddress, int port, JSONObject request) throws IOException {
         byte[] bArray = request.toString().getBytes();
         DatagramPacket datagramPacket = new DatagramPacket(bArray, bArray.length, serversDirectoryAddress, port);
         datagramSocket.send(datagramPacket);
     }
 
-    private void receiveServersDirectoryResponse(DatagramSocket datagramSocket) throws IOException {
+    private DatagramPacket receiveServersDirectoryResponse(DatagramSocket datagramSocket) throws IOException {
         System.out.println("Waiting for ServersDirectory Response...");
 
         byte[] bArray = new byte[datagramPacketSize];
         DatagramPacket datagramPacket = new DatagramPacket(bArray, bArray.length);
         datagramSocket.receive(datagramPacket);
+
+        return datagramPacket;
     }
 
     private JSONObject receiveNotificationRequest() throws IOException {

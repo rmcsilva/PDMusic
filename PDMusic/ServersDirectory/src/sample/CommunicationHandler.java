@@ -1,5 +1,6 @@
 package sample;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import sample.exceptions.CountExceededException;
@@ -88,8 +89,11 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
 
         switch (request.getString(REQUEST)) {
             case SERVER:
+                putServersInResponse(response);
+
                 serverInformation = getServerFullInformationFromRequest(request);
                 serversInformation.add(serverInformation);
+
                 System.out.print("Server Request, details " + serverInformation + " -> ");
                 break;
             case CLIENT:
@@ -126,6 +130,23 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
             default:
                 break;
         }
+    }
+
+    private void putServersInResponse(JSONObject response) {
+        JSONArray servers = new JSONArray();
+        for (ServerInformation server : serversInformation) {
+            servers.put(getServerInformationIntoJSON(server));
+        }
+        response.put(SERVERS, servers);
+
+        putResponseInDatagramPacket(response, datagramPacket);
+    }
+
+    private JSONObject getServerInformationIntoJSON(ServerInformation serverInformation) {
+        JSONObject server = new JSONObject();
+        server.put(IP, serverInformation.getIp());
+        server.put(TCP_PORT, serverInformation.getTcpPort());
+        return server;
     }
 
     ServerInformation getServerFullInformationFromRequest(JSONObject request) {

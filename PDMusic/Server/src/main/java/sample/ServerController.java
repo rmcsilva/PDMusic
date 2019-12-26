@@ -39,7 +39,6 @@ public class ServerController extends Thread {
         serversDirectoryCommunication.setDaemon(true);
         serversDirectoryCommunication.start();
 
-        servers = new HashSet<>();
         serverCommunication = new ServerCommunication(this, nic);
         serverCommunication.start();
 
@@ -59,6 +58,8 @@ public class ServerController extends Thread {
         System.out.println("Server running at " + InetAddress.getLocalHost().getHostAddress() + ":" + serverSocket.getLocalPort());
 
         serverInformation = new ServerInformation(serverAddress, serverPort);
+
+        servers = new HashSet<>();
     }
 
     public boolean isServerRunning() {
