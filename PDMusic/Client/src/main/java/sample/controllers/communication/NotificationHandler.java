@@ -209,16 +209,16 @@ public class NotificationHandler implements ClientNotifications {
         //Check if needs to add or edit music
         if (addMusic) {
             System.out.println("Add Music -> Username: " + username +
-                    " MusicName: " + musicName + " Author: " + author + " Year: " + year +
-                    " Duration: " + duration + " Genre: " + genre);
+                    " MusicName: " + musicName + " Author: " + author + " Album: " + album +
+                    " Year: " + year + " Duration: " + duration + " Genre: " + genre);
 
             addMusicNotification(username, musicName, author, album, year, duration, genre);
         } else {
             String musicToEdit = music.getString(MUSIC_TO_EDIT);
 
             System.out.println("Edit Music -> Username: " + username + " MusicToEdit " + musicToEdit +
-                    " MusicName: " + musicName + " Author: " + author + " Year: " + year +
-                    " Duration: " + duration + " Genre: " + genre);
+                    " MusicName: " + musicName + " Author: " + author + " Album: " + album +
+                    " Year: " + year + " Duration: " + duration + " Genre: " + genre);
 
             editMusicNotification(username, musicToEdit, musicName, author, album, year, duration, genre);
         }

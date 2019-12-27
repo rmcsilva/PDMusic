@@ -48,8 +48,8 @@ public class AddMusicController extends TabCommunication {
 
     public void editMusic(MusicViewModel musicViewModel) {
         editMusic = true;
-        musicToEdit = musicViewModel.getMusicName();
         isMusicSelected = false;
+        musicToEdit = musicViewModel.getMusicName();
         musicNameField.setText(musicViewModel.getMusicName());
         authorField.setText(musicViewModel.getAuthor());
         albumField.setText(musicViewModel.getAlbum());

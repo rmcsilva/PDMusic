@@ -22,8 +22,7 @@ public class MusicsController extends TabCommunication implements Initializable 
     private AddMusicController addMusicController;
 
     @FXML
-    public JFXButton editMusicButton;
-    public JFXButton removeMusicButton;
+    private JFXButton editMusicButton, removeMusicButton;
 
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusics;
@@ -37,7 +36,7 @@ public class MusicsController extends TabCommunication implements Initializable 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ttvMusics.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(ttvMusics.getSelectionModel().getSelectedItem() != null) {
+            if (ttvMusics.getSelectionModel().getSelectedItem() != null) {
                 String musicUsername = getSelectedMusic().getUsername();
                 String username = getMainController().getUsername();
                 //Check if current user can edit or remove the current music
@@ -65,7 +64,7 @@ public class MusicsController extends TabCommunication implements Initializable 
     }
 
     public void editMusic(String musicToEdit, MusicViewModel newMusic) {
-        for (MusicViewModel music: musics) {
+        for (MusicViewModel music : musics) {
             if (musicToEdit.equals(music.getMusicName())) {
                 music.replace(newMusic);
                 return;
@@ -74,7 +73,7 @@ public class MusicsController extends TabCommunication implements Initializable 
     }
 
     public void removeMusic(String musicToRemove) {
-        for (MusicViewModel music: musics) {
+        for (MusicViewModel music : musics) {
             if (musicToRemove.equals(music.getMusicName())) {
                 musics.remove(music);
                 return;
@@ -115,6 +114,7 @@ public class MusicsController extends TabCommunication implements Initializable 
     @FXML
     void editMusicMenu(ActionEvent event) {
         if (ttvMusics.getSelectionModel().getSelectedItem() == null) return;
+        addMusicController.editMusic(getSelectedMusic());
         getMainController().changeMusicsTab(ScreenController.Screen.ADD_MUSIC);
     }
 
