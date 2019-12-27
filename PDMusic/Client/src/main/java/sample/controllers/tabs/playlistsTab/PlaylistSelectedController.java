@@ -1,23 +1,30 @@
 package sample.controllers.tabs.playlistsTab;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import sample.controllers.ScreenController.Screen;
 import sample.controllers.tabs.TabCommunication;
 import sample.models.MusicViewModel;
 
-public class PlaylistSelectedController extends TabCommunication {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class PlaylistSelectedController extends TabCommunication implements Initializable {
 
     @FXML
-    public Text playlistNameText;
+    private Text playlistNameText;
     @FXML
-    public JFXButton addMusicButton, removeMusicButton;
+    private JFXTextField searchMusicTextField;
+    @FXML
+    private JFXButton addMusicButton, removeMusicButton;
 
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusicsInPlaylist;
@@ -26,6 +33,13 @@ public class PlaylistSelectedController extends TabCommunication {
 
     public PlaylistSelectedController() {
         musicsInPlaylist = FXCollections.observableArrayList();
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        searchMusicTextField.textProperty().addListener(
+                (observable, oldValue, newValue) -> ttvMusicsInPlaylist.setPredicate(musicTreeItem -> musicTreeItem.getValue().predicate(newValue))
+        );
     }
 
     public JFXTreeTableView<MusicViewModel> getTtvMusicsInPlaylist() {

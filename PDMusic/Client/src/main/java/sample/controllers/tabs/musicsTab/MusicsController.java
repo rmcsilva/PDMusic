@@ -1,6 +1,7 @@
 package sample.controllers.tabs.musicsTab;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,6 +22,8 @@ public class MusicsController extends TabCommunication implements Initializable 
 
     private AddMusicController addMusicController;
 
+    @FXML
+    private JFXTextField searchMusicTextField;
     @FXML
     private JFXButton editMusicButton, removeMusicButton;
 
@@ -49,6 +52,10 @@ public class MusicsController extends TabCommunication implements Initializable 
                 disableEditAndRemoveButtons();
             }
         });
+
+        searchMusicTextField.textProperty().addListener(
+                (observable, oldValue, newValue) -> ttvMusics.setPredicate(musicTreeItem -> musicTreeItem.getValue().predicate(newValue))
+        );
     }
 
     public JFXTreeTableView<MusicViewModel> getTtvMusics() {

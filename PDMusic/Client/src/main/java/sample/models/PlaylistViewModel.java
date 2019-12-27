@@ -32,6 +32,11 @@ public class PlaylistViewModel extends RecursiveTreeObject<PlaylistViewModel> {
         this.name.set(name);
     }
 
+    public boolean predicate(String text) {
+        return getName().contains(text)
+                || getUsername().contains(text);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

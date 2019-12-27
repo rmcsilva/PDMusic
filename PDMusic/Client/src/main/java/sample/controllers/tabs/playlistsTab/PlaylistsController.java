@@ -1,6 +1,7 @@
 package sample.controllers.tabs.playlistsTab;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTreeTableView;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -23,8 +24,9 @@ public class PlaylistsController extends TabCommunication implements Initializab
     private SelectMusicsController selectMusicsController;
 
     @FXML
-    public JFXButton removePlaylistButton;
-    public JFXButton editPlaylistButton;
+    private JFXButton removePlaylistButton, editPlaylistButton;
+    @FXML
+    private JFXTextField searchPlaylistTextField;
 
     @FXML
     private JFXTreeTableView<PlaylistViewModel> ttvPlaylists;
@@ -55,6 +57,10 @@ public class PlaylistsController extends TabCommunication implements Initializab
                 disableEditAndRemoveButtons();
             }
         });
+
+        searchPlaylistTextField.textProperty().addListener(
+                (observable, oldValue, newValue) -> ttvPlaylists.setPredicate(playlistTreeItem -> playlistTreeItem.getValue().predicate(newValue))
+        );
     }
 
     public JFXTreeTableView<PlaylistViewModel> getTtvPlaylists() {

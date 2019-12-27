@@ -16,7 +16,7 @@
     <Separator orientation="VERTICAL" HBox.hgrow="ALWAYS"/>
     <BorderPane HBox.hgrow="ALWAYS">
         <top>
-            <JFXTextField promptText="Search Music" BorderPane.alignment="CENTER">
+            <JFXTextField fx:id="searchMusicTextField" promptText="Search Music">
                 <BorderPane.margin>
                     <Insets bottom="12.0" left="24.0" right="24.0" top="12.0"/>
                 </BorderPane.margin>

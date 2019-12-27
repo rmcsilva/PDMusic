@@ -1,18 +1,25 @@
 package sample.controllers.tabs.playlistsTab;
 
+import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTreeTableView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import sample.controllers.ScreenController;
 import sample.controllers.tabs.TabCommunication;
 import sample.models.MusicViewModel;
 
-public class SelectMusicsController extends TabCommunication {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class SelectMusicsController extends TabCommunication implements Initializable {
 
     @FXML
     private JFXTreeTableView<MusicViewModel> ttvMusicsNotInPlaylist;
+    @FXML
+    private JFXTextField searchMusicTextField;
 
     private PlaylistsController playlistsController;
 
@@ -20,6 +27,13 @@ public class SelectMusicsController extends TabCommunication {
 
     public SelectMusicsController() {
         musicsNotInPlaylist = FXCollections.observableArrayList();
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        searchMusicTextField.textProperty().addListener(
+                (observable, oldValue, newValue) -> ttvMusicsNotInPlaylist.setPredicate(musicTreeItem -> musicTreeItem.getValue().predicate(newValue))
+        );
     }
 
     public JFXTreeTableView<MusicViewModel> getTtvMusicsNotInPlaylist() {

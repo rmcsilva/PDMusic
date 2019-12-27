@@ -79,9 +79,20 @@ public class MusicViewModel extends RecursiveTreeObject<MusicViewModel> {
     public void replace(MusicViewModel music) {
         musicName.set(music.getMusicName());
         author.set(music.getAuthor());
+        album.set(music.getAlbum());
         genre.set(music.getGenre());
         year.set(music.getYear());
         duration.set(music.getDuration());
+    }
+
+    public boolean predicate(String text) {
+        return getMusicName().contains(text)
+                || getAuthor().contains(text)
+                || getAlbum().contains(text)
+                || getGenre().contains(text)
+                || String.valueOf(getYear()).contains(text)
+                || String.valueOf(getDuration()).contains(text)
+                || getUsername().contains(text);
     }
 
     @Override
