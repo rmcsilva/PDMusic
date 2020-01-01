@@ -16,11 +16,14 @@ public class AddPlaylistController extends TabCommunication {
     private boolean editPlaylist = false;
     private String playlistToEdit;
 
+    private ScreenController screenController = ScreenController.getInstance();
+
     @FXML
     void savePlaylist(ActionEvent event) {
         String playlistName = playlistNameField.getText();
 
         if (playlistName.isEmpty()) {
+            screenController.showDialog("Save Playlist Invalid Form", "Playlist name is required!\n");
             return;
         }
 
