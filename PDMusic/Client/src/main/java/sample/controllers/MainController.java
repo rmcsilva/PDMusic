@@ -35,6 +35,8 @@ import sample.models.PlaylistViewModel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 
@@ -119,6 +121,13 @@ public class MainController implements Initializable, LayoutsConstants {
         return communicationHandler;
     }
 
+    public void clearData() {
+        musicsController.clearMusics();
+        playlistsController.clearPlaylists();
+        playlistSelectedController.clearMusicsInPlaylist();
+        selectMusicsController.clearMusicsNotInPlaylist();
+    }
+
     public void addMusic(String username, String name, String author, String album, int year, int duration, String genre) {
         MusicViewModel music = new MusicViewModel(name, author, album, genre, year, duration, username);
         musicsController.addMusic(music);
@@ -148,6 +157,11 @@ public class MainController implements Initializable, LayoutsConstants {
         musicsController.removeMusic(musicToRemove);
         playlistSelectedController.removeMusic(musicToRemove);
         selectMusicsController.removeMusic(musicToRemove);
+        try {
+            Files.deleteIfExists(Paths.get(ClientFileManager.getMusicPath(musicToRemove)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void removePlaylist(String playlistToRemove) {

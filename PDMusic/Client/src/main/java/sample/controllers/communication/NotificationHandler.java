@@ -71,6 +71,7 @@ public class NotificationHandler implements ClientNotifications {
                 System.out.println("Login Response -> Status: " + responseStatus);
 
                 mainController.setUsername(response.getString(USERNAME));
+                databaseInformation(response);
                 screenController.activate(ScreenController.Screen.MAIN);
                 hasFinishedSetup = true;
 
@@ -338,8 +339,23 @@ public class NotificationHandler implements ClientNotifications {
     }
 
     @Override
-    public void databaseInformation() {
+    public void databaseInformation(JSONObject data) {
+        mainController.clearData();
 
+        JSONArray musicsJSON = data.getJSONArray(MUSICS_DATA);
+        for (int i = 0; i < musicsJSON.length(); i++) {
+            parseMusicFromJSON(musicsJSON.getJSONObject(i), true);
+        }
+
+        JSONArray playlistsJSON = data.getJSONArray(PLAYLISTS_DATA);
+        for (int i = 0; i < playlistsJSON.length(); i++) {
+            parsePlaylistFromJSON(playlistsJSON.getJSONObject(i), true);
+        }
+
+        JSONArray musicsInPlaylistJSON = data.getJSONArray(MUSICS_IN_PLAYLIST_DATA);
+        for (int i = 0; i < musicsInPlaylistJSON.length(); i++) {
+            parseMusicToAddToPlaylistFromJSON(musicsInPlaylistJSON.getJSONObject(i));
+        }
     }
 
     @Override
