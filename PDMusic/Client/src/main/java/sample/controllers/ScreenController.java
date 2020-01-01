@@ -1,7 +1,13 @@
 package sample.controllers;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
+import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 
 import java.util.EnumMap;
 
@@ -23,6 +29,7 @@ public class ScreenController {
 
     private EnumMap<Screen, Pane> screenMap = new EnumMap<>(Screen.class);
     private Scene main;
+    private Pane currentPane;
 
     public static ScreenController getInstance()
     {
@@ -52,6 +59,30 @@ public class ScreenController {
     }
 
     public void activate(Screen screen){
-        main.setRoot(screenMap.get(screen));
+        currentPane = screenMap.get(screen);
+        main.setRoot(currentPane);
+    }
+
+    public void showDialog(String heading, String body) {
+        JFXDialogLayout content = new JFXDialogLayout();
+
+        Text headingText = new Text(heading);
+        headingText.getStyleClass().add("headingText");
+        content.setHeading(headingText);
+
+        Text bodyText = new Text(body);
+        bodyText.getStyleClass().add("bodyText");
+        content.setBody(bodyText);
+
+        JFXDialog dialog = new JFXDialog((StackPane)currentPane, content, JFXDialog.DialogTransition.CENTER);
+
+        JFXButton confirmBtn = new JFXButton("Confirm");
+        confirmBtn.addEventHandler(ActionEvent.ACTION, (e)-> {
+            dialog.close();
+        });
+
+        content.setActions(confirmBtn);
+
+        dialog.show();
     }
 }

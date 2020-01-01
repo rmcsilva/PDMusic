@@ -28,6 +28,7 @@ public class ClientMain extends Application {
         Parent root = screenController.getPane(ScreenController.Screen.LOGIN);
         Scene scene = new Scene(root);
         screenController.setScene(scene);
+        screenController.activate(ScreenController.Screen.LOGIN);
 
         primaryStage.setTitle("PDMusic");
         primaryStage.setScene(scene);

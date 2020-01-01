@@ -200,3 +200,18 @@
     -jfx-button-type: FLAT;
     -fx-background-color: transparent;
 }
+
+/* Styling Dialog Text */
+.headingText {
+    -fx-font-family: "Roboto Medium";
+    -fx-font-size: 18;
+    -fx-fill: black;
+    -fx-text-fill: black;
+}
+
+.bodyText {
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14;
+    -fx-fill: black;
+    -fx-text-fill: black;
+}
