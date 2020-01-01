@@ -1,13 +1,6 @@
 package sample;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-
-import static sample.JSONConstants.REQUEST;
-import static sample.ServersDirectoryInformation.*;
 
 public class ServersDirectoryMain {
 

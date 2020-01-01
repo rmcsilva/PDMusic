@@ -1,7 +1,8 @@
 package sampleRMI.communication;
 
 import sampleRMI.CommandController;
-import sampleRMI.communication.interfaces.MusicInterface;
+import sampleRMI.communication.interfaces.MonitoringInterface;
+import sampleRMI.communication.interfaces.ObserverInfoInterface;
 
 import java.rmi.Naming;
 import java.rmi.Remote;
@@ -12,26 +13,26 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicServicecontroller extends UnicastRemoteObject implements MusicInterface {
+public class MusicServicecontroller extends UnicastRemoteObject implements ObserverInfoInterface {
 
-    protected List<Remote> workers;
+    protected ArrayList<Remote> workers;
     private String mServerName;
 
-    protected MusicServicecontroller(List<Remote> workers, String mServerName) throws RemoteException {
+    protected MusicServicecontroller(ArrayList<Remote> workers, String mServerName) throws RemoteException {
         this.workers = workers;
         this.mServerName = mServerName;
     }
 
     public static void main(String[] args) {
-        if (args.length != 2) {
-            System.out.println("Sintax: java MusicServiceController <sIP> <serverName>");
+        if (args.length != 1) {
+            System.out.println("Sintax: java MusicServiceController <dsIP>");
             return;
         }
 
         System.setProperty("java.rmi.hostname", args[0]);
 
-        List<Remote> workers = new ArrayList<>();
-        String serverName = args[1];
+        ArrayList<Remote> workers = new ArrayList<>();
+        String serverName = "PDMusic";
 
         try {
             LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
@@ -60,7 +61,6 @@ public class MusicServicecontroller extends UnicastRemoteObject implements Music
             System.out.println("Error: " + e);
             System.exit(1);
         }
-
     }
 
     public void exit() throws RemoteException {
@@ -75,5 +75,16 @@ public class MusicServicecontroller extends UnicastRemoteObject implements Music
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public synchronized void setListenner(MonitoringInterface service) throws RemoteException {
+        workers.add(service);
+        System.out.println("New Monitoring Service added!");
+    }
+
+    @Override
+    public ArrayList<clientInfoRmi> getUserOnInfo() throws RemoteException {
+        return null;
     }
 }
