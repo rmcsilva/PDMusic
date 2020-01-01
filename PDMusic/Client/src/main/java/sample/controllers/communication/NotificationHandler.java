@@ -1,14 +1,21 @@
 package sample.controllers.communication;
 
+import javafx.application.Platform;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import sample.controllers.MainController;
 import sample.controllers.ScreenController;
+import sample.controllers.communication.files.ClientFileManager;
 import sample.controllers.communication.files.DownloadMusic;
 import sample.controllers.communication.files.UploadMusic;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.NoSuchElementException;
+
+import static sample.MessageDetails.MUSIC_ALREADY_EXISTS;
 
 public class NotificationHandler implements ClientNotifications {
 
@@ -17,126 +24,135 @@ public class NotificationHandler implements ClientNotifications {
     private ScreenController screenController;
     private MainController mainController;
 
+    private boolean hasFinishedSetup = false;
+
+    private String dialogHeading = "";
+    private String dialogBody = "";
+
+    private final String requestDenied = "Request Denied";
+
     public NotificationHandler(CommunicationHandler communicationHandler) {
         this.communicationHandler = communicationHandler;
         screenController = ScreenController.getInstance();
     }
 
+    private void showDialog(String heading, String body) {
+        System.out.println(dialogBody);
+        if (hasFinishedSetup || heading.equals(requestDenied)) {
+            Platform.runLater(() -> screenController.showDialog(heading, body));
+        }
+        dialogBody = "";
+    }
+
     public void handleServerResponse(JSONObject response) {
 
         String responseStatus = response.getString(STATUS);
-        boolean approved = isResponseApproved(responseStatus);
+        String messageDetails = response.getString(DETAILS);
+
+        if (!isResponseApproved(responseStatus)) {
+            if (messageDetails.equals(MUSIC_ALREADY_EXISTS)) {
+                try {
+                    Files.delete(Paths.get(ClientFileManager.getMusicPath(response.getString(MUSIC_NAME))));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            dialogHeading = requestDenied;
+            dialogBody = dialogBody.concat(messageDetails);
+            showDialog(dialogHeading, dialogBody);
+            return;
+        }
+
+        dialogHeading = "Request Accepted";
 
         switch (response.getString(RESPONSE)) {
             case REQUEST_LOGIN:
                 System.out.println("Login Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    mainController.setUsername(response.getString(USERNAME));
-                    screenController.activate(ScreenController.Screen.MAIN);
-                    //TODO: Show details
-                }
-                //TODO: Show error
+                mainController.setUsername(response.getString(USERNAME));
+                screenController.activate(ScreenController.Screen.MAIN);
+                hasFinishedSetup = true;
 
                 break;
             case REQUEST_REGISTER:
                 System.out.println("Register Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    screenController.activate(ScreenController.Screen.LOGIN);
-                }
-                //TODO: Show error
+                screenController.activate(ScreenController.Screen.LOGIN);
 
                 break;
             case REQUEST_ADD_MUSIC:
                 System.out.println("Add Music Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parseMusicFromJSON(response, true);
+                dialogBody = dialogBody.concat(messageDetails);
+                parseMusicFromJSON(response, true);
 
-                    uploadMusicToServer(response);
-                }
-                //TODO: Show error
+                uploadMusicToServer(response);
+
                 break;
             case REQUEST_EDIT_MUSIC:
                 System.out.println("Edit Music Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parseMusicFromJSON(response, false);
+                dialogBody = dialogBody.concat(messageDetails);
+                parseMusicFromJSON(response, false);
 
-                    uploadMusicToServer(response);
-                }
-                //TODO: Show error
+                uploadMusicToServer(response);
+
                 break;
             case REQUEST_REMOVE_MUSIC:
                 System.out.println("Remove Music Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parseMusicToRemoveFromJSON(response);
-                }
-                //TODO: Show error
+                dialogBody = dialogBody.concat(messageDetails);
+                parseMusicToRemoveFromJSON(response);
+
                 break;
             case REQUEST_GET_MUSIC:
                 System.out.println("Get Music Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parseMusicToDownloadFromJSON(response);
-                }
-                //TODO: Show error
+                dialogBody = dialogBody.concat(messageDetails);
+                parseMusicToDownloadFromJSON(response);
 
                 break;
             case REQUEST_ADD_PLAYLIST:
                 System.out.println("Add Playlist Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parsePlaylistFromJSON(response, true);
-                }
-                //TODO: Show error
+                dialogBody = dialogBody.concat(messageDetails);
+                parsePlaylistFromJSON(response, true);
 
                 break;
             case REQUEST_EDIT_PLAYLIST:
                 System.out.println("Edit Playlist Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parsePlaylistFromJSON(response, false);
-                }
-                //TODO: Show error
+                dialogBody = dialogBody.concat(messageDetails);
+                parsePlaylistFromJSON(response, false);
+
                 break;
             case REQUEST_REMOVE_PLAYLIST:
                 System.out.println("Remove Playlist Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parsePlaylistToRemoveFromJSON(response);
-                }
-                //TODO: Show error
+                dialogBody = dialogBody.concat(messageDetails);
+                parsePlaylistToRemoveFromJSON(response);
 
                 break;
             case REQUEST_ADD_MUSIC_TO_PLAYLIST:
                 System.out.println("Add Music To Playlist Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parseMusicToAddToPlaylistFromJSON(response);
-                }
-                //TODO: Show error
+                dialogBody = dialogBody.concat(messageDetails);
+                parseMusicToAddToPlaylistFromJSON(response);
 
                 break;
             case REQUEST_REMOVE_MUSIC_FROM_PLAYLIST:
                 System.out.println("Remove Music From Playlist Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    parseMusicToRemoveFromPlaylistFromJSON(response);
-                }
-                //TODO: Show error
+                dialogBody = dialogBody.concat(messageDetails);
+                parseMusicToRemoveFromPlaylistFromJSON(response);
 
                 break;
             case REQUEST_LOGOUT:
                 System.out.println("Logout Response -> Status: " + responseStatus);
 
-                if (approved) {
-                    screenController.activate(ScreenController.Screen.LOGIN);
-                    communicationHandler.shutdown();
-                }
-                //TODO: Show error
+                screenController.activate(ScreenController.Screen.LOGIN);
+                communicationHandler.shutdown();
 
                 break;
             default:
@@ -145,6 +161,9 @@ public class NotificationHandler implements ClientNotifications {
     }
 
     public void handleServerNotification(JSONObject notification) {
+
+        dialogHeading = "Notification";
+
         switch (notification.getString(NOTIFICATION)) {
             case REQUEST_ADD_MUSIC:
                 System.out.println("Add Music Notification");
@@ -191,10 +210,12 @@ public class NotificationHandler implements ClientNotifications {
         String username = music.getString(USERNAME);
         String musicToRemove = music.getString(MUSIC_NAME);
 
-        System.out.println("Remove Music -> Username: " + username +
+        dialogBody = dialogBody.concat("Remove Music -> Username: " + username +
                 " MusicToRemove: " + musicToRemove);
 
         removeMusicNotification(username, musicToRemove);
+
+        showDialog(dialogHeading, dialogBody);
     }
 
     private void parseMusicFromJSON(JSONObject music, boolean addMusic) {
@@ -208,7 +229,7 @@ public class NotificationHandler implements ClientNotifications {
 
         //Check if needs to add or edit music
         if (addMusic) {
-            System.out.println("Add Music -> Username: " + username +
+            dialogBody = dialogBody.concat("Add Music -> Username: " + username +
                     " MusicName: " + musicName + " Author: " + author + " Album: " + album +
                     " Year: " + year + " Duration: " + duration + " Genre: " + genre);
 
@@ -216,21 +237,25 @@ public class NotificationHandler implements ClientNotifications {
         } else {
             String musicToEdit = music.getString(MUSIC_TO_EDIT);
 
-            System.out.println("Edit Music -> Username: " + username + " MusicToEdit " + musicToEdit +
+            dialogBody = dialogBody.concat("Edit Music -> Username: " + username + " MusicToEdit " + musicToEdit +
                     " MusicName: " + musicName + " Author: " + author + " Album: " + album +
                     " Year: " + year + " Duration: " + duration + " Genre: " + genre);
 
             editMusicNotification(username, musicToEdit, musicName, author, album, year, duration, genre);
         }
+
+        showDialog(dialogHeading, dialogBody);
     }
 
     private void parseMusicToDownloadFromJSON(JSONObject musicToDownload) {
         String musicName = musicToDownload.getString(MUSIC_NAME);
         int port = musicToDownload.getInt(PORT);
 
-        System.out.println("Download Music -> " + musicName + " Port: " + port);
+        dialogBody = dialogBody.concat("Download Music -> " + musicName + " Port: " + port);
 
         downloadMusic(musicName, port);
+
+        showDialog(dialogHeading, dialogBody);
     }
 
     private void parsePlaylistFromJSON(JSONObject playlist, boolean addPlaylist) {
@@ -239,41 +264,55 @@ public class NotificationHandler implements ClientNotifications {
 
         //Check if needs to add or edit playlist
         if (addPlaylist) {
-            System.out.println("Add Playlist -> Username: " + username +
+            dialogBody = dialogBody.concat("Add Playlist -> Username: " + username +
                     " PlaylistName: " + playlistName);
 
             addPlaylistNotification(username, playlistName);
         } else {
             String playlistToEdit = playlist.getString(PLAYLIST_TO_EDIT);
 
-            System.out.println("Edit Playlist -> Username: " + username +
+            dialogBody = dialogBody.concat("Edit Playlist -> Username: " + username +
                     " PlaylistToEdit: " + playlistToEdit +
                     " PlaylistName: " + playlistName);
 
             editPlaylistNotification(username, playlistToEdit, playlistName);
         }
+
+        showDialog(dialogHeading, dialogBody);
     }
 
     private void parsePlaylistToRemoveFromJSON(JSONObject playlist) {
         String username = playlist.getString(USERNAME);
         String playlistToRemove = playlist.getString(PLAYLIST_NAME);
 
-        System.out.println("Remove Playlist -> Username: " + username +
+        dialogBody = dialogBody.concat("Remove Playlist -> Username: " + username +
                 " PlaylistToRemove: " + playlistToRemove);
 
         removePlaylistNotification(username, playlistToRemove);
+
+        showDialog(dialogHeading, dialogBody);
     }
 
     private void parseMusicToAddToPlaylistFromJSON(JSONObject musicToAddToPlaylist) {
-        String username = musicToAddToPlaylist.getString(USERNAME);
+        String username = null;
+
+        if (musicToAddToPlaylist.has(USERNAME)) {
+            username = musicToAddToPlaylist.getString(USERNAME);
+        }
         String musicName = musicToAddToPlaylist.getString(MUSIC_NAME);
         String playlistName = musicToAddToPlaylist.getString(PLAYLIST_NAME);
 
-        System.out.println("Add Music To Playlist -> Username: " + username +
-                " MusicName: " + musicName +
-                " PlaylistName: " + playlistName);
+        dialogBody = dialogBody.concat("Add Music To Playlist ->");
+
+        if (username != null) {
+            dialogBody = dialogBody.concat(" Username: " + username);
+        }
+
+        dialogBody = dialogBody.concat(" MusicName: " + musicName + " PlaylistName: " + playlistName);
 
         addMusicToPlaylistNotification(musicName, playlistName);
+
+        showDialog(dialogHeading, dialogBody);
     }
 
     private void parseMusicToRemoveFromPlaylistFromJSON(JSONObject musicToAddToPlaylist) {
@@ -281,18 +320,17 @@ public class NotificationHandler implements ClientNotifications {
         String musicToRemove = musicToAddToPlaylist.getString(MUSIC_NAME);
         String playlistName = musicToAddToPlaylist.getString(PLAYLIST_NAME);
 
-        System.out.println("Remove Music From Playlist -> Username: " + username +
+        dialogBody = dialogBody.concat("Remove Music From Playlist -> Username: " + username +
                 " MusicToRemove: " + musicToRemove +
                 " PlaylistName: " + playlistName);
 
         removeMusicFromPlaylistNotification(musicToRemove, playlistName);
+
+        showDialog(dialogHeading, dialogBody);
     }
 
     private boolean isResponseApproved(String responseStatus) {
-        if (responseStatus.equals(APPROVED)) {
-            return true;
-        }
-        return false;
+        return responseStatus.equals(APPROVED);
     }
 
     public void setMainController(MainController mainController) {
@@ -307,19 +345,16 @@ public class NotificationHandler implements ClientNotifications {
     @Override
     public void addMusicNotification(String username, String name, String author, String album, int year, int duration, String genre) {
         mainController.addMusic(username, name, author, album, year, duration, genre);
-        //TODO: Show alert
     }
 
     @Override
     public void editMusicNotification(String username, String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
         mainController.editMusic(username, musicToEdit, name, author, album, year, duration, genre);
-        //TODO: Show alert
     }
 
     @Override
     public void removeMusicNotification(String username, String musicToRemove) {
         mainController.removeMusic(musicToRemove);
-        //TODO: Show alert
     }
 
     @Override
@@ -355,19 +390,16 @@ public class NotificationHandler implements ClientNotifications {
     @Override
     public void addPlaylistNotification(String username, String name) {
         mainController.addPlaylist(username, name);
-        //TODO: Show alert
     }
 
     @Override
     public void editPlaylistNotification(String username, String playlistToEdit, String name) {
         mainController.editPlaylist(username, playlistToEdit, name);
-        //TODO: Show alert
     }
 
     @Override
     public void removePlaylistNotification(String username, String playlistToRemove) {
         mainController.removePlaylist(playlistToRemove);
-        //TODO: Show alert
     }
 
     @Override
