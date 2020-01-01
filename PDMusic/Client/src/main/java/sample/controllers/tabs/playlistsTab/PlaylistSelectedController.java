@@ -54,6 +54,10 @@ public class PlaylistSelectedController extends TabCommunication implements Init
         this.musicsInPlaylist.setAll(musicsInPlaylist);
     }
 
+    public void clearMusicsInPlaylist() {
+        musicsInPlaylist.clear();
+    }
+
     void addMusicToCurrentPlaylist(MusicViewModel music) {
         musicsInPlaylist.add(music);
     }

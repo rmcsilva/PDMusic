@@ -66,6 +66,10 @@ public class MusicsController extends TabCommunication implements Initializable 
         return musics;
     }
 
+    public void clearMusics() {
+        musics.clear();
+    }
+
     public void addMusic(MusicViewModel music) {
         musics.add(music);
     }

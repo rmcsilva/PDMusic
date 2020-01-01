@@ -48,6 +48,10 @@ public class SelectMusicsController extends TabCommunication implements Initiali
         this.musicsNotInPlaylist.setAll(musicsNotInPlaylist);
     }
 
+    public void clearMusicsNotInPlaylist() {
+        musicsNotInPlaylist.clear();
+    }
+
     public void addMusicNotInPlaylist(MusicViewModel music) {
         musicsNotInPlaylist.add(music);
     }

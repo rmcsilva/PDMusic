@@ -75,6 +75,10 @@ public class PlaylistsController extends TabCommunication implements Initializab
         return ttvPlaylists.getSelectionModel().getSelectedItem().getValue();
     }
 
+    public void clearPlaylists() {
+        playlists.clear();
+    }
+
     public void addPlaylist(PlaylistViewModel playlist) {
         playlists.add(playlist);
         playlistMusics.put(playlist.getName(), FXCollections.observableArrayList());
