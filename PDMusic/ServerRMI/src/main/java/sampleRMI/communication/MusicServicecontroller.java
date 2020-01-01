@@ -4,6 +4,9 @@ import sampleRMI.CommandController;
 import sampleRMI.communication.interfaces.MonitoringInterface;
 import sampleRMI.communication.interfaces.ObserverInfoInterface;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -11,12 +14,13 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MusicServicecontroller extends UnicastRemoteObject implements ObserverInfoInterface {
 
-    protected ArrayList<Remote> workers;
+    private ArrayList<Remote> workers;
     private String mServerName;
+    private String dbName;
+    private ServerSocket listeningSocket = null;
 
     protected MusicServicecontroller(ArrayList<Remote> workers, String mServerName) throws RemoteException {
         this.workers = workers;
@@ -24,8 +28,8 @@ public class MusicServicecontroller extends UnicastRemoteObject implements Obser
     }
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Sintax: java MusicServiceController <dsIP>");
+        if (args.length != 2) {
+            System.out.println("Sintax: java MusicServiceController <dsIP> <NIC MultiCast>");
             return;
         }
 
@@ -53,6 +57,8 @@ public class MusicServicecontroller extends UnicastRemoteObject implements Obser
             CommandController commandManager = new CommandController(musicService);
             commandManager.start();
             System.out.println("Command system online!");
+
+            musicService.ServerStart(args);
 
         } catch (RemoteException e) {
             System.out.println("Remote Error: " + e);
@@ -86,5 +92,29 @@ public class MusicServicecontroller extends UnicastRemoteObject implements Obser
     @Override
     public ArrayList<clientInfoRmi> getUserOnInfo() throws RemoteException {
         return null;
+    }
+
+    public void ServerStart(String[] args) throws RemoteException {
+        dbName = args[1];
+
+        try {
+            listeningSocket = new ServerSocket(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        System.out.println("Listening to requests!");
+
+        while (true) {
+            Socket s;
+
+            try {
+                s = listeningSocket.accept();
+                System.out.println("New client connected");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
