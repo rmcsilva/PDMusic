@@ -5,10 +5,15 @@ import org.json.JSONObject;
 import sample.ServerController;
 import sample.communication.interfaces.ServerNotifications;
 import sample.communication.models.MulticastNotificationInformation;
+import sample.database.DatabaseAccess;
+import sample.database.models.Music;
+import sample.database.models.Playlist;
+import sample.database.models.User;
 import sample.models.ServerInformation;
 
 import java.io.IOException;
 import java.net.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +31,10 @@ public class ServerCommunication extends Thread implements ServerNotifications {
     private ServerController serverController;
     private ServerInformation serverInformation;
 
+    private ClientNotificationsHandler clientNotificationsHandler;
+
+    private DatabaseAccess databaseAccess;
+
     List<MulticastResponseHandler> multicastResponseHandlers;
 
     private boolean isRunning = true;
@@ -34,9 +43,12 @@ public class ServerCommunication extends Thread implements ServerNotifications {
 
     private MulticastSocket multicastSocket;
 
-    public ServerCommunication(ServerController serverController, String nic) throws IOException {
+    public ServerCommunication(ServerController serverController, String nic,
+                               ClientNotificationsHandler clientNotificationsHandler, DatabaseAccess databaseAccess) throws IOException {
         this.serverController = serverController;
         serverInformation = serverController.getServerInformation();
+        this.clientNotificationsHandler = clientNotificationsHandler;
+        this.databaseAccess = databaseAccess;
         initializeServerCommunication(nic);
         multicastResponseHandlers = new ArrayList<>();
     }
@@ -128,6 +140,16 @@ public class ServerCommunication extends Thread implements ServerNotifications {
                 System.out.println("Register -> Username: " + username + " Name: " + name + "\n");
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_REGISTER);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.addUser(new User(name, username, password));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case REQUEST_ADD_MUSIC:
                 String musicName = request.getString(MUSIC_NAME);
@@ -143,6 +165,18 @@ public class ServerCommunication extends Thread implements ServerNotifications {
                         " Duration: " + duration + " Genre: " + genre + "\n");
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_MUSIC);
+
+                clientNotificationsHandler.addMusicNotification(-1, request);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.addMusic(new Music(databaseAccess.getUserIDFromUsername(username), musicName, author, album, year, duration, genre, getRelativeMusicPath(musicName)));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case REQUEST_EDIT_MUSIC:
                 String musicToEdit = request.getString(MUSIC_TO_EDIT);
@@ -161,6 +195,17 @@ public class ServerCommunication extends Thread implements ServerNotifications {
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_EDIT_MUSIC);
 
+                clientNotificationsHandler.editMusicNotification(-1, request);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.editMusic(musicToEdit, new Music(databaseAccess.getUserIDFromUsername(username), musicName, author, album, year, duration, genre, getRelativeMusicPath(musicName)));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case REQUEST_REMOVE_MUSIC:
                 musicName = request.getString(MUSIC_NAME);
@@ -169,6 +214,18 @@ public class ServerCommunication extends Thread implements ServerNotifications {
                         " MusicToRemove: " + musicName);
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_REMOVE_MUSIC);
+
+                clientNotificationsHandler.removeMusicNotification(-1, request);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.removeMusic(musicName);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case REQUEST_ADD_PLAYLIST:
                 String playlistName = request.getString(PLAYLIST_NAME);
@@ -177,6 +234,18 @@ public class ServerCommunication extends Thread implements ServerNotifications {
                         " PlaylistName: " + playlistName + "\n");
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_PLAYLIST);
+
+                clientNotificationsHandler.addPlaylistNotification(-1, request);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.addPlaylist(new Playlist(playlistName, username));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case REQUEST_EDIT_PLAYLIST:
                 String playlistToEdit = request.getString(PLAYLIST_TO_EDIT);
@@ -188,6 +257,17 @@ public class ServerCommunication extends Thread implements ServerNotifications {
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_PLAYLIST);
 
+                clientNotificationsHandler.editPlaylistNotification(-1, request);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.editPlaylist(playlistToEdit, playlistName);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case REQUEST_REMOVE_PLAYLIST:
                 playlistName = request.getString(PLAYLIST_NAME);
@@ -197,7 +277,17 @@ public class ServerCommunication extends Thread implements ServerNotifications {
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_REMOVE_PLAYLIST);
 
-                //TODO: Add to database warn clients
+                clientNotificationsHandler.removePlaylistNotification(-1, request);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.removePlaylist(playlistName);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case REQUEST_ADD_MUSIC_TO_PLAYLIST:
                 String musicToAdd = request.getString(MUSIC_NAME);
@@ -208,6 +298,18 @@ public class ServerCommunication extends Thread implements ServerNotifications {
                         " PlaylistForMusic: " + playlistForMusic + "\n");
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);
+
+                clientNotificationsHandler.addMusicToPlaylistNotification(-1, request);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.addMusicToPlaylist(databaseAccess.getPlaylistID(playlistForMusic), databaseAccess.getMusicID(musicToAdd));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
             case REQUEST_REMOVE_MUSIC_FROM_PLAYLIST:
                 String musicToRemove = request.getString(MUSIC_NAME);
@@ -218,6 +320,18 @@ public class ServerCommunication extends Thread implements ServerNotifications {
                         " Playlist: " + playlistName);
 
                 requestAcknowledgment.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);
+
+                clientNotificationsHandler.removeMusicFromPlaylistNotification(-1, request);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    break;
+                }
+
+                try {
+                    databaseAccess.removeMusicFromPlaylist(databaseAccess.getPlaylistID(playlistName), databaseAccess.getMusicID(musicToRemove));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 break;
         }
 
@@ -360,5 +474,9 @@ public class ServerCommunication extends Thread implements ServerNotifications {
             e.printStackTrace();
         }
         multicastSocket.close();
+    }
+
+    private String getRelativeMusicPath(String musicName) {
+        return "/" + musicName + ".mp3";
     }
 }

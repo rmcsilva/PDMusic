@@ -4,6 +4,9 @@ public interface JSONConstants {
     //Request keys
     String REQUEST = "request";
 
+    //Invalid Request
+    String INVALID_REQUEST = "invalidRequest";
+
     //Login/Register request keys
     String REQUEST_LOGIN = "login";
     String REQUEST_REGISTER = "register";
@@ -51,6 +54,11 @@ public interface JSONConstants {
     //Server Shutdown Request
     String SERVER_SHUTDOWN = "serverShutdown";
 
+    //Database Data Keys
+    String MUSICS_DATA = "musicData";
+    String PLAYLISTS_DATA = "playlistData";
+    String MUSICS_IN_PLAYLIST_DATA = "musicsInPlaylistData";
+
     //Response keys
     String RESPONSE = "response";
     //Response keys status
@@ -59,22 +67,7 @@ public interface JSONConstants {
     String DENIED = "denied";
     //Response details
     String DETAILS = "details";
-    //Message Details
-    String LOGIN_SUCCESS = "Login Successful!\n";
-    String REGISTER_SUCCESS = "Registered Successfully!\n";
-    String ADD_MUSIC_SUCCESS = "Music Added Successfully!\n";
-    String EDIT_MUSIC_SUCCESS = "Music Edited Successfully!\n";
-    String REMOVE_MUSIC_SUCCESS = "Music Removed Successfully!\n";
-    String GET_MUSIC_SUCCESS = "Music Ready To Begin Download!\n";
-    String ADD_PLAYLIST_SUCCESS = "Playlist Added Successfully!\n";
-    String EDIT_PLAYLIST_SUCCESS = "Playlist Edited Successfully!\n";
-    String REMOVE_PLAYLIST_SUCCESS = "Playlist Removed Successfully!\n";
-    String ADD_MUSIC_TO_PLAYLIST_SUCCESS = "Music Added To Playlist Successfully!\n";
-    String REMOVE_MUSIC_FROM_PLAYLIST_SUCCESS = "Music Remove From Playlist Successfully!\n";
-    String LOGOUT_SUCCESS = "Logged Out Successfully!\n";
 
     //Notification keys
     String NOTIFICATION = "notification";
-
-
 }

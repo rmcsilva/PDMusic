@@ -1,9 +1,15 @@
 package sample.communication;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import sample.Communication;
 import sample.communication.files.DownloadMusic;
 import sample.communication.files.UploadMusic;
+import sample.MessageDetails;
+import sample.database.DatabaseAccess;
+import sample.database.models.Music;
+import sample.database.models.Playlist;
+import sample.database.models.User;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,8 +17,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
-public class ClientCommunication implements Runnable, Communication {
+public class ClientCommunication implements Runnable, Communication, MessageDetails {
 
     public final String USERNAME_UNDEFINED = "undefined";
 
@@ -29,13 +38,16 @@ public class ClientCommunication implements Runnable, Communication {
 
     private ServerCommunication serverCommunication;
 
+    private DatabaseAccess databaseAccess;
+
     private boolean isRunning = true;
 
     private JSONObject response;
 
     private String username = USERNAME_UNDEFINED;
 
-    public ClientCommunication(Socket clientSocket, ClientNotificationsHandler clientNotificationsHandler, ServerCommunication serverCommunication) throws IOException {
+    public ClientCommunication(Socket clientSocket, ClientNotificationsHandler clientNotificationsHandler,
+                               ServerCommunication serverCommunication, DatabaseAccess databaseAccess) throws IOException {
         this.socket = clientSocket;
         pw = new PrintWriter(socket.getOutputStream());
         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -43,6 +55,7 @@ public class ClientCommunication implements Runnable, Communication {
         musicTransferServerSocket = new ServerSocket(0);
         this.clientNotificationsHandler = clientNotificationsHandler;
         this.serverCommunication = serverCommunication;
+        this.databaseAccess = databaseAccess;
     }
 
     public int getId() {
@@ -201,30 +214,132 @@ public class ClientCommunication implements Runnable, Communication {
         pw.flush();
     }
 
+    private void requestApproved(String requestType, String details) {
+        response.put(RESPONSE, requestType);
+        response.put(STATUS, APPROVED);
+        response.put(DETAILS, details);
+        sendResponse(response);
+        System.out.println("Request Approved -> " + details);
+    }
+
+    private void requestDenied(String details) {
+        response.put(RESPONSE, INVALID_REQUEST);
+        response.put(STATUS, DENIED);
+        response.put(DETAILS, details);
+        sendResponse(response);
+        System.out.println("Request Denied -> " + details);
+    }
+
     @Override
     public void login(String username, String password) throws IOException {
-        //TODO: Apply restrictions
-        this.username = username;
+        try {
+            if (!databaseAccess.hasUsername(username)) {
+                requestDenied(USERNAME_NOT_FOUND);
+                return;
+            }
 
-        response.put(RESPONSE, REQUEST_LOGIN);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, LOGIN_SUCCESS);
-        response.put(USERNAME, username);
+            User user = databaseAccess.getUser(username);
 
-        sendResponse(response);
-        System.out.println(LOGIN_SUCCESS);
+            assert user != null;
+
+            if (!user.getPassword().equals(password)) {
+                requestDenied(PASSWORD_MISMATCH);
+                return;
+            }
+
+            this.username = username;
+            response.put(USERNAME, username);
+            putDatabaseInformationInRequest();
+            requestApproved(REQUEST_LOGIN, LOGIN_SUCCESS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void putDatabaseInformationInRequest() {
+        try {
+            List<Music> musics = databaseAccess.getMusics();
+            JSONArray musicsJSON = new JSONArray();
+            for(Music music : musics) {
+                musicsJSON.put(getMusicJSON(music));
+            }
+            response.put(MUSICS_DATA, musicsJSON);
+
+            List<Playlist> playlists = databaseAccess.getPlaylists();
+            JSONArray playlistsJSON = new JSONArray();
+            for(Playlist playlist : playlists) {
+                playlistsJSON.put(getPlaylistJSON(playlist));
+            }
+            response.put(PLAYLISTS_DATA, playlistsJSON);
+
+            Map<String, List<String>> musicsInPlaylist = databaseAccess.getMusicsInPlaylist();
+            JSONArray musicsInPlaylistJSON = new JSONArray();
+            for (Map.Entry<String, List<String>> entry : musicsInPlaylist.entrySet()) {
+                for (String musicName : entry.getValue()) {
+                    musicsInPlaylistJSON.put(getMusicInPlaylistJSON(entry.getKey(), musicName));
+                }
+            }
+            response.put(MUSICS_IN_PLAYLIST_DATA, musicsInPlaylistJSON);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getMusicJSON(Music music) {
+        JSONObject musicJSON = new JSONObject();
+        musicJSON.put(USERNAME, music.getUsername());
+        musicJSON.put(MUSIC_NAME, music.getName());
+        musicJSON.put(AUTHOR, music.getAuthor());
+        musicJSON.put(ALBUM, music.getAlbum());
+        musicJSON.put(YEAR, music.getYear());
+        musicJSON.put(DURATION, music.getDuration());
+        musicJSON.put(GENRE, music.getGenre());
+        return musicJSON;
+    }
+
+    private JSONObject getPlaylistJSON(Playlist playlist) {
+        JSONObject playlistJSON = new JSONObject();
+        playlistJSON.put(USERNAME, playlist.getUsername());
+        playlistJSON.put(PLAYLIST_NAME, playlist.getName());
+        return playlistJSON;
+    }
+
+    private JSONObject getMusicInPlaylistJSON(String playlistName, String musicName) {
+        JSONObject musicInPlaylistJSON = new JSONObject();
+        musicInPlaylistJSON.put(PLAYLIST_NAME, playlistName);
+        musicInPlaylistJSON.put(MUSIC_NAME, musicName);
+        return musicInPlaylistJSON;
     }
 
     @Override
     public void register(String name, String username, String password) throws IOException {
-        response.put(RESPONSE, REQUEST_REGISTER);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, username + " " + REGISTER_SUCCESS);
-        //Send notification
-        serverCommunication.registerNotification(new JSONObject(response.toString()));
+        try {
+            if (databaseAccess.hasUsername(username)) {
+                requestDenied(USERNAME_ALREADY_TAKEN);
+                return;
+            }
 
-        sendResponse(response);
-        System.out.println(username + REGISTER_SUCCESS);
+            databaseAccess.addUser(new User(name, username, password));
+
+            //Send notification
+            JSONObject userData = new JSONObject();
+            userData.put(USERNAME, username);
+            userData.put(NAME, name);
+            userData.put(PASSWORD, password);
+            serverCommunication.registerNotification(userData);
+
+            requestApproved(REQUEST_REGISTER, REGISTER_SUCCESS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean hasLoggedIn() {
+        if (username.equals(USERNAME_UNDEFINED)) {
+            requestDenied(USER_NOT_LOGGED_IN);
+            return false;
+        }
+        return true;
     }
 
     private void putMusicDetailsInResponse(String name, String author, String album, int year, int duration, String genre) {
@@ -237,62 +352,111 @@ public class ClientCommunication implements Runnable, Communication {
         response.put(GENRE, genre);
     }
 
+    private String getRelativeMusicPath(String musicName) {
+        return "/" + musicName + ".mp3";
+    }
+
     @Override
     public void addMusic(String name, String author, String album, int year, int duration, String genre) {
-        //Put music details
-        putMusicDetailsInResponse(name, author, album, year, duration, genre);
-        //Send notification
-        serverCommunication.addMusicNotification(new JSONObject(response.toString()));
-        clientNotificationsHandler.addMusicNotification(id, new JSONObject(response.toString()));
-        //Put response data
-        response.put(RESPONSE, REQUEST_ADD_MUSIC);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, ADD_MUSIC_SUCCESS);
-        //TODO: Only send port if approved
-        response.put(PORT, musicTransferServerSocket.getLocalPort());
+        if (!hasLoggedIn()) {
+            return;
+        }
 
-        sendResponse(response);
-        System.out.println(ADD_MUSIC_SUCCESS);
+        try {
+            if (databaseAccess.hasMusic(name)) {
+                response.put(MUSIC_NAME, name);
+                requestDenied(MUSIC_ALREADY_EXISTS);
+                return;
+            }
 
-        downloadMusicFromClient(name);
+            databaseAccess.addMusic(new Music(databaseAccess.getUserIDFromUsername(username), name, author, album, year, duration, genre, getRelativeMusicPath(name)));
+
+            //Put music details
+            putMusicDetailsInResponse(name, author, album, year, duration, genre);
+            //Send notification
+            serverCommunication.addMusicNotification(new JSONObject(response.toString()));
+            clientNotificationsHandler.addMusicNotification(id, new JSONObject(response.toString()));
+            //Put response data
+            response.put(PORT, musicTransferServerSocket.getLocalPort());
+            requestApproved(REQUEST_ADD_MUSIC, ADD_MUSIC_SUCCESS);
+
+            downloadMusicFromClient(name);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean canChangeMusic(String musicName, String errorType) {
+        if (!hasLoggedIn()) {
+            return false;
+        }
+
+        try {
+            if (!databaseAccess.hasMusic(musicName)) {
+                requestDenied(MUSIC_NOT_EXISTS);
+                return false;
+            }
+
+            if(!username.equals(databaseAccess.getMusicOwner(musicName))) {
+                requestDenied(errorType);
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     @Override
     public void editMusic(String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
-        //Put music details
-        response.put(MUSIC_TO_EDIT, musicToEdit);
-        putMusicDetailsInResponse(name, author, album, year, duration, genre);
-        //Send notification
-        serverCommunication.editMusicNotification(new JSONObject(response.toString()));
-        clientNotificationsHandler.editMusicNotification(id, new JSONObject(response.toString()));
-        //Put response data
-        response.put(RESPONSE, REQUEST_EDIT_MUSIC);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, EDIT_MUSIC_SUCCESS);
-        //TODO: Only send port if approved
-        response.put(PORT, musicTransferServerSocket.getLocalPort());
+        try {
+            if (!canChangeMusic(musicToEdit, EDIT_DIFFERENT_MUSIC_OWNER)) {
+                return;
+            }
 
-        sendResponse(response);
-        System.out.println(EDIT_MUSIC_SUCCESS);
+            if (databaseAccess.hasMusic(name)) {
+                response.put(MUSIC_NAME, name);
+                requestDenied(MUSIC_ALREADY_EXISTS);
+                return;
+            }
 
-        downloadMusicFromClient(name);
+            databaseAccess.editMusic(musicToEdit, new Music(databaseAccess.getUserIDFromMusicName(musicToEdit),name, author, album, year, duration, genre, getRelativeMusicPath(name)));
+
+            //Put music details
+            response.put(MUSIC_TO_EDIT, musicToEdit);
+            putMusicDetailsInResponse(name, author, album, year, duration, genre);
+            //Send notification
+            serverCommunication.editMusicNotification(new JSONObject(response.toString()));
+            clientNotificationsHandler.editMusicNotification(id, new JSONObject(response.toString()));
+            //Put response data
+            response.put(PORT, musicTransferServerSocket.getLocalPort());
+            requestApproved(REQUEST_EDIT_MUSIC, EDIT_MUSIC_SUCCESS);
+
+            downloadMusicFromClient(name);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void removeMusic(String musicToRemove) {
-        //Put music details
-        response.put(USERNAME, username);
-        response.put(MUSIC_NAME, musicToRemove);
-        //Send notification
-        serverCommunication.removeMusicNotification(new JSONObject(response.toString()));
-        clientNotificationsHandler.removeMusicNotification(id, new JSONObject(response.toString()));
-        //Put response data
-        response.put(RESPONSE, REQUEST_REMOVE_MUSIC);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, REMOVE_MUSIC_SUCCESS);
-
-        sendResponse(response);
-        System.out.println(REMOVE_MUSIC_SUCCESS);
+        try {
+            if (!canChangeMusic(musicToRemove, REMOVE_DIFFERENT_MUSIC_OWNER)) {
+                return;
+            }
+            databaseAccess.removeMusic(musicToRemove);
+            //Put music details
+            response.put(USERNAME, username);
+            response.put(MUSIC_NAME, musicToRemove);
+            //Send notification
+            serverCommunication.removeMusicNotification(new JSONObject(response.toString()));
+            clientNotificationsHandler.removeMusicNotification(id, new JSONObject(response.toString()));
+            //Put response data
+            requestApproved(REQUEST_REMOVE_MUSIC, REMOVE_MUSIC_SUCCESS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -332,90 +496,146 @@ public class ClientCommunication implements Runnable, Communication {
 
     @Override
     public void addPlaylist(String name) {
-        //Put playlist details
-        response.put(USERNAME, username);
-        response.put(PLAYLIST_NAME, name);
-        //Send notification
-        serverCommunication.addPlaylistNotification(new JSONObject(response.toString()));
-        clientNotificationsHandler.addPlaylistNotification(id, new JSONObject(response.toString()));
-        //Put response data
-        response.put(RESPONSE, REQUEST_ADD_PLAYLIST);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, ADD_PLAYLIST_SUCCESS);
+        if (!hasLoggedIn()) {
+            return;
+        }
 
-        sendResponse(response);
-        System.out.println(ADD_PLAYLIST_SUCCESS);
+        try {
+            if (databaseAccess.hasPlaylist(name)) {
+                requestDenied(PLAYLIST_ALREADY_EXISTS);
+                return;
+            }
+            databaseAccess.addPlaylist(new Playlist(databaseAccess.getUserIDFromUsername(username), name));
+            //Put playlist details
+            response.put(USERNAME, username);
+            response.put(PLAYLIST_NAME, name);
+            //Send notification
+            serverCommunication.addPlaylistNotification(new JSONObject(response.toString()));
+            clientNotificationsHandler.addPlaylistNotification(id, new JSONObject(response.toString()));
+            //Put response data
+            requestApproved(REQUEST_ADD_PLAYLIST, ADD_PLAYLIST_SUCCESS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean canChangePlaylist(String playlistName, String errorType) {
+        if (!hasLoggedIn()) {
+            return false;
+        }
+
+        try {
+            if (!databaseAccess.hasPlaylist(playlistName)) {
+                requestDenied(PLAYLIST_NOT_EXISTS);
+                return false;
+            }
+
+            if (!username.equals(databaseAccess.getPlaylistOwner(playlistName))) {
+                requestDenied(errorType);
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     @Override
     public void editPlaylist(String playlistToEdit, String name) {
-        //Put playlist details
-        response.put(USERNAME, username);
-        response.put(PLAYLIST_NAME, name);
-        response.put(PLAYLIST_TO_EDIT, playlistToEdit);
-        //Send notification
-        serverCommunication.editPlaylistNotification(new JSONObject(response.toString()));
-        clientNotificationsHandler.editPlaylistNotification(id, new JSONObject(response.toString()));
-        //Put response data
-        response.put(RESPONSE, REQUEST_EDIT_PLAYLIST);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, EDIT_PLAYLIST_SUCCESS);
-
-        sendResponse(response);
-        System.out.println(EDIT_PLAYLIST_SUCCESS);
+        try {
+            if(!canChangePlaylist(playlistToEdit, EDIT_DIFFERENT_PLAYLIST_OWNER)) {
+                return;
+            }
+            databaseAccess.editPlaylist(playlistToEdit, name);
+            //Put playlist details
+            response.put(USERNAME, username);
+            response.put(PLAYLIST_NAME, name);
+            response.put(PLAYLIST_TO_EDIT, playlistToEdit);
+            //Send notification
+            serverCommunication.editPlaylistNotification(new JSONObject(response.toString()));
+            clientNotificationsHandler.editPlaylistNotification(id, new JSONObject(response.toString()));
+            //Put response data
+            requestApproved(REQUEST_EDIT_PLAYLIST, EDIT_PLAYLIST_SUCCESS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void removePlaylist(String playlistToRemove) {
-        //Put playlist details
-        response.put(USERNAME, username);
-        response.put(PLAYLIST_NAME, playlistToRemove);
-        //Send notification
-        serverCommunication.removePlaylistNotification(new JSONObject(response.toString()));
-        clientNotificationsHandler.removePlaylistNotification(id, new JSONObject(response.toString()));
-        //Put response data
-        response.put(RESPONSE, REQUEST_REMOVE_PLAYLIST);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, REMOVE_PLAYLIST_SUCCESS);
-
-        sendResponse(response);
-        System.out.println(REMOVE_PLAYLIST_SUCCESS);
+        try {
+            if(!canChangePlaylist(playlistToRemove, REMOVE_DIFFERENT_PLAYLIST_OWNER)) {
+                return;
+            }
+            databaseAccess.removePlaylist(playlistToRemove);
+            //Put playlist details
+            response.put(USERNAME, username);
+            response.put(PLAYLIST_NAME, playlistToRemove);
+            //Send notification
+            serverCommunication.removePlaylistNotification(new JSONObject(response.toString()));
+            clientNotificationsHandler.removePlaylistNotification(id, new JSONObject(response.toString()));
+            //Put response data
+            requestApproved(REQUEST_REMOVE_PLAYLIST, REMOVE_PLAYLIST_SUCCESS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void addMusicToPlaylist(String musicName, String playlistName) {
-        //Put music and playlist details
-        response.put(USERNAME, username);
-        response.put(MUSIC_NAME, musicName);
-        response.put(PLAYLIST_NAME, playlistName);
-        //Send notification
-        serverCommunication.addMusicToPlaylistNotification(new JSONObject(response.toString()));
-        clientNotificationsHandler.addMusicToPlaylistNotification(id, new JSONObject(response.toString()));
-        //Put response data
-        response.put(RESPONSE, REQUEST_ADD_MUSIC_TO_PLAYLIST);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, ADD_MUSIC_TO_PLAYLIST_SUCCESS);
+        try {
+            if (!databaseAccess.hasMusic(musicName)) {
+                requestDenied(MUSIC_NOT_EXISTS);
+                return;
+            }
 
-        sendResponse(response);
-        System.out.println(ADD_MUSIC_TO_PLAYLIST_SUCCESS);
+            if(!canChangePlaylist(playlistName, ADD_TO_PLAYLIST_DIFFERENT_OWNER)) {
+                return;
+            }
+
+            databaseAccess.addMusicToPlaylist(databaseAccess.getPlaylistID(playlistName), databaseAccess.getMusicID(musicName));
+
+            //Put music and playlist details
+            response.put(USERNAME, username);
+            response.put(MUSIC_NAME, musicName);
+            response.put(PLAYLIST_NAME, playlistName);
+            //Send notification
+            serverCommunication.addMusicToPlaylistNotification(new JSONObject(response.toString()));
+            clientNotificationsHandler.addMusicToPlaylistNotification(id, new JSONObject(response.toString()));
+            //Put response data
+            requestApproved(REQUEST_ADD_MUSIC_TO_PLAYLIST, ADD_MUSIC_TO_PLAYLIST_SUCCESS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void removeMusicFromPlaylist(String musicToRemove, String playlistName) {
-        //Put music and playlist details
-        response.put(USERNAME, username);
-        response.put(MUSIC_NAME, musicToRemove);
-        response.put(PLAYLIST_NAME, playlistName);
-        //Send notification
-        serverCommunication.removeMusicFromPlaylistNotification(new JSONObject(response.toString()));
-        clientNotificationsHandler.removeMusicFromPlaylistNotification(id, new JSONObject(response.toString()));
-        //Put response data
-        response.put(RESPONSE, REQUEST_REMOVE_MUSIC_FROM_PLAYLIST);
-        response.put(STATUS, APPROVED);
-        response.put(DETAILS, REMOVE_MUSIC_FROM_PLAYLIST_SUCCESS);
+        try {
+            if (!databaseAccess.hasMusic(musicToRemove)) {
+                requestDenied(MUSIC_NOT_EXISTS);
+                return;
+            }
 
-        sendResponse(response);
-        System.out.println(REMOVE_MUSIC_FROM_PLAYLIST_SUCCESS);
+            if(!canChangePlaylist(playlistName, REMOVE_FROM_PLAYLIST_DIFFERENT_OWNER)) {
+                return;
+            }
+
+            databaseAccess.removeMusicFromPlaylist(databaseAccess.getPlaylistID(playlistName), databaseAccess.getMusicID(musicToRemove));
+
+            //Put music and playlist details
+            response.put(USERNAME, username);
+            response.put(MUSIC_NAME, musicToRemove);
+            response.put(PLAYLIST_NAME, playlistName);
+            //Send notification
+            serverCommunication.removeMusicFromPlaylistNotification(new JSONObject(response.toString()));
+            clientNotificationsHandler.removeMusicFromPlaylistNotification(id, new JSONObject(response.toString()));
+            //Put response data
+            requestApproved(REQUEST_REMOVE_MUSIC_FROM_PLAYLIST, REMOVE_MUSIC_FROM_PLAYLIST_SUCCESS);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

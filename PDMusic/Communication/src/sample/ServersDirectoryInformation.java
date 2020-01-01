@@ -1,9 +1,7 @@
 package sample;
 
-import sample.exceptions.CountExceededException;
 import sample.exceptions.NoServersDirectory;
 
-import java.io.IOException;
 import java.net.InetAddress;
 
 public interface ServersDirectoryInformation {

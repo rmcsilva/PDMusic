@@ -5,6 +5,7 @@ import sample.communication.ClientNotificationsHandler;
 import sample.communication.ServerCommunication;
 import sample.communication.ServersDirectoryCommunication;
 import sample.communication.files.ServerFileManager;
+import sample.database.DatabaseAccess;
 import sample.exceptions.NoServersDirectory;
 import sample.models.ServerInformation;
 
@@ -29,7 +30,9 @@ public class ServerController extends Thread {
 
     private ClientNotificationsHandler clientNotificationsHandler;
 
-    public ServerController(String serversDirectoryIP, String nic) throws IOException, NoServersDirectory {
+    private DatabaseAccess databaseAccess;
+
+    public ServerController(String serversDirectoryIP, String nic, DatabaseAccess databaseAccess) throws IOException, NoServersDirectory {
         //Setup server music files location
         new ServerFileManager();
 
@@ -39,10 +42,12 @@ public class ServerController extends Thread {
         serversDirectoryCommunication.setDaemon(true);
         serversDirectoryCommunication.start();
 
-        serverCommunication = new ServerCommunication(this, nic);
+        clientNotificationsHandler = new ClientNotificationsHandler(this);
+
+        serverCommunication = new ServerCommunication(this, nic, clientNotificationsHandler, databaseAccess);
         serverCommunication.start();
 
-        clientNotificationsHandler = new ClientNotificationsHandler(this);
+        this.databaseAccess = databaseAccess;
     }
 
     public ServerInformation getServerInformation() {
@@ -94,7 +99,7 @@ public class ServerController extends Thread {
 
             try {
                 Socket socket = serverSocket.accept();
-                ClientCommunication client = new ClientCommunication(socket, clientNotificationsHandler, serverCommunication);
+                ClientCommunication client = new ClientCommunication(socket, clientNotificationsHandler, serverCommunication, databaseAccess);
                 clientNotificationsHandler.addClient(client);
                 Thread thread = new Thread(client);
                 thread.start();
@@ -115,5 +120,7 @@ public class ServerController extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        databaseAccess.closeConnection();
     }
 }
