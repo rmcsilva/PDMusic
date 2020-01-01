@@ -135,14 +135,14 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
     private void putServersInResponse(JSONObject response) {
         JSONArray servers = new JSONArray();
         for (ServerInformation server : serversInformation) {
-            servers.put(getServerInformationIntoJSON(server));
+            servers.put(getServerInformationJSON(server));
         }
         response.put(SERVERS, servers);
 
         putResponseInDatagramPacket(response, datagramPacket);
     }
 
-    private JSONObject getServerInformationIntoJSON(ServerInformation serverInformation) {
+    private JSONObject getServerInformationJSON(ServerInformation serverInformation) {
         JSONObject server = new JSONObject();
         server.put(IP, serverInformation.getIp());
         server.put(TCP_PORT, serverInformation.getTcpPort());
