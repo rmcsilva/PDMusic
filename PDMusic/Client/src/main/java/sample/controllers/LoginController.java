@@ -79,10 +79,11 @@ public class LoginController implements Initializable {
 
         try {
             startCommunicationHandler();
-        } catch (NoServerAvailable | NoServersDirectory e) {
-            //TODO: Catch exceptions and show alerts based on them
-            System.out.println(e);
-            e.printStackTrace();
+        } catch (NoServerAvailable nsa) {
+            screenController.showDialog("No Available Servers", nsa.getMessage() + " Try again later!");
+            return;
+        } catch (NoServersDirectory nsd) {
+            screenController.showDialog("No Servers Directory", nsd.getMessage() + " Try again later!");
             return;
         }
 

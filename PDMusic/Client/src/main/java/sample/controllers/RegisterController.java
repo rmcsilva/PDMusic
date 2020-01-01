@@ -23,6 +23,8 @@ public class RegisterController {
 
     private String name, username, password;
 
+    private ScreenController screenController = ScreenController.getInstance();
+
     public void setLoginController(LoginController loginController) { this.loginController = loginController; }
 
     private void goToLogin() { ScreenController.getInstance().activate(ScreenController.Screen.LOGIN); }
@@ -52,13 +54,14 @@ public class RegisterController {
         }
         try {
             loginController.startCommunicationHandler();
-        } catch (NoServerAvailable | NoServersDirectory e) {
-            //TODO: Catch exceptions and show alerts based on them
-            System.out.println(e);
-            e.printStackTrace();
+        } catch (NoServerAvailable nsa) {
+            screenController.showDialog("No Available Servers", nsa.getMessage() + " Try again later!");
+            return;
+        } catch (NoServersDirectory nsd) {
+            screenController.showDialog("No Servers Directory", nsd.getMessage() + " Try again later!");
             return;
         }
-        //TODO: Send data back to login
+
         loginController.getCommunicationHandler().register(name, username, password);
         loginController.setUsernameFieldText(username);
 
