@@ -31,8 +31,13 @@ public class AddMusicController extends TabCommunication {
     private String musicName, author, album, genre;
     private int year, duration;
 
+    private ScreenController screenController = ScreenController.getInstance();
+
+    private final String invalidForm = "Save Music Invalid Form";
+
     private boolean getFieldValues() {
         if (!isMusicSelected) {
+            screenController.showDialog(invalidForm, "Music file needs to be selected!\n");
             return false;
         }
 
@@ -45,11 +50,12 @@ public class AddMusicController extends TabCommunication {
             year = Integer.parseInt(yearField.getText());
             duration = Integer.parseInt(durationField.getText());
         } catch (NumberFormatException e) {
-            System.out.println("Year and duration need to be integers!");
+            screenController.showDialog(invalidForm, "Year and duration need to be integers!\n");
             return false;
         }
 
         if (musicName.isEmpty() || author.isEmpty() || album.isEmpty() || genre.isEmpty()) {
+            screenController.showDialog(invalidForm, "All fields are required!\n");
             return false;
         }
 
