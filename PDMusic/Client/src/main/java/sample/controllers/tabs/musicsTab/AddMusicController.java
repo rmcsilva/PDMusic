@@ -3,9 +3,18 @@ package sample.controllers.tabs.musicsTab;
 import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.stage.FileChooser;
 import sample.controllers.ScreenController;
+import sample.controllers.communication.files.ClientFileManager;
 import sample.controllers.tabs.TabCommunication;
 import sample.models.MusicViewModel;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 
 public class AddMusicController extends TabCommunication {
@@ -17,6 +26,7 @@ public class AddMusicController extends TabCommunication {
     private String musicToEdit;
 
     private boolean isMusicSelected = false;
+    private Path selectedMusicPath;
 
     private String musicName, author, album, genre;
     private int year, duration;
@@ -74,6 +84,12 @@ public class AddMusicController extends TabCommunication {
             return;
         }
 
+        try {
+            Files.copy(selectedMusicPath, Paths.get(ClientFileManager.getMusicPath(musicName)), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         if (editMusic) {
             getMainController().getCommunicationHandler().editMusic(musicToEdit, musicName, author, album, year, duration, genre);
         } else {
@@ -98,8 +114,13 @@ public class AddMusicController extends TabCommunication {
 
     @FXML
     void selectMusic(ActionEvent event) {
-        //TODO: Select music
-        isMusicSelected = true;
+        FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("MP3","*.mp3"));
+        File file = fc.showOpenDialog(null);
+        if (file != null) {
+            selectedMusicPath = file.toPath();
+            isMusicSelected = true;
+        }
     }
 
     private void goBackToMusicsMenu() {
