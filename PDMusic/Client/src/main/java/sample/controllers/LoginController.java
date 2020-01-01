@@ -108,8 +108,8 @@ public class LoginController implements Initializable {
     }
 
     @FXML
-    void register(MouseEvent event) throws IOException, CountExceededException {
-        //TODO: Add the current username to the register screen
+    void register(MouseEvent event) {
+        registerController.setUsernameField(usernameField.getText());
         screenController.activate(ScreenController.Screen.REGISTER);
     }
 

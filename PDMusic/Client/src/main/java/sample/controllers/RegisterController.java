@@ -29,6 +29,10 @@ public class RegisterController {
 
     private void goToLogin() { ScreenController.getInstance().activate(ScreenController.Screen.LOGIN); }
 
+    public void setUsernameField(String name) {
+        usernameField.setText(name);
+    }
+
     private boolean getFieldValues() {
         name = nameField.getText();
         username = usernameField.getText();
