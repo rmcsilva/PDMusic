@@ -5,9 +5,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import sample.exceptions.CountExceededException;
 import sample.models.ServerInformation;
+import sample.rmi.RegistrySDService;
 
 import java.io.IOException;
 import java.net.*;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import static sample.JSONConstants.REQUEST;
@@ -26,7 +31,9 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
 
     private boolean isRunning = true;
 
-    public CommunicationHandler() throws SocketException {
+    private RegistrySDService registrySDService;
+
+    public CommunicationHandler(String rmiIP) throws SocketException, RemoteException, MalformedURLException {
         serversInformation = new PriorityBlockingQueue<>();
         requestsDatagramSocket = new DatagramSocket(serversDirectoryPort);
         serverPingHandler = new ServerPingHandler(this);
@@ -34,6 +41,22 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         System.out.println("Starting Server Periodic Ping!\n");
         notificationsDatagramSocket = new DatagramSocket();
         notificationsDatagramSocket.setSoTimeout(notificationsSocketTimout);
+        setupRegistrySDService(rmiIP);
+    }
+
+    private void setupRegistrySDService(String rmiIP) throws RemoteException, MalformedURLException {
+        System.setProperty("java.rmi.server.hostname", rmiIP);
+
+        try {
+            LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+            System.out.println("Creating Registry At Port:" + Registry.REGISTRY_PORT);
+        } catch (RemoteException e) {
+            System.out.println("Registry Already Running At Port:" + Registry.REGISTRY_PORT);
+        }
+
+        registrySDService = new RegistrySDService(this);
+
+        Naming.rebind(registrySDService.REGISTRY_SERVICE_NAME, registrySDService);
     }
 
     public PriorityBlockingQueue<ServerInformation> getServersInformation() {

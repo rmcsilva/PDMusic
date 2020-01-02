@@ -12,10 +12,15 @@ import static sample.ServersDirectoryInformation.*;
 public class ServersDirectoryMain {
 
     public static void main(String[] args) throws IOException {
+        if (args.length != 1) {
+            System.out.println("Sintaxe: java ServersDirectory <rmiIP>");
+            return;
+        }
+
         System.out.println("Servers Directory Main!");
         System.out.println("Receiving datagram packets!");
 
-        CommunicationHandler communicationHandler = new CommunicationHandler();
+        CommunicationHandler communicationHandler = new CommunicationHandler(args[0]);
         //TODO: In the future will need to be daemon
         //communicationHandler.setDaemon(true);
         communicationHandler.start();
