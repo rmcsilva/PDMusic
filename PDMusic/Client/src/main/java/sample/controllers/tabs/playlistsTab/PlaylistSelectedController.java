@@ -125,4 +125,11 @@ public class PlaylistSelectedController extends TabCommunication implements Init
     public void playPlaylist(MouseEvent mouseEvent) {
         getMainController().playPlaylist(playlistNameText.getText());
     }
+
+    @FXML
+    public void playMusic(ActionEvent actionEvent) {
+        if (ttvMusicsInPlaylist.getSelectionModel().getSelectedItem() == null) return;
+        getMainController().setPlaylistMode(false);
+        getMainController().playMusic(getSelectMusic().getMusicName());
+    }
 }
