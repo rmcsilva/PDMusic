@@ -141,15 +141,8 @@ public class MusicsController extends TabCommunication implements Initializable 
         //Get selected music
         MusicViewModel selectedMusic = getSelectedMusic();
         String musicName = selectedMusic.getMusicName();
-        //Check if music is available to be played
-        if (!ClientFileManager.isMusicAvailable(musicName)) {
-            //Download music from server
-            getMainController().getCommunicationHandler().getMusic(musicName);
-            //TODO: Show notification that music is downloading
-            return;
-        }
-
         //Play music
+        getMainController().setPlaylistMode(false);
         getMainController().playMusic(musicName);
     }
 }

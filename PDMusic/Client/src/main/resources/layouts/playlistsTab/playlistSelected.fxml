@@ -43,7 +43,8 @@
                                     <Insets/>
                                 </HBox.margin>
                             </Text>
-                            <FontAwesomeIconView glyphName="PLAY" size="48" styleClass="icons-color">
+                            <FontAwesomeIconView glyphName="PLAY" size="48" onMouseClicked="#playPlaylist"
+                                                 styleClass="icons-color">
                                 <HBox.margin>
                                     <Insets left="12.0" right="12.0" top="6.0"/>
                                 </HBox.margin>

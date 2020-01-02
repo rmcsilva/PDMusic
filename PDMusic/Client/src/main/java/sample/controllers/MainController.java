@@ -37,8 +37,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.NoSuchElementException;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static java.lang.Math.floor;
 import static java.lang.String.format;
@@ -52,10 +51,14 @@ public class MainController implements Initializable, LayoutsConstants {
     public Tab musicsTab, playlistsTab;
 
     private MediaPlayer musicPlayer;
+    private boolean playlistMode = false;
+    private int musicIndex;
+    private List<String> musicsToBePlayed = new ArrayList<>();
 
     @FXML
     public JFXButton playPauseButton;
     public FontAwesomeIconView playPauseIcon;
+    public FontAwesomeIconView previousMusicIcon, nextMusicIcon;
 
     private final FontAwesomeIcon playIcon = FontAwesomeIcon.PLAY_CIRCLE;
     private final FontAwesomeIcon pauseIcon = FontAwesomeIcon.PAUSE_CIRCLE;
@@ -173,6 +176,13 @@ public class MainController implements Initializable, LayoutsConstants {
     }
 
     public void playMusic(String musicName) {
+        //Check if music is available to be played
+        if (!ClientFileManager.isMusicAvailable(musicName)) {
+            //Download music from server
+            communicationHandler.getMusic(musicName);
+            return;
+        }
+        //Get music to be played
         String musicPath = ClientFileManager.getMusicPath(musicName);
         Media media = new Media(new File(musicPath).toURI().toString());
         if (musicPlayer != null) {
@@ -181,6 +191,78 @@ public class MainController implements Initializable, LayoutsConstants {
         musicPlayer = new MediaPlayer(media);
         musicPlayer.setAutoPlay(true);
         setupMusicPlayer();
+    }
+
+    public void setPlaylistMode(boolean playlistMode) {
+        this.playlistMode = playlistMode;
+
+        if (playlistMode) {
+            showPreviousAndNextIcons();
+        } else {
+            hidePreviousAndNextIcons();
+        }
+    }
+
+    public void playPlaylist(String playlistName) {
+        boolean hasDownloadPending = false;
+
+        LinkedList<String> musicsReady = new LinkedList<>();
+
+        for (MusicViewModel music : playlistsController.getPlaylistMusics(playlistName)) {
+            String musicName = music.getMusicName();
+            //Check if music is available to be played
+            if (!ClientFileManager.isMusicAvailable(musicName)) {
+                //Download music from server
+                communicationHandler.getMusic(musicName);
+                hasDownloadPending = true;
+                continue;
+            }
+            musicsReady.add(musicName);
+        }
+
+        if (hasDownloadPending) {
+            return;
+        }
+
+        musicsToBePlayed.clear();
+        musicsToBePlayed.addAll(musicsReady);
+
+        setPlaylistMode(true);
+        musicIndex = -1;
+
+        nextMusic();
+    }
+
+    private void previousMusic() {
+        if (playlistMode) {
+            --musicIndex;
+            if (musicIndex < 0) {
+                musicIndex = musicsToBePlayed.size()-1;
+            }
+            playMusic(musicsToBePlayed.get(musicIndex));
+        }
+    }
+
+    private boolean nextMusic() {
+        if (playlistMode) {
+            ++musicIndex;
+            if (musicIndex > musicsToBePlayed.size()-1) {
+                musicIndex = 0;
+            }
+            playMusic(musicsToBePlayed.get(musicIndex));
+            return true;
+        }
+        return false;
+    }
+
+    @FXML
+    public void previousMusicIconPressed(MouseEvent mouseEvent) {
+        previousMusic();
+    }
+
+    @FXML
+    public void nextMusicIconPressed(MouseEvent mouseEvent) {
+        nextMusic();
     }
 
     private void setupScreenController() {
@@ -281,7 +363,18 @@ public class MainController implements Initializable, LayoutsConstants {
         ttvPlaylists.setShowRoot(false);
     }
 
+    private void showPreviousAndNextIcons() {
+        nextMusicIcon.setVisible(true);
+        previousMusicIcon.setVisible(true);
+    }
+
+    private void hidePreviousAndNextIcons() {
+        nextMusicIcon.setVisible(false);
+        previousMusicIcon.setVisible(false);
+    }
+
     private void setupMusicButtonsAndSliders() {
+        hidePreviousAndNextIcons();
         //Setup playPauseButton
         playPauseIcon.setIcon(playIcon);
         playPauseButton.setOnAction( event -> {
@@ -338,7 +431,7 @@ public class MainController implements Initializable, LayoutsConstants {
         musicPlayer.setOnPaused(() -> playPauseIcon.setIcon(playIcon));
 
         musicPlayer.setOnEndOfMedia(() -> {
-            //TODO: Move to next song
+            if (nextMusic()) return;
             musicPlayer.stop();
             musicPlayer.pause();
         });

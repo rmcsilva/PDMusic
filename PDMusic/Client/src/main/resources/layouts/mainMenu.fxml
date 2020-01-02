@@ -75,22 +75,19 @@
                                     <children>
                                         <HBox alignment="CENTER">
                                             <children>
-                                                <FontAwesomeIconView glyphName="STEP_BACKWARD" size="24"
-                                                                     styleClass="icons-color">
-                                                    <HBox.margin>
-                                                        <Insets/>
-                                                    </HBox.margin>
-                                                </FontAwesomeIconView>
+                                                <FontAwesomeIconView glyphName="STEP_BACKWARD" fx:id="previousMusicIcon"
+                                                                     onMouseClicked="#previousMusicIconPressed"
+                                                                     size="24" styleClass="icons-color"/>
                                                 <JFXButton fx:id="playPauseButton" alignment="CENTER"
                                                            contentDisplay="GRAPHIC_ONLY" text=" ">
                                                     <graphic>
-                                                        <FontAwesomeIconView fx:id="playPauseIcon"
-                                                                             glyphName="PLAY_CIRCLE" size="48"
-                                                                             styleClass="icons-color"/>
+                                                        <FontAwesomeIconView glyphName="PLAY_CIRCLE" fx:id="playPauseIcon"
+                                                                             size="48" styleClass="icons-color"/>
                                                     </graphic>
                                                 </JFXButton>
-                                                <FontAwesomeIconView glyphName="STEP_FORWARD" size="24"
-                                                                     styleClass="icons-color"/>
+                                                <FontAwesomeIconView glyphName="STEP_FORWARD" fx:id="nextMusicIcon"
+                                                                     onMouseClicked="#nextMusicIconPressed"
+                                                                     size="24" styleClass="icons-color"/>
                                             </children>
                                             <VBox.margin>
                                                 <Insets top="6.0"/>

@@ -75,6 +75,10 @@ public class PlaylistsController extends TabCommunication implements Initializab
         return ttvPlaylists.getSelectionModel().getSelectedItem().getValue();
     }
 
+    public ObservableList<MusicViewModel> getPlaylistMusics(String playlistName) {
+        return playlistMusics.get(playlistName);
+    }
+
     public void clearPlaylists() {
         playlists.clear();
     }
@@ -168,6 +172,12 @@ public class PlaylistsController extends TabCommunication implements Initializab
 
     private void changeSelectedPlaylistName() {
         playlistSelectedController.setPlaylistName(selectedPlaylistKey);
+    }
+
+    @FXML
+    public void playPlaylist(ActionEvent actionEvent) {
+        if (ttvPlaylists.getSelectionModel().getSelectedItem() == null) return;
+        getMainController().playPlaylist(getSelectedPlaylist().getName());
     }
 
     @FXML

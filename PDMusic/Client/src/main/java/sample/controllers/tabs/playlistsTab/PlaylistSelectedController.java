@@ -50,6 +50,10 @@ public class PlaylistSelectedController extends TabCommunication implements Init
         return musicsInPlaylist;
     }
 
+    private MusicViewModel getSelectMusic() {
+        return ttvMusicsInPlaylist.getSelectionModel().getSelectedItem().getValue();
+    }
+
     void setMusicsInPlaylist(ObservableList<MusicViewModel> musicsInPlaylist) {
         this.musicsInPlaylist.setAll(musicsInPlaylist);
     }
@@ -107,7 +111,7 @@ public class PlaylistSelectedController extends TabCommunication implements Init
     public void removeMusicFromPlaylist(ActionEvent actionEvent) {
         //Check if music is selected
         if (ttvMusicsInPlaylist.getSelectionModel().getSelectedItem() == null) return;
-        String musicName = ttvMusicsInPlaylist.getSelectionModel().getSelectedItem().getValue().getMusicName();
+        String musicName = getSelectMusic().getMusicName();
         //Send request to remove music from playlist
         getMainController().getCommunicationHandler().removeMusicFromPlaylist(musicName, playlistNameText.getText());
     }
@@ -115,5 +119,10 @@ public class PlaylistSelectedController extends TabCommunication implements Init
     @FXML
     private void goToPlaylistsMenu(MouseEvent event) {
         getMainController().changePlaylistsTab(Screen.PLAYLISTS);
+    }
+
+    @FXML
+    public void playPlaylist(MouseEvent mouseEvent) {
+        getMainController().playPlaylist(playlistNameText.getText());
     }
 }
