@@ -185,9 +185,7 @@ public class MainController implements Initializable, LayoutsConstants {
         //Get music to be played
         String musicPath = ClientFileManager.getMusicPath(musicName);
         Media media = new Media(new File(musicPath).toURI().toString());
-        if (musicPlayer != null) {
-            musicPlayer.dispose();
-        }
+        disposeMusicPlayer();
         musicPlayer = new MediaPlayer(media);
         musicPlayer.setAutoPlay(true);
         setupMusicPlayer();
@@ -437,6 +435,12 @@ public class MainController implements Initializable, LayoutsConstants {
         });
     }
 
+    private void disposeMusicPlayer() {
+        if (musicPlayer != null) {
+            musicPlayer.dispose();
+        }
+    }
+
     protected void updateValues() {
         if (musicEndTimeLabel != null && musicPositionSlider != null && musicDuration != null) {
             Platform.runLater(() -> {
@@ -460,6 +464,9 @@ public class MainController implements Initializable, LayoutsConstants {
 
     @FXML
     public void logout(MouseEvent mouseEvent) throws IOException {
+        changeMusicsTab(ScreenController.Screen.MUSICS);
+        changePlaylistsTab(ScreenController.Screen.PLAYLISTS);
+        disposeMusicPlayer();
         communicationHandler.logout();
     }
 
