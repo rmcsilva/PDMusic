@@ -215,8 +215,6 @@ public class NotificationHandler implements ClientNotifications {
                 " MusicToRemove: " + musicToRemove);
 
         removeMusicNotification(username, musicToRemove);
-
-        showDialog(dialogHeading, dialogBody);
     }
 
     private void parseMusicFromJSON(JSONObject music, boolean addMusic) {
@@ -244,8 +242,6 @@ public class NotificationHandler implements ClientNotifications {
 
             editMusicNotification(username, musicToEdit, musicName, author, album, year, duration, genre);
         }
-
-        showDialog(dialogHeading, dialogBody);
     }
 
     private void parseMusicToDownloadFromJSON(JSONObject musicToDownload) {
@@ -256,7 +252,6 @@ public class NotificationHandler implements ClientNotifications {
 
         downloadMusic(musicName, port);
 
-        showDialog(dialogHeading, dialogBody);
     }
 
     private void parsePlaylistFromJSON(JSONObject playlist, boolean addPlaylist) {
@@ -278,8 +273,6 @@ public class NotificationHandler implements ClientNotifications {
 
             editPlaylistNotification(username, playlistToEdit, playlistName);
         }
-
-        showDialog(dialogHeading, dialogBody);
     }
 
     private void parsePlaylistToRemoveFromJSON(JSONObject playlist) {
@@ -290,8 +283,6 @@ public class NotificationHandler implements ClientNotifications {
                 " PlaylistToRemove: " + playlistToRemove);
 
         removePlaylistNotification(username, playlistToRemove);
-
-        showDialog(dialogHeading, dialogBody);
     }
 
     private void parseMusicToAddToPlaylistFromJSON(JSONObject musicToAddToPlaylist) {
@@ -312,8 +303,6 @@ public class NotificationHandler implements ClientNotifications {
         dialogBody = dialogBody.concat(" MusicName: " + musicName + " PlaylistName: " + playlistName);
 
         addMusicToPlaylistNotification(musicName, playlistName);
-
-        showDialog(dialogHeading, dialogBody);
     }
 
     private void parseMusicToRemoveFromPlaylistFromJSON(JSONObject musicToAddToPlaylist) {
@@ -326,8 +315,6 @@ public class NotificationHandler implements ClientNotifications {
                 " PlaylistName: " + playlistName);
 
         removeMusicFromPlaylistNotification(musicToRemove, playlistName);
-
-        showDialog(dialogHeading, dialogBody);
     }
 
     private boolean isResponseApproved(String responseStatus) {
@@ -361,16 +348,19 @@ public class NotificationHandler implements ClientNotifications {
     @Override
     public void addMusicNotification(String username, String name, String author, String album, int year, int duration, String genre) {
         mainController.addMusic(username, name, author, album, year, duration, genre);
+        showDialog(dialogHeading, dialogBody);
     }
 
     @Override
     public void editMusicNotification(String username, String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
         mainController.editMusic(username, musicToEdit, name, author, album, year, duration, genre);
+        showDialog(dialogHeading, dialogBody);
     }
 
     @Override
     public void removeMusicNotification(String username, String musicToRemove) {
         mainController.removeMusic(musicToRemove);
+        showDialog(dialogHeading, dialogBody);
     }
 
     @Override
@@ -406,22 +396,26 @@ public class NotificationHandler implements ClientNotifications {
     @Override
     public void addPlaylistNotification(String username, String name) {
         mainController.addPlaylist(username, name);
+        showDialog(dialogHeading, dialogBody);
     }
 
     @Override
     public void editPlaylistNotification(String username, String playlistToEdit, String name) {
         mainController.editPlaylist(username, playlistToEdit, name);
+        showDialog(dialogHeading, dialogBody);
     }
 
     @Override
     public void removePlaylistNotification(String username, String playlistToRemove) {
         mainController.removePlaylist(playlistToRemove);
+        showDialog(dialogHeading, dialogBody);
     }
 
     @Override
     public void addMusicToPlaylistNotification(String musicName, String playlistName) {
         try {
             mainController.addMusicToPlaylist(playlistName, musicName);
+            showDialog(dialogHeading, dialogBody);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
         }
@@ -431,6 +425,7 @@ public class NotificationHandler implements ClientNotifications {
     public void removeMusicFromPlaylistNotification(String musicToRemove, String playlistName) {
         try {
             mainController.removeMusicFromPlaylist(playlistName, musicToRemove);
+            showDialog(dialogHeading, dialogBody);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
         }
@@ -440,5 +435,7 @@ public class NotificationHandler implements ClientNotifications {
     public void serverShutdown() {
         communicationHandler.shutdown();
         screenController.activate(ScreenController.Screen.LOGIN);
+        dialogBody = "The server you were connected shutdown!\n Try logging in again to connect to other server!";
+        showDialog(dialogHeading, dialogBody);
     }
 }
