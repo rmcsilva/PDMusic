@@ -1,20 +1,24 @@
 package sample.rmi;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 import static sample.rmi.RegistrySDService.REGISTRY_SERVICE_NAME;
 
-public class RegistrySDClient {
+public class RegistrySDClient extends UnicastRemoteObject implements SDNotificationInterface {
 
     private RegistrySDInterface registrySDService;
+
+    private boolean isReceivingNotifications = false;
 
     private Scanner in;
 
@@ -36,12 +40,15 @@ public class RegistrySDClient {
 
         final int LIST_SERVERS_INFORMATION = 1;
         final int SHUTDOWN_SERVER = 2;
-        final int SHUTDOWN = 3;
+        final int NOTIFICATIONS = 3;
+        final int SHUTDOWN = 4;
 
         while (isRunning) {
 
             System.out.println(LIST_SERVERS_INFORMATION + " -> List Servers Information");
             System.out.println(SHUTDOWN_SERVER + " -> Shutdown Server");
+            System.out.println(NOTIFICATIONS + " -> " + (isReceivingNotifications ? "Disable" : "Enable") +
+                    " Servers Directory Notifications");
             System.out.println(SHUTDOWN + " -> Shutdown");
             System.out.print("Select Option -> ");
 
@@ -55,7 +62,17 @@ public class RegistrySDClient {
                     case SHUTDOWN_SERVER:
                         shutdownServer();
                         break;
+                    case NOTIFICATIONS:
+                        if (isReceivingNotifications) {
+                            registrySDService.removeListener(this);
+                            isReceivingNotifications = false;
+                        } else {
+                            registrySDService.addListener(this);
+                            isReceivingNotifications = true;
+                        }
+                        break;
                     case SHUTDOWN:
+                        registrySDService.removeListener(this);
                         isRunning = false;
                         break;
                     default:
@@ -65,6 +82,9 @@ public class RegistrySDClient {
                 System.out.println("Option needs to be an Integer!");
             }
         }
+
+        //Shutdown notification rmi
+        UnicastRemoteObject.unexportObject(this, false);
     }
 
     private void listServersInformation(List<String> servers) {
@@ -97,5 +117,10 @@ public class RegistrySDClient {
         } catch (UnknownHostException e) {
             System.out.println("Invalid IP Address!");
         }
+    }
+
+    @Override
+    public void showNotification(String message) {
+        System.out.println("\nServers Directory Notification -> " + message);
     }
 }

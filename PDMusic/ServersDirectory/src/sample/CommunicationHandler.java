@@ -129,11 +129,15 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
 
                 putResponseInDatagramPacket(response, datagramPacket);
 
+                registrySDService.sendNotificationToListeners("Client connected to server " + serverInformation);
+
                 System.out.print("Client Request, connect to Server " + serverInformation + " -> ");
                 break;
             case CLIENT_DISCONNECTED:
                 serverInformation = getServerTCPInformationFromRequest(request);
                 clientDisconnected(serverInformation);
+
+                registrySDService.sendNotificationToListeners("Client disconnected from server " + serverInformation);
 
                 System.out.print("Client Disconnected Request, affected Server " + serverInformation + " -> ");
                 break;
@@ -316,6 +320,7 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         notification.put(REQUEST, SERVER_CONNECTED);
 
         sendNotificationToServers(notification, serverInformation, false);
+        registrySDService.sendNotificationToListeners("Server " + serverInformation + " connected!");
     }
 
     @Override
@@ -325,6 +330,7 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
             notification.put(REQUEST, SERVER_DISCONNECTED);
             System.out.println("Server " + serverInformation + " is no longer active!\n");
             sendNotificationToServers(notification, serverInformation, true);
+            registrySDService.sendNotificationToListeners("Server " + serverInformation + " disconnected!");
             //Check if primary server disconnected
             if (serverInformation.equals(serverPingHandler.getPrimaryServer())) {
                 System.out.println("Primary Server " + serverInformation + " Disconnected!\n");

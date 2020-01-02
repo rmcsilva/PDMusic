@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 public class RegistrySDService extends UnicastRemoteObject implements RegistrySDInterface {
 
@@ -14,8 +15,26 @@ public class RegistrySDService extends UnicastRemoteObject implements RegistrySD
 
     private CommunicationHandler communicationHandler;
 
+    private List<SDNotificationInterface> sdNotificationInterfaces;
+
     public RegistrySDService(CommunicationHandler communicationHandler) throws RemoteException {
         this.communicationHandler = communicationHandler;
+        sdNotificationInterfaces = new ArrayList<>();
+    }
+
+    public void sendNotificationToListeners(String message) {
+        ListIterator<SDNotificationInterface> listIterator = sdNotificationInterfaces.listIterator();
+
+        while (listIterator.hasNext()) {
+            SDNotificationInterface listener = listIterator.next();
+            try {
+                listener.showNotification(message);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                System.out.println("Could not send notification to observer! Removing from list!");
+                listIterator.remove();
+            }
+        }
     }
 
     @Override
@@ -30,5 +49,15 @@ public class RegistrySDService extends UnicastRemoteObject implements RegistrySD
     @Override
     public boolean shutdownServer(String ip, int port) throws RemoteException {
         return communicationHandler.shutdownServer(ip, port);
+    }
+
+    @Override
+    public void addListener(SDNotificationInterface sdNotificationInterface) {
+        sdNotificationInterfaces.add(sdNotificationInterface);
+    }
+
+    @Override
+    public void removeListener(SDNotificationInterface sdNotificationInterface) {
+        sdNotificationInterfaces.remove(sdNotificationInterface);
     }
 }

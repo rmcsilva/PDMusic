@@ -7,4 +7,6 @@ import java.util.List;
 public interface RegistrySDInterface extends Remote {
     List<String> listServersInformation() throws RemoteException;
     boolean shutdownServer(String ip, int port) throws RemoteException;
+    void addListener(SDNotificationInterface sdNotificationInterface) throws RemoteException;
+    void removeListener(SDNotificationInterface sdNotificationInterface) throws RemoteException;
 }
