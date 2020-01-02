@@ -26,4 +26,9 @@ public class RegistrySDService extends UnicastRemoteObject implements RegistrySD
         }
         return servers;
     }
+
+    @Override
+    public boolean shutdownServer(String ip, int port) throws RemoteException {
+        return communicationHandler.shutdownServer(ip, port);
+    }
 }

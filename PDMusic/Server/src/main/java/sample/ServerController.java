@@ -32,6 +32,8 @@ public class ServerController extends Thread {
 
     private DatabaseAccess databaseAccess;
 
+    private CommandController commandManager;
+
     public ServerController(String serversDirectoryIP, String nic, DatabaseAccess databaseAccess) throws IOException, NoServersDirectory {
         //Setup server music files location
         new ServerFileManager();
@@ -48,6 +50,9 @@ public class ServerController extends Thread {
         serverCommunication.start();
 
         this.databaseAccess = databaseAccess;
+
+        commandManager = new CommandController(this);
+        commandManager.start();
     }
 
     public ServerInformation getServerInformation() {
@@ -114,6 +119,7 @@ public class ServerController extends Thread {
 
         serversDirectoryCommunication.shutdown();
         clientNotificationsHandler.serverShutdown();
+        serverCommunication.serverShutdown();
 
         try {
             serverSocket.close();
@@ -122,5 +128,7 @@ public class ServerController extends Thread {
         }
 
         databaseAccess.closeConnection();
+
+        commandManager.shutdown();
     }
 }

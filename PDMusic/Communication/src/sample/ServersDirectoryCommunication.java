@@ -15,10 +15,12 @@ public interface ServersDirectoryCommunication {
     String SERVER_CONNECTED = "serverConnected";
     String SERVER_DISCONNECTED = "serverDisconnected";
     String PRIMARY_SERVER = "primaryServer";
+    String SHUTDOWN_SERVER = "shutdownServer";
 
     void periodicPing(ServerInformation serverInformation);
     void clientDisconnected(ServerInformation serverInformation);
     void serverConnected(ServerInformation serverInformation);
     void serverDisconnected(ServerInformation serverInformation);
     void primaryServer(ServerInformation serverInformation);
+    void shutdownServer(ServerInformation serverInformation);
 }

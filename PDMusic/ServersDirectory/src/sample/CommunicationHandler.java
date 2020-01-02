@@ -339,4 +339,33 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         notification.put(REQUEST, PRIMARY_SERVER);
         sendNotificationToServers(notification, serverInformation, true);
     }
+
+    @Override
+    public void shutdownServer(ServerInformation serverInformation) {
+        JSONObject notification = new JSONObject();
+        notification.put(REQUEST, SHUTDOWN_SERVER);
+        notification.put(IP, serverInformation.getIp());
+        notification.put(TCP_PORT, serverInformation.getTcpPort());
+
+        try {
+            sendNotificationAndWaitForResponse(notification, serverInformation);
+            //Warn other servers that server disconnected
+            serverDisconnected(serverInformation);
+        } catch (CountExceededException e) {
+            System.out.println("Invalid server!");
+        }
+    }
+
+    public boolean shutdownServer(String ip, int port) {
+        ServerInformation serverInformation = new ServerInformation(ip, port);
+
+        for (ServerInformation server : getServersInformation()) {
+            if (server.equals(serverInformation)) {
+                shutdownServer(server);
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

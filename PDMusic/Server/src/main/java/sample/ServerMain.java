@@ -24,8 +24,5 @@ public class ServerMain {
 
         ServerController serverController = new ServerController(args[0], args[4], databaseAccess);
         serverController.start();
-
-        CommandController commandManager = new CommandController(serverController);
-        commandManager.start();
     }
 }

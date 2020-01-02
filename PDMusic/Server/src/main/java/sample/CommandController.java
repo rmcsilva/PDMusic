@@ -1,9 +1,14 @@
 package sample;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public final class CommandController extends Thread {
+
+    private Scanner in;
+
     private boolean isAlive = true;
+
     private ServerController serverController;
 
     public CommandController(ServerController serverController){
@@ -12,15 +17,24 @@ public final class CommandController extends Thread {
 
     @Override
     public void run() {
-        Scanner myObj = new Scanner(System.in);
+        in = new Scanner(System.in);
         while(isAlive){
             System.out.println("Enter command: ");
-            String command = myObj.nextLine();
+            String command = in.nextLine().trim();
 
             if(command.equalsIgnoreCase("shutdown")){
-                isAlive = false;
                 serverController.shutdown();
             }
         }
+    }
+
+    public void shutdown() {
+        isAlive = false;
+        try {
+            System.in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.flush();
     }
 }

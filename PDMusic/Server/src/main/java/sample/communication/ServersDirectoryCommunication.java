@@ -145,6 +145,11 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
                 primaryServer(serverNotification);
                 System.out.println("Primary Server notification -> Server " + serverNotification + "\n");
                 break;
+            case SHUTDOWN_SERVER:
+                serverNotification = getServerInformationFromNotification(notification);
+                shutdownServer(serverNotification);
+                System.out.println("Shutdown Server notification -> Server " + serverNotification + "\n");
+                break;
             default:
                 System.out.println("Invalid notification!\n");
                 break;
@@ -227,6 +232,15 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
             serverController.setupAsPrimaryServer();
         }
         sendNotificationResponse();
+    }
+
+    @Override
+    public void shutdownServer(ServerInformation serverInformation) {
+        if (serverInformation.equals(this.serverInformation)) {
+            System.out.println("Shutting down server!\n");
+            sendNotificationResponse();
+            serverController.shutdown();
+        }
     }
 
     public void shutdown() {
