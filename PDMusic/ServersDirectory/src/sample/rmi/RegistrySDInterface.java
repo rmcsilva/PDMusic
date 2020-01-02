@@ -5,4 +5,5 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 public interface RegistrySDInterface extends Remote {
+    List<String> listServersInformation() throws RemoteException;
 }
