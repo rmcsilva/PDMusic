@@ -18,6 +18,8 @@ public class DownloadMusicFile extends Thread {
 
     InputStream inputStream;
 
+    boolean downloadSuccessfully;
+
     public DownloadMusicFile(String musicName, String musicDestination, InputStream inputStream) throws IOException {
         this.musicName = musicName;
         //Download file to Temp Directory first
@@ -27,6 +29,10 @@ public class DownloadMusicFile extends Thread {
         //Get destination to the path where the music will be copied after the download finished
         musicDestinationPath = Paths.get(musicDestination);
         this.inputStream = inputStream;
+    }
+
+    public boolean hasDownloadSuccessfully() {
+        return downloadSuccessfully;
     }
 
     @Override
@@ -39,11 +45,13 @@ public class DownloadMusicFile extends Thread {
                 musicFileOutputStream.write(fileChunk, 0, nBytes);
             }
 
+            downloadSuccessfully = true;
             System.out.println("Music " + musicName + " downloaded successfully");
 
             Files.move(musicTempPath, musicDestinationPath, StandardCopyOption.REPLACE_EXISTING);
             musicFileOutputStream.close();
         } catch (IOException e) {
+            downloadSuccessfully = false;
             e.printStackTrace();
         } finally {
             try {

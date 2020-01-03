@@ -32,6 +32,8 @@ public interface JSONConstants {
     //Get Music request keys
     String REQUEST_GET_MUSIC = "getMusic";
     String PORT = "musicPort";
+    //Upload Music request keys
+    String REQUEST_UPLOAD_MUSIC = "uploadMusic";
 
     //Playlist request keys
     //Add Playlist

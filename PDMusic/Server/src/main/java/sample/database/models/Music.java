@@ -4,6 +4,15 @@ public class Music {
     private String name, author, album, genre, username, path;
     private int userID, year, duration;
 
+    public Music(String name, String author, String album, int year, int duration, String genre) {
+        this.name = name;
+        this.author = author;
+        this.album = album;
+        this.genre = genre;
+        this.year = year;
+        this.duration = duration;
+    }
+
     public Music(String name, String author, String album, int year, int duration, String genre, String username, String path) {
         this.name = name;
         this.author = author;

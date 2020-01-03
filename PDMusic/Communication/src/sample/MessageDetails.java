@@ -9,6 +9,7 @@ public interface MessageDetails {
     String EDIT_MUSIC_SUCCESS = "Music Edited Successfully!\n";
     String REMOVE_MUSIC_SUCCESS = "Music Removed Successfully!\n";
     String GET_MUSIC_SUCCESS = "Music Ready To Begin Download!\n";
+    String UPLOAD_MUSIC_SUCCESS = "Server Is Ready To Start Uploading!\n";
     String ADD_PLAYLIST_SUCCESS = "Playlist Added Successfully!\n";
     String EDIT_PLAYLIST_SUCCESS = "Playlist Edited Successfully!\n";
     String REMOVE_PLAYLIST_SUCCESS = "Playlist Removed Successfully!\n";
@@ -28,6 +29,9 @@ public interface MessageDetails {
     String MUSIC_NOT_EXISTS = "Music does not exist!\n";
     String EDIT_DIFFERENT_MUSIC_OWNER = "Only the owner of the musics can edit them!\n";
     String REMOVE_DIFFERENT_MUSIC_OWNER = "Only the owner of the musics can remove them!\n";
+    //Get Music
+    String MUSIC_ALREADY_BEING_UPLOADED = "Music is already being uploaded!\n";
+    String MUSIC_ALREADY_BEING_DOWNLOADED = "Music is already being downloaded!\n";
     //Playlist
     String PLAYLIST_ALREADY_EXISTS = "Playlist name already exists!\n";
     String PLAYLIST_NOT_EXISTS = "Playlist does not exist!\n";

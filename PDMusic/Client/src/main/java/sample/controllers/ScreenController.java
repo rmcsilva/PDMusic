@@ -58,12 +58,12 @@ public class ScreenController {
         return screenMap.get(screen);
     }
 
-    public void activate(Screen screen){
+    public synchronized void activate(Screen screen){
         currentPane = screenMap.get(screen);
         main.setRoot(currentPane);
     }
 
-    public void showDialog(String heading, String body) {
+    public synchronized void showDialog(String heading, String body) {
         JFXDialogLayout content = new JFXDialogLayout();
 
         Text headingText = new Text(heading);

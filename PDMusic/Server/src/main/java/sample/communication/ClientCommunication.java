@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import sample.Communication;
 import sample.communication.files.DownloadMusic;
+import sample.communication.files.ServerFileManager;
 import sample.communication.files.UploadMusic;
 import sample.MessageDetails;
 import sample.database.DatabaseAccess;
@@ -18,7 +19,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +44,9 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
     private ServerCommunication serverCommunication;
 
     private DatabaseAccess databaseAccess;
+
+    private List<DownloadMusic> musicsBeingDownloaded = new ArrayList<>();
+    private List<UploadMusic> musicsBeingUploaded = new ArrayList<>();
 
     private boolean isRunning = true;
 
@@ -107,7 +114,7 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
                                     " Album: " + album + " Year: " + year +
                                     " Duration: " + duration + " Genre: " + genre);
 
-                            addMusic(musicName, author, album, year, duration, genre);
+                            downloadMusicFromClient(null, musicName, author, album, year, duration, genre);
                             break;
                         case REQUEST_EDIT_MUSIC:
                             String musicToEdit = request.getString(MUSIC_TO_EDIT);
@@ -124,7 +131,7 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
                                     " Album: " + album + " Year: " + year +
                                     " Duration: " + duration + " Genre: " + genre);
 
-                            editMusic(musicToEdit, musicName, author, album, year, duration, genre);
+                            downloadMusicFromClient(musicToEdit, musicName, author, album, year, duration, genre);
                             break;
                         case REQUEST_REMOVE_MUSIC:
                             musicName = request.getString(MUSIC_NAME);
@@ -361,6 +368,65 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
         return "/" + musicName + ".mp3";
     }
 
+    private boolean isMusicBeingDownloaded(String musicName) {
+        for(DownloadMusic downloadMusic : musicsBeingDownloaded) {
+            if (downloadMusic.getMusicName().equals(musicName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeMusicFromBeingDownloaded(DownloadMusic music) {
+        musicsBeingDownloaded.remove(music);
+    }
+
+    private void downloadMusicFromClient(String musicToEdit, String name, String author, String album, int year, int duration, String genre) {
+        if (!hasLoggedIn()) {
+            return;
+        }
+
+        response.put(MUSIC_NAME, name);
+
+        try {
+            if (databaseAccess.hasMusic(name)) {
+                requestDenied(MUSIC_ALREADY_EXISTS);
+                return;
+            }
+
+            if (isMusicBeingDownloaded(name)) {
+                requestDenied(MUSIC_ALREADY_BEING_DOWNLOADED);
+                return;
+            }
+
+            Music music = new Music(name, author, album, year, duration, genre);
+            try {
+                DownloadMusic downloadMusic;
+
+                //Put response data
+                response.put(PORT, musicTransferServerSocket.getLocalPort());
+                requestApproved(REQUEST_UPLOAD_MUSIC, UPLOAD_MUSIC_SUCCESS);
+
+                Socket socket = musicTransferServerSocket.accept();
+
+                if (musicToEdit == null) {
+                    //Add music request
+                    downloadMusic = new DownloadMusic(this, music, socket);
+                } else {
+                    //Edit music request
+                    downloadMusic = new DownloadMusic(this, music, musicToEdit, socket);
+                }
+
+                musicsBeingDownloaded.add(downloadMusic);
+                downloadMusic.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void addMusic(String name, String author, String album, int year, int duration, String genre) {
         if (!hasLoggedIn()) {
@@ -379,13 +445,11 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
             //Put music details
             putMusicDetailsInResponse(name, author, album, year, duration, genre);
             //Send notification
+            //TODO: Send music file to all servers
             serverCommunication.addMusicNotification(new JSONObject(response.toString()));
             clientNotificationsHandler.addMusicNotification(id, new JSONObject(response.toString()));
-            //Put response data
-            response.put(PORT, musicTransferServerSocket.getLocalPort());
-            requestApproved(REQUEST_ADD_MUSIC, ADD_MUSIC_SUCCESS);
 
-            downloadMusicFromClient(name);
+            requestApproved(REQUEST_ADD_MUSIC, ADD_MUSIC_SUCCESS);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -432,13 +496,20 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
             response.put(MUSIC_TO_EDIT, musicToEdit);
             putMusicDetailsInResponse(name, author, album, year, duration, genre);
             //Send notification
+            //TODO: Send music file to all servers
             serverCommunication.editMusicNotification(new JSONObject(response.toString()));
             clientNotificationsHandler.editMusicNotification(id, new JSONObject(response.toString()));
             //Put response data
-            response.put(PORT, musicTransferServerSocket.getLocalPort());
             requestApproved(REQUEST_EDIT_MUSIC, EDIT_MUSIC_SUCCESS);
 
-            downloadMusicFromClient(name);
+            //Delete old file
+            if (!musicToEdit.equals(name)) {
+                try {
+                    Files.delete(Paths.get(ServerFileManager.getMusicPath(musicToEdit)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -464,8 +535,35 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
         }
     }
 
+    private boolean isMusicBeingUploaded(String musicName) {
+        for (UploadMusic uploadMusic : musicsBeingUploaded) {
+            if (uploadMusic.getMusicName().equals(musicName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeMusicFromBeingUploaded(UploadMusic uploadMusic) {
+        musicsBeingUploaded.remove(uploadMusic);
+    }
+
+    private void uploadMusicToClient(String musicName) {
+        try {
+            UploadMusic uploadMusic = new UploadMusic(this, musicName, musicTransferServerSocket.accept());
+            uploadMusic.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void getMusic(String musicName) {
+        if (isMusicBeingUploaded(musicName)) {
+            requestDenied(MUSIC_ALREADY_BEING_UPLOADED);
+            return;
+        }
+
         response.put(MUSIC_NAME, musicName);
         response.put(PORT, musicTransferServerSocket.getLocalPort());
 
@@ -477,26 +575,6 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
         sendResponse(response);
 
         uploadMusicToClient(musicName);
-    }
-
-    private void uploadMusicToClient(String musicName) {
-        try {
-            UploadMusic uploadMusic = new UploadMusic(musicName, musicTransferServerSocket.accept());
-            uploadMusic.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void downloadMusicFromClient(String musicName) {
-        //TODO: Separate Exceptions!
-        //TODO: Send to all servers
-        try {
-            DownloadMusic downloadMusic = new DownloadMusic(musicName, musicTransferServerSocket.accept());
-            downloadMusic.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

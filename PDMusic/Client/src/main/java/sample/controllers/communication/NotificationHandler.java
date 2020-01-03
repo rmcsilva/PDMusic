@@ -82,23 +82,23 @@ public class NotificationHandler implements ClientNotifications {
                 screenController.activate(ScreenController.Screen.LOGIN);
 
                 break;
+            case REQUEST_UPLOAD_MUSIC:
+                System.out.println("Upload Music Response -> Status: " + responseStatus);
+
+                dialogBody = dialogBody.concat(messageDetails);
+                uploadMusicToServer(response);
+                break;
             case REQUEST_ADD_MUSIC:
                 System.out.println("Add Music Response -> Status: " + responseStatus);
 
                 dialogBody = dialogBody.concat(messageDetails);
                 parseMusicFromJSON(response, true);
-
-                uploadMusicToServer(response);
-
                 break;
             case REQUEST_EDIT_MUSIC:
                 System.out.println("Edit Music Response -> Status: " + responseStatus);
 
                 dialogBody = dialogBody.concat(messageDetails);
                 parseMusicFromJSON(response, false);
-
-                uploadMusicToServer(response);
-
                 break;
             case REQUEST_REMOVE_MUSIC:
                 System.out.println("Remove Music Response -> Status: " + responseStatus);
@@ -241,6 +241,14 @@ public class NotificationHandler implements ClientNotifications {
                     " Year: " + year + " Duration: " + duration + " Genre: " + genre);
 
             editMusicNotification(username, musicToEdit, musicName, author, album, year, duration, genre);
+
+            if (!musicToEdit.equals(musicName)) {
+                try {
+                    Files.delete(Paths.get(ClientFileManager.getMusicPath(musicToEdit)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
