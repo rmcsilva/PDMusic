@@ -1,5 +1,6 @@
 package sample.database;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import sample.database.models.Music;
 import sample.database.models.Playlist;
 import sample.database.models.User;
@@ -18,8 +19,11 @@ public final class DatabaseAccess {
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
 
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     public DatabaseAccess(String dbIP, String dbUser, String dbPassword) throws SQLException {
         connectToDatabase(dbIP, dbUser, dbPassword);
+        bCryptPasswordEncoder = new BCryptPasswordEncoder();
     }
 
     public void connectToDatabase(String dbIP, String dbUser, String dbPassword) throws SQLException {
@@ -43,7 +47,7 @@ public final class DatabaseAccess {
                 .prepareStatement("INSERT INTO users (name, username, password) VALUES (?, ?, ?)");
         preparedStatement.setString(1, user.getName());
         preparedStatement.setString(2, user.getUsername());
-        preparedStatement.setString(3, user.getPassword());
+        preparedStatement.setString(3, bCryptPasswordEncoder.encode(user.getPassword()));
         preparedStatement.executeUpdate();
     }
 

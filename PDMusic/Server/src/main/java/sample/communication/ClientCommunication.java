@@ -2,6 +2,7 @@ package sample.communication;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import sample.Communication;
 import sample.communication.files.DownloadMusic;
 import sample.communication.files.UploadMusic;
@@ -46,6 +47,8 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
 
     private String username = USERNAME_UNDEFINED;
 
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     public ClientCommunication(Socket clientSocket, ClientNotificationsHandler clientNotificationsHandler,
                                ServerCommunication serverCommunication, DatabaseAccess databaseAccess) throws IOException {
         this.socket = clientSocket;
@@ -56,6 +59,7 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
         this.clientNotificationsHandler = clientNotificationsHandler;
         this.serverCommunication = serverCommunication;
         this.databaseAccess = databaseAccess;
+        bCryptPasswordEncoder = new BCryptPasswordEncoder();
     }
 
     public int getId() {
@@ -242,7 +246,8 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
 
             assert user != null;
 
-            if (!user.getPassword().equals(password)) {
+
+            if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
                 requestDenied(PASSWORD_MISMATCH);
                 return;
             }
