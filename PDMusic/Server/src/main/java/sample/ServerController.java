@@ -1,5 +1,8 @@
 package sample;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import sample.communication.ClientCommunication;
 import sample.communication.ClientNotificationsHandler;
 import sample.communication.ServerCommunication;
@@ -34,6 +37,8 @@ public class ServerController extends Thread {
 
     private CommandController commandManager;
 
+    ConfigurableApplicationContext ctx;
+
     public ServerController(String serversDirectoryIP, String nic, DatabaseAccess databaseAccess) throws IOException, NoServersDirectory {
         //Setup server music files location
         new ServerFileManager();
@@ -53,6 +58,9 @@ public class ServerController extends Thread {
 
         commandManager = new CommandController(this);
         commandManager.start();
+
+        //Start SpringBoot
+        ctx = new SpringApplicationBuilder(ServerMain.class).run();
     }
 
     public ServerInformation getServerInformation() {
@@ -130,5 +138,8 @@ public class ServerController extends Thread {
         databaseAccess.closeConnection();
 
         commandManager.shutdown();
+
+        //Close SpringBoot
+        ctx.close();
     }
 }
