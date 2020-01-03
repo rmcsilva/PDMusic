@@ -1,13 +1,11 @@
 package sample;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import sample.database.DatabaseAccess;
 import sample.exceptions.NoServersDirectory;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
-@SpringBootApplication
 public class ServerMain {
 
     public static void main(String[] args) throws NoServersDirectory, IOException, SQLException {

@@ -1,6 +1,5 @@
 package sample;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import sample.communication.ClientCommunication;
@@ -11,6 +10,7 @@ import sample.communication.files.ServerFileManager;
 import sample.database.DatabaseAccess;
 import sample.exceptions.NoServersDirectory;
 import sample.models.ServerInformation;
+import sample.springboot.Springboot;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -60,7 +60,7 @@ public class ServerController extends Thread {
         commandManager.start();
 
         //Start SpringBoot
-        ctx = new SpringApplicationBuilder(ServerMain.class).run();
+        ctx = new SpringApplicationBuilder(Springboot.class).run();
     }
 
     public ServerInformation getServerInformation() {
