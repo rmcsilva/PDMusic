@@ -11,4 +11,5 @@ public interface MusicsRepository extends JpaRepository<Music, Integer> {
     @Query("SELECT new sample.springboot.dto.MusicDto(m.name, m.author, m.album, m.year, m.duration, m.genre, u.username) "
             + "FROM Music m INNER JOIN m.user u")
     List<MusicDto> fetchMusics();
+    Boolean existsByName(String name);
 }
