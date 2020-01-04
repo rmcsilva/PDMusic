@@ -19,6 +19,8 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
 
     private ServerController serverController;
 
+    private ServerCommunication serverCommunication;
+
     private InetAddress serversDirectoryAddress;
 
     private ServerInformation serverInformation;
@@ -31,8 +33,10 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
     private int notificationPort;
     private DatagramSocket requestsDatagramSocket;
 
-    public ServersDirectoryCommunication(String serversDirectoryIP, ServerController serverController) throws NoServersDirectory, IOException {
+    public ServersDirectoryCommunication(String serversDirectoryIP, ServerController serverController,
+                                         ServerCommunication serverCommunication) throws NoServersDirectory, IOException {
         this.serverController = serverController;
+        this.serverCommunication = serverCommunication;
         serverInformation = serverController.getServerInformation();
         serversDirectoryAddress = InetAddress.getByName(serversDirectoryIP);
 
@@ -217,6 +221,16 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
     public void serverConnected(ServerInformation serverInformation) {
         serverController.addServerIP(serverInformation);
         sendNotificationResponse();
+
+        if (serverCommunication.isPrimaryServer()) {
+            for (ServerInformation server : serverController.getServers()) {
+                if (server.getIp().equals(serverInformation.getIp())) {
+                    System.out.println("The new Server already has already setup the database on that IP!\n");
+                    return;
+                }
+            }
+            serverCommunication.sendDatabaseInformation();
+        }
     }
 
     @Override
@@ -227,10 +241,7 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
 
     @Override
     public void primaryServer(ServerInformation serverInformation) {
-        if (serverInformation.equals(this.serverInformation)) {
-            System.out.println("Setting up as the Primary Server!\n");
-            serverController.setupAsPrimaryServer();
-        }
+        serverCommunication.setupPrimaryServer(serverInformation);
         sendNotificationResponse();
     }
 

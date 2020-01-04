@@ -1,6 +1,7 @@
 package sample;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.server.PortInUseException;
 import org.springframework.context.ConfigurableApplicationContext;
 import sample.communication.ClientCommunication;
 import sample.communication.ClientNotificationsHandler;
@@ -40,27 +41,31 @@ public class ServerController extends Thread {
     ConfigurableApplicationContext ctx;
 
     public ServerController(String serversDirectoryIP, String nic, DatabaseAccess databaseAccess) throws IOException, NoServersDirectory {
+        this.databaseAccess = databaseAccess;
+
         //Setup server music files location
         new ServerFileManager();
 
         startServer();
 
-        serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, this);
-        serversDirectoryCommunication.setDaemon(true);
-        serversDirectoryCommunication.start();
-
-        clientNotificationsHandler = new ClientNotificationsHandler(this);
+        clientNotificationsHandler = new ClientNotificationsHandler(this, databaseAccess);
 
         serverCommunication = new ServerCommunication(this, nic, clientNotificationsHandler, databaseAccess);
         serverCommunication.start();
 
-        this.databaseAccess = databaseAccess;
+        serversDirectoryCommunication = new ServersDirectoryCommunication(serversDirectoryIP, this, serverCommunication);
+        serversDirectoryCommunication.setDaemon(true);
+        serversDirectoryCommunication.start();
 
         commandManager = new CommandController(this);
         commandManager.start();
 
         //Start SpringBoot
-        ctx = new SpringApplicationBuilder(Springboot.class).run();
+        try {
+            ctx = new SpringApplicationBuilder(Springboot.class).run();
+        } catch (PortInUseException e) {
+            System.out.println("Springboot is already running!");
+        }
     }
 
     public ServerInformation getServerInformation() {
@@ -99,10 +104,6 @@ public class ServerController extends Thread {
 
     public synchronized void removeServerIP(ServerInformation server) {
         servers.remove(server);
-    }
-
-    public void setupAsPrimaryServer() {
-        serverCommunication.setupAsPrimaryServer();
     }
 
     @Override

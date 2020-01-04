@@ -166,6 +166,10 @@ public class NotificationHandler implements ClientNotifications {
         dialogHeading = "Notification";
 
         switch (notification.getString(NOTIFICATION)) {
+            case DATABASE_INFORMATION:
+                System.out.println("Database Information Notification");
+                databaseInformation(notification);
+                break;
             case REQUEST_ADD_MUSIC:
                 System.out.println("Add Music Notification");
                 parseMusicFromJSON(notification, true);
@@ -373,7 +377,6 @@ public class NotificationHandler implements ClientNotifications {
 
     @Override
     public void downloadMusic(String musicName, int port) {
-        //TODO: Separate Exceptions!
         try {
             //TODO: Add to queue of requests
             DownloadMusic downloadMusic = new DownloadMusic(musicName, new Socket(communicationHandler.getSocketAddress(), port));
@@ -391,7 +394,6 @@ public class NotificationHandler implements ClientNotifications {
 
     @Override
     public void uploadMusic(String musicName, int port) {
-        //TODO: Separate Exceptions!
         try {
             //TODO: Add to queue of requests
             UploadMusic uploadMusic = new UploadMusic(musicName, new Socket(communicationHandler.getSocketAddress(), port));

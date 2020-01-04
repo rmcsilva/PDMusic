@@ -1,5 +1,6 @@
 package sample.communication;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import sample.ServerController;
@@ -40,6 +41,8 @@ public class ServerCommunication extends Thread implements ServerNotifications {
     private boolean isRunning = true;
 
     private boolean isPrimaryServer = false;
+    private ServerInformation primaryServer;
+    private boolean hasFinishedSetup = false;
 
     private MulticastSocket multicastSocket;
 
@@ -67,8 +70,17 @@ public class ServerCommunication extends Thread implements ServerNotifications {
         multicastSocket.joinGroup(multicastGroup);
     }
 
-    public void setupAsPrimaryServer() {
-        isPrimaryServer = true;
+    public boolean isPrimaryServer() {
+        return isPrimaryServer;
+    }
+
+    public void setupPrimaryServer(ServerInformation primaryServer) {
+        if (serverInformation.equals(primaryServer)) {
+            System.out.println("Setting up as the Primary Server!\n");
+            isPrimaryServer = true;
+            sendDatabaseInformation();
+        }
+        this.primaryServer = primaryServer;
     }
 
     private synchronized int incrementRequestID() {
@@ -121,7 +133,11 @@ public class ServerCommunication extends Thread implements ServerNotifications {
     }
 
     private void handleRequest(JSONObject request, MulticastNotificationInformation notificationInformation) {
-        String username = request.getString(USERNAME);
+        String username = null;
+
+        if (request.has(USERNAME)) {
+            username = request.getString(USERNAME);
+        }
 
         System.out.print("Multicast Request ");
 
@@ -133,6 +149,34 @@ public class ServerCommunication extends Thread implements ServerNotifications {
         }
 
         switch (request.getString(REQUEST)) {
+            case DATABASE_INFORMATION:
+                requestAcknowledgment.put(RESPONSE, DATABASE_INFORMATION);
+
+                if (serverInformation.getIp().equals(notificationInformation.getNotificationIp())) {
+                    System.out.println("Database Information Sent From This Machine Ignoring!\n");
+                    break;
+                }
+
+                if (notificationInformation.getServerInformation().equals(primaryServer) && hasFinishedSetup) {
+                    System.out.println("Server already has the same database as the primary server!");
+                    break;
+                }
+
+                System.out.println("New Database Information!");
+
+                try {
+                    databaseAccess.deleteEverythingFromDatabase();
+                    parseDatabaseInformation(request);
+                    clientNotificationsHandler.sendDatabaseInformation();
+                    System.out.println("Database Updated Successfully!");
+                    hasFinishedSetup = true;
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    hasFinishedSetup = false;
+                    return;
+                }
+
+                break;
             case REQUEST_REGISTER:
                 String name = request.getString(NAME);
                 String password = request.getString(PASSWORD);
@@ -406,9 +450,70 @@ public class ServerCommunication extends Thread implements ServerNotifications {
         System.out.println("Multicast Request Created ID -> " + requestID + " Type: " + request.getString(REQUEST) + "\n");
     }
 
+    private void parseDatabaseInformation(JSONObject database) throws SQLException {
+        JSONArray usersJSON = database.getJSONArray(USERS_DATA);
+        for (int i = 0; i < usersJSON.length(); i++) {
+            JSONObject userJSON = usersJSON.getJSONObject(i);
+            databaseAccess.addUser(new User(userJSON.getString(NAME),
+                    userJSON.getString(USERNAME),
+                    userJSON.getString(PASSWORD)));
+        }
+
+        JSONArray musicsJSON = database.getJSONArray(MUSICS_DATA);
+        String musicName;
+        for (int i = 0; i < musicsJSON.length(); i++) {
+           JSONObject musicJSON = musicsJSON.getJSONObject(i);
+           musicName = musicJSON.getString(MUSIC_NAME);
+           databaseAccess.addMusic(new Music(databaseAccess.getUserIDFromUsername(musicJSON.getString(USERNAME)),
+                   musicName,
+                   musicJSON.getString(AUTHOR),
+                   musicJSON.getString(ALBUM),
+                   musicJSON.getInt(YEAR),
+                   musicJSON.getInt(DURATION),
+                   musicJSON.getString(GENRE),
+                   "/" + musicName + ".mp3"));
+        }
+
+        JSONArray playlistsJSON = database.getJSONArray(PLAYLISTS_DATA);
+        for (int i = 0; i < playlistsJSON.length(); i++) {
+            JSONObject playlistJSON = playlistsJSON.getJSONObject(i);
+            databaseAccess.addPlaylist(new Playlist(databaseAccess.getUserIDFromUsername(playlistJSON.getString(USERNAME)),
+                    playlistJSON.getString(PLAYLIST_NAME)));
+        }
+
+        JSONArray musicsInPlaylistJSON = database.getJSONArray(MUSICS_IN_PLAYLIST_DATA);
+        for (int i = 0; i < musicsInPlaylistJSON.length(); i++) {
+            JSONObject musicInPlaylist = musicsInPlaylistJSON.getJSONObject(i);
+            databaseAccess.addMusicToPlaylist(databaseAccess.getPlaylistID(musicInPlaylist.getString(PLAYLIST_NAME)),
+                    databaseAccess.getMusicID(musicInPlaylist.getString(MUSIC_NAME)));
+        }
+    }
+
+    private JSONObject getUserSON(User user) {
+        JSONObject usersJSON = new JSONObject();
+        usersJSON.put(NAME, user.getName());
+        usersJSON.put(USERNAME, user.getUsername());
+        usersJSON.put(PASSWORD, user.getPassword());
+        return usersJSON;
+    }
 
     @Override
-    public void sendDatabaseInformation(JSONObject database) {
+    public void sendDatabaseInformation() {
+        JSONObject database = new JSONObject();
+        database.put(REQUEST, DATABASE_INFORMATION);
+        clientNotificationsHandler.putDatabaseInformationIntoJSON(database);
+        try {
+            List<User> users = databaseAccess.getUsers();
+            JSONArray usersJSON = new JSONArray();
+            for(User user : users) {
+                usersJSON.put(getUserSON(user));
+            }
+            database.put(USERS_DATA, usersJSON);
+
+            createRequest(incrementRequestID(), database);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

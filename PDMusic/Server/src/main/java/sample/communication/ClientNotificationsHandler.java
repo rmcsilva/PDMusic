@@ -1,20 +1,29 @@
 package sample.communication;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import sample.ServerController;
 import sample.communication.interfaces.ClientNotifications;
+import sample.database.DatabaseAccess;
+import sample.database.models.Music;
+import sample.database.models.Playlist;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ClientNotificationsHandler implements ClientNotifications {
 
     private ServerController serverController;
 
+    private DatabaseAccess databaseAccess;
+
     private List<ClientCommunication> clientCommunications;
 
-    public ClientNotificationsHandler(ServerController serverController) {
+    public ClientNotificationsHandler(ServerController serverController, DatabaseAccess databaseAccess) {
         this.serverController = serverController;
+        this.databaseAccess = databaseAccess;
         clientCommunications = new ArrayList<>();
     }
 
@@ -49,8 +58,67 @@ public class ClientNotificationsHandler implements ClientNotifications {
         }
     }
 
+    private JSONObject getMusicJSON(Music music) {
+        JSONObject musicJSON = new JSONObject();
+        musicJSON.put(USERNAME, music.getUsername());
+        musicJSON.put(MUSIC_NAME, music.getName());
+        musicJSON.put(AUTHOR, music.getAuthor());
+        musicJSON.put(ALBUM, music.getAlbum());
+        musicJSON.put(YEAR, music.getYear());
+        musicJSON.put(DURATION, music.getDuration());
+        musicJSON.put(GENRE, music.getGenre());
+        return musicJSON;
+    }
+
+    private JSONObject getPlaylistJSON(Playlist playlist) {
+        JSONObject playlistJSON = new JSONObject();
+        playlistJSON.put(USERNAME, playlist.getUsername());
+        playlistJSON.put(PLAYLIST_NAME, playlist.getName());
+        return playlistJSON;
+    }
+
+    private JSONObject getMusicInPlaylistJSON(String playlistName, String musicName) {
+        JSONObject musicInPlaylistJSON = new JSONObject();
+        musicInPlaylistJSON.put(PLAYLIST_NAME, playlistName);
+        musicInPlaylistJSON.put(MUSIC_NAME, musicName);
+        return musicInPlaylistJSON;
+    }
+
+    public void putDatabaseInformationIntoJSON(JSONObject database) {
+        try {
+            List<Music> musics = databaseAccess.getMusics();
+            JSONArray musicsJSON = new JSONArray();
+            for(Music music : musics) {
+                musicsJSON.put(getMusicJSON(music));
+            }
+            database.put(MUSICS_DATA, musicsJSON);
+
+            List<Playlist> playlists = databaseAccess.getPlaylists();
+            JSONArray playlistsJSON = new JSONArray();
+            for(Playlist playlist : playlists) {
+                playlistsJSON.put(getPlaylistJSON(playlist));
+            }
+            database.put(PLAYLISTS_DATA, playlistsJSON);
+
+            Map<String, List<String>> musicsInPlaylist = databaseAccess.getMusicsInPlaylist();
+            JSONArray musicsInPlaylistJSON = new JSONArray();
+            for (Map.Entry<String, List<String>> entry : musicsInPlaylist.entrySet()) {
+                for (String musicName : entry.getValue()) {
+                    musicsInPlaylistJSON.put(getMusicInPlaylistJSON(entry.getKey(), musicName));
+                }
+            }
+            database.put(MUSICS_IN_PLAYLIST_DATA, musicsInPlaylistJSON);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
-    public void sendDatabaseInformation(ClientCommunication client) {
+    public void sendDatabaseInformation() {
+        JSONObject database = new JSONObject();
+        database.put(NOTIFICATION, DATABASE_INFORMATION);
+        putDatabaseInformationIntoJSON(database);
+        sendNotificationToClients(-1, database);
     }
 
     @Override

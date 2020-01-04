@@ -35,6 +35,23 @@ public final class DatabaseAccess {
         connection = DriverManager.getConnection(connectionUrl);
     }
 
+    public synchronized void deleteEverythingFromDatabase() throws SQLException {
+        //Delete all Users
+        preparedStatement = connection
+                .prepareStatement("DELETE FROM users");
+        preparedStatement.executeUpdate();
+
+        //Delete all Musics
+        preparedStatement = connection
+                .prepareStatement("DELETE FROM musics");
+        preparedStatement.executeUpdate();
+
+        //Delete all Playlists
+        preparedStatement = connection
+                .prepareStatement("DELETE FROM playlists");
+        preparedStatement.executeUpdate();
+    }
+
     public synchronized boolean hasUsername(String username) throws SQLException {
         preparedStatement = connection.prepareStatement("SELECT username FROM users WHERE UPPER(username)=UPPER(?)");
         preparedStatement.setString(1, username);
@@ -49,6 +66,24 @@ public final class DatabaseAccess {
         preparedStatement.setString(2, user.getUsername());
         preparedStatement.setString(3, bCryptPasswordEncoder.encode(user.getPassword()));
         preparedStatement.executeUpdate();
+    }
+
+    public synchronized List<User> getUsers() throws SQLException {
+        List<User> users = new ArrayList<>();
+
+        preparedStatement = connection
+                .prepareStatement("SELECT * FROM users");
+        resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            String name = resultSet.getString("name");
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+
+            users.add(new User(name, username, password));
+        }
+
+        return users;
     }
 
     public synchronized User getUser(String username) throws SQLException {

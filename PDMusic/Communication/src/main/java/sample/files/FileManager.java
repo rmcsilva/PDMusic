@@ -31,7 +31,6 @@ public class FileManager {
     }
 
     public static String getPdMusicDestination(String musicName) throws IOException {
-        //TODO: Check if file already exists
         return getMusicPath(musicName);
     }
 

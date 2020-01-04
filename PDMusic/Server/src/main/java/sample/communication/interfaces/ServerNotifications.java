@@ -8,7 +8,7 @@ public interface ServerNotifications extends JSONConstants {
     String NOTIFICATION_IP = "requestIP";
     String NOTIFICATION_TCP_PORT = "requestTcpPort";
 
-    void sendDatabaseInformation(JSONObject database);
+    void sendDatabaseInformation();
     void registerNotification(JSONObject register);
     void addMusicNotification(JSONObject music);
     void editMusicNotification(JSONObject music);

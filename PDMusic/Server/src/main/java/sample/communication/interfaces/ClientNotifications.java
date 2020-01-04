@@ -5,7 +5,7 @@ import sample.JSONConstants;
 import sample.communication.ClientCommunication;
 
 public interface ClientNotifications extends JSONConstants {
-    void sendDatabaseInformation(ClientCommunication client);
+    void sendDatabaseInformation();
     void addMusicNotification(int senderID, JSONObject music);
     void editMusicNotification(int senderID, JSONObject music);
     void removeMusicNotification(int senderID, JSONObject music);

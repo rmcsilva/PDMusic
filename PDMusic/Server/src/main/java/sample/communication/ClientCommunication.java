@@ -1,6 +1,5 @@
 package sample.communication;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import sample.Communication;
@@ -24,7 +23,6 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ClientCommunication implements Runnable, Communication, MessageDetails {
 
@@ -261,66 +259,11 @@ public class ClientCommunication implements Runnable, Communication, MessageDeta
 
             this.username = username;
             response.put(USERNAME, username);
-            putDatabaseInformationInRequest();
+            clientNotificationsHandler.putDatabaseInformationIntoJSON(response);
             requestApproved(REQUEST_LOGIN, LOGIN_SUCCESS);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    private void putDatabaseInformationInRequest() {
-        try {
-            List<Music> musics = databaseAccess.getMusics();
-            JSONArray musicsJSON = new JSONArray();
-            for(Music music : musics) {
-                musicsJSON.put(getMusicJSON(music));
-            }
-            response.put(MUSICS_DATA, musicsJSON);
-
-            List<Playlist> playlists = databaseAccess.getPlaylists();
-            JSONArray playlistsJSON = new JSONArray();
-            for(Playlist playlist : playlists) {
-                playlistsJSON.put(getPlaylistJSON(playlist));
-            }
-            response.put(PLAYLISTS_DATA, playlistsJSON);
-
-            Map<String, List<String>> musicsInPlaylist = databaseAccess.getMusicsInPlaylist();
-            JSONArray musicsInPlaylistJSON = new JSONArray();
-            for (Map.Entry<String, List<String>> entry : musicsInPlaylist.entrySet()) {
-                for (String musicName : entry.getValue()) {
-                    musicsInPlaylistJSON.put(getMusicInPlaylistJSON(entry.getKey(), musicName));
-                }
-            }
-            response.put(MUSICS_IN_PLAYLIST_DATA, musicsInPlaylistJSON);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private JSONObject getMusicJSON(Music music) {
-        JSONObject musicJSON = new JSONObject();
-        musicJSON.put(USERNAME, music.getUsername());
-        musicJSON.put(MUSIC_NAME, music.getName());
-        musicJSON.put(AUTHOR, music.getAuthor());
-        musicJSON.put(ALBUM, music.getAlbum());
-        musicJSON.put(YEAR, music.getYear());
-        musicJSON.put(DURATION, music.getDuration());
-        musicJSON.put(GENRE, music.getGenre());
-        return musicJSON;
-    }
-
-    private JSONObject getPlaylistJSON(Playlist playlist) {
-        JSONObject playlistJSON = new JSONObject();
-        playlistJSON.put(USERNAME, playlist.getUsername());
-        playlistJSON.put(PLAYLIST_NAME, playlist.getName());
-        return playlistJSON;
-    }
-
-    private JSONObject getMusicInPlaylistJSON(String playlistName, String musicName) {
-        JSONObject musicInPlaylistJSON = new JSONObject();
-        musicInPlaylistJSON.put(PLAYLIST_NAME, playlistName);
-        musicInPlaylistJSON.put(MUSIC_NAME, musicName);
-        return musicInPlaylistJSON;
     }
 
     @Override
