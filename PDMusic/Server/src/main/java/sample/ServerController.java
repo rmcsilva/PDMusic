@@ -9,6 +9,7 @@ import sample.communication.ServerCommunication;
 import sample.communication.ServersDirectoryCommunication;
 import sample.communication.files.ServerFileManager;
 import sample.database.DatabaseAccess;
+import sample.database.models.Music;
 import sample.exceptions.NoServersDirectory;
 import sample.models.ServerInformation;
 import sample.springboot.Springboot;
@@ -17,7 +18,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.List;
 
 public class ServerController extends Thread {
 
@@ -45,6 +48,7 @@ public class ServerController extends Thread {
 
         //Setup server music files location
         new ServerFileManager();
+        checkMusicFiles();
 
         startServer();
 
@@ -104,6 +108,24 @@ public class ServerController extends Thread {
 
     public synchronized void removeServerIP(ServerInformation server) {
         servers.remove(server);
+    }
+
+    public void checkMusicFiles() {
+        try {
+            List<Music> musics = databaseAccess.getMusics();
+            String musicName;
+
+            for (Music music : musics) {
+                //If music is not available delete it from database
+                musicName = music.getName();
+                if (!ServerFileManager.isMusicAvailable(musicName)) {
+                    databaseAccess.removeMusic(musicName);
+                    System.out.println("Music " + musicName + " is not available!");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
