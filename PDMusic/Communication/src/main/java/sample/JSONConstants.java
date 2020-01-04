@@ -7,6 +7,14 @@ public interface JSONConstants {
     //Invalid Request
     String INVALID_REQUEST = "invalidRequest";
 
+    //Database Request Information key
+    String DATABASE_INFORMATION = "databaseInformation";
+    //Database Data Keys
+    String USERS_DATA = "usersData";
+    String MUSICS_DATA = "musicData";
+    String PLAYLISTS_DATA = "playlistData";
+    String MUSICS_IN_PLAYLIST_DATA = "musicsInPlaylistData";
+
     //Login/Register request keys
     String REQUEST_LOGIN = "login";
     String REQUEST_REGISTER = "register";
@@ -55,11 +63,6 @@ public interface JSONConstants {
 
     //Server Shutdown Request
     String SERVER_SHUTDOWN = "serverShutdown";
-
-    //Database Data Keys
-    String MUSICS_DATA = "musicData";
-    String PLAYLISTS_DATA = "playlistData";
-    String MUSICS_IN_PLAYLIST_DATA = "musicsInPlaylistData";
 
     //Response keys
     String RESPONSE = "response";
