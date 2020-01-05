@@ -38,7 +38,7 @@ public class RegistrySDService extends UnicastRemoteObject implements RegistrySD
     }
 
     @Override
-    public List<String> listServersInformation() throws RemoteException {
+    public synchronized List<String> listServersInformation() throws RemoteException {
         List<String> servers = new ArrayList<>();
         for(ServerInformation serverInformation : communicationHandler.getServersInformation()) {
             servers.add(serverInformation.toString());
@@ -47,17 +47,17 @@ public class RegistrySDService extends UnicastRemoteObject implements RegistrySD
     }
 
     @Override
-    public boolean shutdownServer(String ip, int port) throws RemoteException {
+    public synchronized boolean shutdownServer(String ip, int port) throws RemoteException {
         return communicationHandler.shutdownServer(ip, port);
     }
 
     @Override
-    public void addListener(SDNotificationInterface sdNotificationInterface) {
+    public synchronized void addListener(SDNotificationInterface sdNotificationInterface) {
         sdNotificationInterfaces.add(sdNotificationInterface);
     }
 
     @Override
-    public void removeListener(SDNotificationInterface sdNotificationInterface) {
+    public synchronized void removeListener(SDNotificationInterface sdNotificationInterface) {
         sdNotificationInterfaces.remove(sdNotificationInterface);
     }
 }

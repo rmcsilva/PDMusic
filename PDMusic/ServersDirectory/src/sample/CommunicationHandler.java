@@ -59,7 +59,7 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         Naming.rebind(registrySDService.REGISTRY_SERVICE_NAME, registrySDService);
     }
 
-    public PriorityBlockingQueue<ServerInformation> getServersInformation() {
+    public synchronized PriorityBlockingQueue<ServerInformation> getServersInformation() {
         return serversInformation;
     }
 

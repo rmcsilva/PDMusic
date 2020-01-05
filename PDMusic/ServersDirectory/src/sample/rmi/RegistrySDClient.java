@@ -119,7 +119,7 @@ public class RegistrySDClient extends UnicastRemoteObject implements SDNotificat
     }
 
     @Override
-    public void showNotification(String message) {
+    public synchronized void showNotification(String message) {
         System.out.println("\nServers Directory Notification -> " + message);
     }
 }
