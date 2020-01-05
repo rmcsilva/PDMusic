@@ -219,28 +219,14 @@ public class ServersDirectoryCommunication extends Thread implements ServersDire
 
     @Override
     public void serverConnected(ServerInformation serverInformation) {
+        serverController.addServerIP(serverInformation);
         sendNotificationResponse();
 
-        boolean hasAddedServer = false;
-
         if (serverCommunication.isPrimaryServer()) {
-            for (ServerInformation server : serverController.getServers()) {
-                if (server.getIp().equals(serverInformation.getIp())) {
-                    System.out.println("The new Server already has already setup the database on that IP!\n");
-                    serverController.addServerIP(serverInformation);
-                    return;
-                }
-            }
-            hasAddedServer = true;
-            serverController.addServerIP(serverInformation);
             if (!this.serverInformation.getIp().equals(serverInformation.getIp())) {
                 System.out.println("Server from a different IP, sending database information!");
                 serverCommunication.sendDatabaseInformation();
             }
-        }
-
-        if (!hasAddedServer) {
-            serverController.addServerIP(serverInformation);
         }
     }
 
