@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.rmi.Naming;
+import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -21,12 +22,10 @@ public class RegistrySDClient extends UnicastRemoteObject implements SDNotificat
 
     private Scanner in;
 
-    public RegistrySDClient(String sdIP) throws RemoteException, NotBoundException, MalformedURLException {
-        setupRegistrySD(sdIP);
-        registrySDInterface();
+    public RegistrySDClient() throws RemoteException {
     }
 
-    private void setupRegistrySD(String sdIP) throws RemoteException, NotBoundException, MalformedURLException {
+    public void setupRegistrySD(String sdIP) throws RemoteException, NotBoundException, MalformedURLException {
         String objectURL = "rmi://" + sdIP + "/" + REGISTRY_SERVICE_NAME;
         System.out.println("Connecting to " + objectURL);
 
@@ -81,9 +80,6 @@ public class RegistrySDClient extends UnicastRemoteObject implements SDNotificat
                 System.out.println("Option needs to be an Integer!");
             }
         }
-
-        //Shutdown notification rmi
-        UnicastRemoteObject.unexportObject(this, false);
     }
 
     private void listServersInformation(List<String> servers) {
@@ -121,5 +117,14 @@ public class RegistrySDClient extends UnicastRemoteObject implements SDNotificat
     @Override
     public synchronized void showNotification(String message) {
         System.out.println("\nServers Directory Notification -> " + message);
+    }
+
+    public void shutdown() {
+        try {
+            //Shutdown notification rmi
+            UnicastRemoteObject.unexportObject(this, false);
+        } catch (NoSuchObjectException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -12,16 +12,23 @@ public class RegistrySDClientMain {
             return;
         }
 
+        RegistrySDClient registrySDClient = null;
+
         try {
-            RegistrySDClient client = new RegistrySDClient(args[0]);
-        } catch (RemoteException e) {
+            registrySDClient = new RegistrySDClient();
+            registrySDClient.setupRegistrySD(args[0]);
+            registrySDClient.registrySDInterface();
+        }  catch (RemoteException e) {
             System.out.println("Remote Error -> " + e);
         } catch (NotBoundException e) {
             System.out.println("Unknown Remote Service -> " + e);
         } catch (Exception e) {
             System.out.println("Error -> " + e);
+        } finally {
+            if (registrySDClient != null) {
+                registrySDClient.shutdown();
+            }
         }
-
     }
 
 }
