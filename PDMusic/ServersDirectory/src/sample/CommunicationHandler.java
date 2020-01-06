@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.*;
 import java.rmi.Naming;
 import java.rmi.NoSuchObjectException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -58,7 +59,7 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
 
         registrySDService = new RegistrySDService(this);
 
-        Naming.rebind(registrySDService.REGISTRY_SERVICE_NAME, registrySDService);
+        Naming.rebind(RegistrySDService.REGISTRY_SERVICE_NAME, registrySDService);
     }
 
     public synchronized PriorityBlockingQueue<ServerInformation> getServersInformation() {
@@ -101,6 +102,14 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
 
         notificationsDatagramSocket.close();
         requestsDatagramSocket.close();
+
+
+        try {
+            //Remove service instance from the registry
+            Naming.unbind(RegistrySDService.REGISTRY_SERVICE_NAME);
+        } catch (RemoteException | NotBoundException | MalformedURLException e) {
+            e.printStackTrace();
+        }
 
         try {
             //Shutdown rmi
