@@ -107,12 +107,8 @@ public class ServerPingHandler extends Thread {
     }
 
     void shutdown() {
-        try {
-            datagramSocket.setSoTimeout(socketsTimeout);
-            timer.cancel();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+        datagramSocket.close();
+        timer.cancel();
     }
 
     private class Ping extends TimerTask {

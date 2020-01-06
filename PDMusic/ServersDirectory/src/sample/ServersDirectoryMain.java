@@ -15,5 +15,8 @@ public class ServersDirectoryMain {
 
         CommunicationHandler communicationHandler = new CommunicationHandler(args[0]);
         communicationHandler.start();
+
+        CommandController commandController = new CommandController(communicationHandler);
+        commandController.start();
     }
 }

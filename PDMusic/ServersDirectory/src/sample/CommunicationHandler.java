@@ -10,9 +10,11 @@ import sample.rmi.RegistrySDService;
 import java.io.IOException;
 import java.net.*;
 import java.rmi.Naming;
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import static sample.JSONConstants.REQUEST;
@@ -98,10 +100,12 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         serverPingHandler.shutdown();
 
         notificationsDatagramSocket.close();
+        requestsDatagramSocket.close();
 
         try {
-            requestsDatagramSocket.setSoTimeout(socketsTimeout);
-        } catch (SocketException e) {
+            //Shutdown rmi
+            UnicastRemoteObject.unexportObject(registrySDService, false);
+        } catch (NoSuchObjectException e) {
             e.printStackTrace();
         }
     }
@@ -362,7 +366,7 @@ public class CommunicationHandler extends Thread implements ServersDirectoryComm
         }
     }
 
-    public boolean shutdownServer(String ip, int port) {
+    public synchronized boolean shutdownServer(String ip, int port) {
         ServerInformation serverInformation = new ServerInformation(ip, port);
 
         for (ServerInformation server : getServersInformation()) {
