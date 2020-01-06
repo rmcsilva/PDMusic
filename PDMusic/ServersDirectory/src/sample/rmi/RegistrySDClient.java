@@ -51,6 +51,11 @@ public class RegistrySDClient extends UnicastRemoteObject implements SDNotificat
             System.out.print("Select Option -> ");
 
             try {
+                if (!in.hasNextInt()) {
+                    in.next();
+                    continue;
+                }
+
                 int option = in.nextInt();
 
                 switch (option) {
